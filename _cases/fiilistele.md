@@ -1,8 +1,9 @@
 ---
 layout: case
-name: Fiilistele
+title: Fiilistele
 order: 2
 coverImage: fiilistele.png
+image: /assets/images/fiilistele.png
 excerpt: In this day and age you should be able to experience things online before you buy them so you can be sure you buy the right thing. But configurators are hard and expensive. That's why we built a configurator SAAS!
 ---
 

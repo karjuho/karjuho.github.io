@@ -1,8 +1,9 @@
 ---
 layout: case
-name: Biila Go
+title: Biila Go
 order: 1
 coverImage: biila-go.png
+image: /assets/images/biila-go.png
 excerpt: Imagine when your car needs to be somewhere else, but you don't have time to drive it. That's what Biila Go does for you. Finds a qualified driver and moves the car, all while you just keep doing what you did. I was part of defining, designing and developing this innovative service from Finland.
 ---
 

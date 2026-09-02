@@ -2,11 +2,24 @@ title: Juho Karhu - A developing Product Designer
 email: hello@juhokarhu.com
 description: >- # this means to ignore newlines until "baseurl:"
   Hi, I am a Senior Product Designer with a developer background.
+author: Juho Karhu
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://juhokarhu.com" # the base hostname & protocol for your site
+
 collections:
   cases:
     output: true
     permalink: /:name
     sort_by: order
 
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Default share image for jekyll-seo-tag (Open Graph / Twitter).
+# TODO: replace with a purpose-made 1200x630 image.
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/images/juho.png

@@ -2,7 +2,7 @@
 layout: default
 ---
 
-<div class="wrapper big" id="main" tabindex="-1">
+<main class="wrapper big" id="main" tabindex="-1">
   <header class="case-header">
     <a class="site-title" rel="author" href="{{ "/" | relative_url }}">JUHO KARHU</a>
     <a href="/" class="back">
@@ -12,8 +12,8 @@ layout: default
   <article>
 
     <div class="case-intro text-center">
-      <h1>{{ page.name | escape }}</h1>
-  
+      <h1>{{ page.title | escape }}</h1>
+
       <p class="narrow">{{ page.excerpt | escape }}</p>
     </div>
 
@@ -23,7 +23,7 @@ layout: default
           <source src="{{ site.baseurl }}/assets/movies/biila-go.mp4" type="video/mp4">
           Your browser does not support HTML5 video.
         </video> -->
-        <img src="{{ site.baseurl }}/assets/images/{{ page.coverImage }}" alt="{{ page.name | escape }}">
+        <img src="{{ site.baseurl }}/assets/images/{{ page.coverImage }}" alt="{{ page.title | escape }}">
       </div>
     </div>
 
@@ -38,4 +38,4 @@ layout: default
     </p>
     <p class="copyright">© Juho Karhu - I do save some cookies for analytics.</p>
   </footer>
-</div>
+</main>

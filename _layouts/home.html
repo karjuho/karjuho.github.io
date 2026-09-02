@@ -45,11 +45,11 @@ layout: default
                   <a class="case-link" href="{{ case.url | relative_url }}">
                     <div class="box">
                       <div class="case-cover">
-                        <img src="{{ site.baseurl }}/assets/images/{{ case.coverImage }}" alt="{{ case.name | escape }}">
+                        <img src="{{ site.baseurl }}/assets/images/{{ case.coverImage }}" alt="{{ case.title | escape }}">
                       </div>
                     </div>
                     <h3>
-                        {{ case.name | escape }}
+                        {{ case.title | escape }}
                     </h3>
                     {%- if case.excerpt -%}
                       <p>{{ case.excerpt }}</p>

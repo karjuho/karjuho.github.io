@@ -1,8 +1,9 @@
 ---
 layout: case
-name: inWell
+title: inWell
 order: 3
 coverImage: inwell.png
+image: /assets/images/inwell.png
 excerpt: People have different reasons for not leaveing their home for a gym. Together with Sanna we built a service where you can get fit at home with easy to follow videos, progress tracking, healthy recepies and motivational tools.
 ---
 ## The evolution of workouts
