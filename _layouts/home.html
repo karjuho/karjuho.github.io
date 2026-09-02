@@ -6,26 +6,54 @@ layout: default
 
       <div class="home-sidebar">
         <header class="home-header" role="banner">
-          <div class="header-content">
-            <a class="site-title" rel="author" href="{{ "/" | relative_url }}"><img src="{{ site.baseurl }}/assets/images/juho.png" alt="Profile picture of Juho"> JUHO KARHU</a>
 
-            <h1 class="big-header"><small>A developing</small><br>
-              Product Designer</h1>
-
-            <p>Hi, I am a Senior Product Designer with a developer background and over 10 years of experience. I question and challange myself and others so that we can deliver digital products that are sustainable and lead the change.</p>
+          <div class="profile-brand">
+            <span class="profile-photo">
+              <img src="{{ "/assets/images/juho-profile.png" | relative_url }}"
+                   width="55" height="55" alt="Juho Karhu">
+            </span>
+            <span class="profile-id">
+              <span class="profile-name">Juho Karhu</span>
+              <span class="profile-role">Product Designer</span>
+            </span>
           </div>
+
+          <div class="header-content">
+            <h1 class="big-header">
+              <span class="big-header-line gradient-text">Design</span>
+              <span class="big-header-line">&amp; Code</span>
+            </h1>
+
+            <div class="intro">
+              <p>I <strong>design</strong>, <strong>code</strong> and <strong>ship</strong>
+                digital products with over 15 years of experience from
+                <strong>startups</strong> as well as <strong>enterprises</strong>.</p>
+              <p>I love creating great user experiences that align with business
+                objectives and I use AI tools to raise the ceiling of what is possible.</p>
+            </div>
+          </div>
+
         </header>
 
         <nav class="nav-container" id="nav" aria-label="Sections">
           <ul class="nav">
             <li>
-              <a href="#work" class="active">Work</a>
+              <a href="#work" class="active">
+                <span class="nav-icon nav-icon--briefcase" aria-hidden="true"></span>
+                <span class="nav-label">Work</span>
+              </a>
             </li>
             <li>
-              <a href="#about">About</a>
+              <a href="#about">
+                <span class="nav-icon nav-icon--user" aria-hidden="true"></span>
+                <span class="nav-label">About</span>
+              </a>
             </li>
             <li>
-              <a href="#contact">Contact</a>
+              <a href="#contact">
+                <span class="nav-icon nav-icon--envelope" aria-hidden="true"></span>
+                <span class="nav-label">Contact</span>
+              </a>
             </li>
           </ul>
         </nav>

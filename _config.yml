@@ -23,3 +23,9 @@ defaults:
       path: ""
     values:
       image: /assets/images/juho.png
+
+exclude:
+  - MOTION.md
+  - README.md
+  - Gemfile
+  - Gemfile.lock

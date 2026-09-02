@@ -1,0 +1,4 @@
+Icons in this directory are from Font Awesome Free 6.7.
+Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+Source:  https://fontawesome.com  /  https://github.com/FortAwesome/Font-Awesome
+Only the SVG banner comment was removed; path data is unmodified.
