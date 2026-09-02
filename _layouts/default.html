@@ -16,9 +16,7 @@
     <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
 
     <script src="{{ "/assets/main.js" | relative_url }}" defer></script>
-    {%- if jekyll.environment == 'production' and site.google_analytics -%}
-      {%- include google-analytics.html -%}
-    {%- endif -%}
+    {% if jekyll.environment == 'production' %}{% include analytics.html %}{% endif %}
   </head>
   <body class="{{ page.collection }}">
     <a class="skip-link" href="#main">Skip to content</a>
