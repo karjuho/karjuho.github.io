@@ -1,0 +1,71 @@
+# Home "Work" section. Order = display order.
+# blurb is Markdown (bold with **…**, blank line = new paragraph).
+# variant: dark (Doconomy hero card) | light. shots bleed off the card edge.
+
+- client: Doconomy
+  title: |
+    Bank Embedded
+    Goal Based Savings
+  variant: dark
+  cta:
+    label: Read case
+    href: /doconomy/
+  blurb: >-
+    Turning a B2C product into a white-labeled B2B2C SaaS product embedded
+    inside consumer banking apps. Working in cross-functional teams, my
+    responsibility has been to lead product design for a product with over
+    **100,000 monthly users**.
+  shots:
+    - { src: /assets/images/work/doconomy-calendar.jpg, w: 953,  h: 1000, pos: back }
+    - { src: /assets/images/work/doconomy-phone.png,    w: 305,  h: 1000, pos: hero }
+    - { src: /assets/images/work/doconomy-cards.jpg,    w: 1000, h: 869,  pos: front }
+
+- client: Juusto
+  title: Mealplanner
+  variant: light
+  blurb: |
+    A personal product I have designed and built myself end-to-end.
+
+    I explored a bit different design style than your typical flat design
+    application. The goal was to build something that could fit into your
+    kitchen's fridge door.
+  shots:
+    - { src: /assets/images/work/juusto-a.jpg, w: 462,  h: 1000, pos: back }
+    - { src: /assets/images/work/juusto-b.jpg, w: 1000, h: 625,  pos: front }
+
+- client: Stora Enso
+  title: Design System
+  variant: light
+  blurb: >-
+    Redesigning the world's oldest company's Design System and facilitating the
+    design-system processes in a multi-product environment across cross-functional
+    international teams. I updated everything from UI components to colours and
+    typography in cooperation with product teams, rebuilt the documentation and
+    coded the animation by hand with CSS.
+  shots:
+    - { src: /assets/images/work/storaenso-a.jpg, w: 1000, h: 542, pos: back }
+    - { src: /assets/images/work/storaenso-b.jpg, w: 1000, h: 688, pos: front }
+
+- client: Bromma
+  title: IoT Monitoring
+  variant: light
+  blurb: |
+    The world's leading smart-spreader system needed a user-friendly UI.
+
+    My role was facilitating workshops, designing new features and redesigning
+    in a cross-functional team to improve the usability of a heavy-industry
+    IoT monitoring service.
+  shots:
+    - { src: /assets/images/work/bromma-a.jpg, w: 1000, h: 703, pos: back }
+    - { src: /assets/images/work/bromma-b.jpg, w: 1000, h: 625, pos: front }
+
+- client: InWell
+  title: Streaming Service
+  variant: light
+  blurb: >-
+    A streaming service for working out at home. I helped scale the user base
+    by over 900% during my involvement, redesigning the player and library
+    experience and shipping features end-to-end.
+  shots:
+    - { src: /assets/images/work/inwell-a.jpg, w: 1000, h: 614, pos: back }
+    - { src: /assets/images/work/inwell-b.jpg, w: 1000, h: 600, pos: front }

@@ -9,8 +9,8 @@ layout: default
 
           <div class="profile-brand">
             <span class="profile-photo">
-              <img src="{{ "/assets/images/juho-profile.png" | relative_url }}"
-                   width="55" height="55" alt="Juho Karhu">
+              <img src="{{ "/assets/images/juho-profile.jpg" | relative_url }}"
+                   width="48" height="48" alt="Juho Karhu">
             </span>
             <span class="profile-id">
               <span class="profile-name">Juho Karhu</span>
@@ -25,7 +25,7 @@ layout: default
             </h1>
 
             <div class="intro">
-              <p><span class="intro-lead">I <strong>design</strong>, <strong>code</strong> and <strong>ship</strong></span> digital products with over 15 years of experience from startups to enterprises. I love creating great user experiences that align with business objectives and I use AI tools to raise the ceiling of what is possible.</p>
+              <p><span class="intro-lead"><strong>I design, code and ship</strong></span> digital products with over 15 years of experience from everything between startups to enterprises. I love creating great user experiences that align with business objectives and I use AI tools to raise the ceiling of what is possible.</p>
             </div>
           </div>
 
@@ -60,33 +60,37 @@ layout: default
 
           <div class="section" id="work">
             <h2 class="text-center section-title">Work</h2>
-    
-            {%- if site.cases.size > 0 -%}
-              <ul class="cases-list">
-                {% assign cases = site.cases | sort: 'order' %}
-                {%- for case in cases -%}
-                <li>
-                  <a class="case-link" href="{{ case.url | relative_url }}">
-                    <div class="box">
-                      <div class="case-cover">
-                        <img src="{{ site.baseurl }}/assets/images/{{ case.coverImage }}" alt="{{ case.title | escape }}">
-                      </div>
-                    </div>
-                    <h3>
-                        {{ case.title | escape }}
-                    </h3>
-                    {%- if case.excerpt -%}
-                      <p>{{ case.excerpt }}</p>
-                    {%- endif -%}
 
-                    {%- if case.link -%}
-                      <p><a href="" class="button">Read case study</a></p>
-                    {%- endif -%}
+            <div class="work-list">
+              {%- for item in site.data.work -%}
+              <article class="work-card work-card--{{ item.variant | default: 'light' }}">
+                <div class="work-card__body">
+                  <header class="work-card__head">
+                    <p class="work-card__client">{{ item.client }}</p>
+                    <h3 class="work-card__title">{{ item.title | strip | newline_to_br }}</h3>
+                  </header>
+                  <div class="work-card__text">
+                    {{ item.blurb | markdownify }}
+                  </div>
+                  {%- if item.cta -%}
+                  <a class="work-card__cta" href="{{ item.cta.href | relative_url }}">
+                    <span class="work-card__cta-label gradient-text">{{ item.cta.label }}</span>
+                    <span class="work-card__cta-icon" aria-hidden="true"></span>
                   </a>
-                </li>
-                {%- endfor -%}
-            </ul>
-            {%- endif -%}
+                  {%- endif -%}
+                </div>
+                {%- if item.shots -%}
+                <div class="work-card__shots" aria-hidden="true">
+                  {%- for shot in item.shots -%}
+                  <img class="work-card__shot work-card__shot--{{ forloop.index }} is-{{ shot.pos }}"
+                       src="{{ shot.src | relative_url }}" width="{{ shot.w }}" height="{{ shot.h }}"
+                       alt="" loading="lazy" decoding="async">
+                  {%- endfor -%}
+                </div>
+                {%- endif -%}
+              </article>
+              {%- endfor -%}
+            </div>
           </div>
 
           <div class="section" id="about">

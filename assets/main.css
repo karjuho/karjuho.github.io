@@ -171,8 +171,11 @@
     90deg,
     var(--gradient-orange) 26.923%, var(--gradient-yellow) 51.923%, var(--gradient-red) 75%
   );
+  --gradient-nav: linear-gradient(
+    90deg, var(--gradient-orange) 0%, var(--gradient-yellow) 100%
+  );
   /* palindrome of the headline colours so a background-position pan
-     loops seamlessly in either direction (see .big-header .gradient-text) */
+     loops seamlessly in either direction (headline breathing sweep) */
   --gradient-headline-loop: linear-gradient(
     90deg,
     var(--gradient-orange) 0%, var(--gradient-yellow) 25%, var(--gradient-red) 50%,
@@ -237,7 +240,16 @@ dl, dd, ol, ul, figure {
    Base
    ------------------------------------------------------------- */
 
+/* The layout is locked to a 1400px frame. Past that, scale the whole
+   page up so it always fills the viewport - zoom (unlike transform)
+   still reflows, keeps position: sticky and hit-testing, and
+   re-rasterises text crisply. max(1, ...) never scales below 1400. */
+html {
+  zoom: max(1, 100vw / 1400px);
+}
+
 body {
+  overflow-x: clip; /* eat the sub-pixel the zoom can add on classic scrollbars */
   font: var(--font-weight-base) var(--font-size-base) / var(--line-height-base)
     var(--font-family);
   color: var(--text-muted);
@@ -516,6 +528,16 @@ hr {
 @media (min-width: 800px) {
   .home {
     display: flex;
+    gap: 62px;
+  }
+
+  /* the redesigned sections are a ~956px column (Figma), not the old
+     narrow .wrapper - override it inside .home-content on desktop */
+  .home-content .wrapper {
+    max-width: 956px;
+    width: 100%;
+    margin: 0 80px 0 0;
+    padding: 0;
   }
 
   .home-sidebar {
@@ -529,6 +551,11 @@ hr {
     position: sticky;
     top: 0;
     align-self: flex-start;
+    /* when the sidebar is taller than the viewport, let it scroll on its
+       own so the nav at the bottom stays reachable */
+    max-height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .home-header {
@@ -567,20 +594,22 @@ hr {
 /* 48px box; the artwork is 55px because the ring and shadow are baked
    into the PNG and bleed past the content box (Figma 16:864 insets). */
 .profile-photo {
-  position: relative;
-  display: block;
   flex: 0 0 48px;
   width: 48px;
   height: 48px;
 }
 
+/* white ring + soft drop shadow, rebuilt in CSS (Figma 16:864). Both are
+   box-shadows so the image box stays exactly 48px and nothing shifts. */
 .profile-photo img {
-  position: absolute;
-  top: -1.5px;
-  left: -3.5px;
-  width: 55px;
-  height: 55px;
-  max-width: none;
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 2px var(--gray-0),
+    0 2px 8px rgba(0, 0, 0, 0.16);
 }
 
 .profile-id {
@@ -631,9 +660,34 @@ hr {
   }
 }
 
+/* Ambient detail: every gradient-text run drifts back and forth on a slow,
+   eased "breathing" loop. Reduced-motion keeps the static gradient above.
+   (No background image without background-clip: text, so this is a no-op
+   where the gradient isn't shown anyway.) */
+@media (prefers-reduced-motion: no-preference) {
+  .gradient-text {
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    animation: gradient-breathe var(--dur-breathe) ease-in-out infinite alternate;
+  }
+}
+
+@keyframes gradient-breathe {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
 .home-content .section {
   padding-top: calc(var(--spacing) * 3);
   padding-bottom: 0;
+}
+
+.home-content .section:first-child {
+  padding-top: calc(var(--spacing) * 1);
 }
 
 /* -------------------------------------------------------------
@@ -730,6 +784,9 @@ hr {
   width: 25px;
   height: 34px;
   max-width: none;
+  /* shadow lives here, not in the SVG - an in-<img> SVG <filter> is
+     rasterised at intrinsic size by Safari and comes out pixelated */
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
 }
 
 .contact-pin--1 { right: 481px; bottom: 274px; } /* current location */
@@ -802,23 +859,11 @@ hr {
   --gradient: var(--gradient-headline);
 }
 
-/* Small ambient detail: the "Design" gradient drifts back and forth.
-   Reduced-motion users keep the static Figma gradient above. */
+/* the headline uses a colour palindrome so the breathing sweep (defined on
+   .gradient-text) reads symmetrically across the big letters */
 @media (prefers-reduced-motion: no-preference) {
   .big-header .gradient-text {
     --gradient: var(--gradient-headline-loop);
-    background-size: 200% 100%;
-    background-position: 0% 50%;
-    animation: headline-breathe var(--dur-breathe) ease-in-out infinite alternate;
-  }
-}
-
-@keyframes headline-breathe {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 100% 50%;
   }
 }
 
@@ -839,7 +884,7 @@ hr {
   margin: 0;
   font: var(--font-body-16);
   color: var(--text-muted);
-  text-align: justify;
+  /* text-align: justify; */
 }
 
 /* opening clause "I design, code and ship" is Text/Main; the rest Text/Muted */
@@ -915,7 +960,7 @@ hr {
   background-color: var(--text-main);
 }
 
-/* Active item: gradient glyph + label, plus the 2px bar at the sidebar edge */
+/* Active item: gradient glyph + label (orange -> yellow, no red - Figma 32:23143) */
 .nav a.active {
   font: var(--font-uppercase-14-bold);
   letter-spacing: 1px;
@@ -925,12 +970,12 @@ hr {
 
 .nav a.active .nav-icon {
   background-color: transparent;
-  background-image: var(--gradient-brand);
+  background-image: var(--gradient-nav);
 }
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .nav a.active .nav-label {
-    background-image: var(--gradient-brand);
+    background-image: var(--gradient-nav);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -968,25 +1013,281 @@ hr {
 
 
 /* -------------------------------------------------------------
-   Cases (home list)
+   Work cards - Figma 16:878
    ------------------------------------------------------------- */
 
-ul.cases-list {
-  margin: var(--spacing) 0 0;
-  padding: 0;
-  list-style: none;
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin-top: 40px;
 }
 
-ul.cases-list li {
-  margin-bottom: calc(var(--spacing) * 3);
+.work-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 90px;
+  width: 100%;
+  padding: 32px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  overflow: hidden;
+  color: var(--text-main);
 }
 
-ul.cases-list li:last-child {
+.work-card--light {
+  min-height: 294px;
+  background: var(--gray-0);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
+}
+
+.work-card--dark {
+  gap: 96px;
+  min-height: 512px;
+  color: var(--inverted-main);
+  background: linear-gradient(
+    61.19deg,
+    var(--inverted-background) 36.05%,
+    var(--gray-500) 100%
+  );
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.work-card__body {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.work-card--dark .work-card__body {
+  gap: 24px;
+}
+
+.work-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.work-card__client {
+  margin: 0;
+  font: var(--font-uppercase-14-bold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.work-card__title {
+  margin: 0;
+  font: var(--font-heading-36);
+  color: inherit;
+}
+
+.work-card__text {
+  color: inherit;
+}
+
+.work-card__text p {
+  margin: 0 0 1.3em;
+  font: var(--font-body-16);
+  color: inherit;
+}
+
+.work-card__text p:last-child {
   margin-bottom: 0;
 }
 
+.work-card__text strong {
+  font-weight: 700;
+}
+
+.work-card--dark .work-card__text p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--inverted-muted);
+}
+
+.work-card--dark .work-card__text strong {
+  color: var(--inverted-main);
+}
+
+/* CTA - Doconomy card only (Figma 39:23202) */
+.work-card__cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 24px;
+  border: 1.5px solid var(--gradient-orange);
+  border-radius: 48px;
+  background: var(--inverted-main);
+  box-shadow: 0 0 0 1px var(--inverted-main);
+  text-decoration: none;
+}
+
+.work-card__cta:hover {
+  text-decoration: none;
+}
+
+.work-card__cta-label {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.work-card__cta-icon {
+  width: 14px;
+  height: 14px;
+  background: var(--gradient-brand);
+  -webkit-mask: url("icons/angle-right.svg") no-repeat center / contain;
+  mask: url("icons/angle-right.svg") no-repeat center / contain;
+}
+
+/* ---- image stack: sits at the right, screenshots bleed off the card
+        edge (and top/bottom) and are clipped by the card's overflow ---- */
+.work-card__shots {
+  position: static;
+  flex: 0 0 440px;
+  align-self: stretch;
+}
+
+.work-card__shot {
+  position: absolute;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  object-fit: cover;
+  transform-origin: center;
+}
+
+/* white cards: two ~1.6:1 tiles, fanned +/- a couple of degrees,
+   bleeding off the right edge and clipped top/bottom */
+.work-card--light .work-card__shot {
+  top: 50%;
+  width: 600px;
+  height: 300px;
+}
+
+.work-card--light .work-card__shot--1 {
+  right: -110px;
+  transform: translateY(-50%) rotate(-2.4deg);
+  z-index: 0;
+}
+
+.work-card--light .work-card__shot--2 {
+  right: -150px;
+  transform: translateY(-50%) rotate(1.8deg);
+  z-index: 1;
+}
+
+/* Doconomy: phone hero + calendar behind + "New car" cards on top */
+.work-card--dark .work-card__shot.is-hero {
+  top: 40px;
+  right: 40px;
+  width: 232px;
+  height: auto;
+  border-radius: 24px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+  transform: rotate(5.6deg);
+  z-index: 1;
+}
+
+.work-card--dark .work-card__shot.is-back {
+  top: 128px;
+  right: 224px;
+  width: 156px;
+  height: auto;
+  transform: rotate(-7deg);
+  z-index: 0;
+}
+
+.work-card--dark .work-card__shot.is-front {
+  top: 150px;
+  right: -44px;
+  width: 244px;
+  height: auto;
+  box-shadow: none;
+  z-index: 2;
+}
+
+/* -- Mobile: screenshots drop below the text, centred, still cropped -- */
+@media (max-width: 800px) {
+  .work-card,
+  .work-card--dark {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    min-height: 0;
+  }
+
+  .work-card__title {
+    font-size: 28px;
+  }
+
+  .work-card--dark .work-card__text p {
+    font-size: 16px;
+  }
+
+  .work-card__shots {
+    position: relative;
+    overflow: hidden;
+    flex: none;
+    align-self: auto;
+    width: 100%;
+    height: 200px;
+    border-radius: 4px;
+  }
+
+  /* now positioned inside the 200px window, centred, over-sized -> cropped */
+  .work-card__shot {
+    right: auto;
+    left: 50%;
+    top: 50%;
+  }
+
+  .work-card--light .work-card__shot {
+    width: 420px;
+    height: 262px;
+  }
+
+  .work-card--light .work-card__shot--1 {
+    transform: translate(-54%, -50%) rotate(-3deg);
+  }
+
+  .work-card--light .work-card__shot--2 {
+    transform: translate(-46%, -48%) rotate(2.6deg);
+  }
+
+  .work-card--dark .work-card__shots {
+    height: 260px;
+  }
+
+  .work-card--dark .work-card__shot.is-hero {
+    width: 150px;
+    height: auto;
+    transform: translate(-50%, -42%) rotate(5deg);
+  }
+
+  .work-card--dark .work-card__shot.is-back {
+    width: 114px;
+    height: auto;
+    transform: translate(-128%, -34%) rotate(-8deg);
+  }
+
+  .work-card--dark .work-card__shot.is-front {
+    width: 150px;
+    height: auto;
+    transform: translate(16%, -12%) rotate(0deg);
+  }
+}
+
+/* markdown prose box used by case pages (kept) */
 .box {
-  background: #fff;
+  background: var(--gray-0);
   box-shadow: 5px 5px 32px 0 rgba(0, 0, 0, 0.14);
   border-radius: 4px;
   overflow: hidden;
@@ -995,48 +1296,6 @@ ul.cases-list li:last-child {
 @media (min-width: 800px) {
   .box {
     border-radius: 7px;
-  }
-}
-
-.case-link {
-  display: block;
-  color: var(--text-muted);
-}
-
-.case-link .box {
-  margin: 0 0 calc(var(--spacing) * 0.75);
-  transition: transform var(--dur-base) var(--ease-standard);
-}
-
-.case-link h3 {
-  color: #696461;
-  font-weight: 700;
-  font-size: 1.2em;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: color var(--dur-base) var(--ease-standard);
-}
-
-.case-link:hover {
-  text-decoration: none;
-}
-
-.case-link:hover h3 {
-  color: #383532;
-  text-decoration: none;
-}
-
-@media (min-width: 800px) {
-  .case-link {
-    padding: 0 var(--spacing);
-  }
-
-  .case-link .box {
-    margin: 0 calc(var(--spacing) * -1) calc(var(--spacing) * 0.75);
-  }
-
-  .case-link .box:hover {
-    transform: scale(1.01);
   }
 }
 
@@ -1128,10 +1387,12 @@ ul.cases-list li:last-child {
 }
 
 /* rail dot - grey 10px (Figma left 82, 16px box) */
+/* rail dot: 10px circle whose centre sits on x = 90 (same as the
+   connector), aligned with the first text line (Figma 32:22481). */
 .exp-row::before {
   content: "";
   position: absolute;
-  left: 82px;
+  left: 85px;
   top: 3px;
   width: 10px;
   height: 10px;
@@ -1139,21 +1400,16 @@ ul.cases-list li:last-child {
   background: var(--text-muted);
 }
 
-/* current: 16px, #ffd7c6 ring + gradient core, gentle pulse */
+/* current: identical 10px dot, just a gradient fill + a radiating pulse.
+   Same size as the grey dots - the animation is the only difference. */
 .exp-row--current::before {
-  top: 0;
-  width: 16px;
-  height: 16px;
-  padding: 2px;
-  background:
-    radial-gradient(circle at 50% 45%, var(--gradient-orange), var(--gradient-red))
-      content-box,
-    var(--orange-bg) border-box;
-  background-clip: content-box, border-box;
+  background: linear-gradient(
+    180deg, var(--gradient-orange), var(--gradient-red)
+  );
   animation: activeDot 2s infinite;
 }
 
-/* dashed connector - grey #dedede, 4px dash / 2px gap (Figma) */
+/* dashed connector - grey #dedede, 4px dash / 2px gap, centred on x = 90 */
 .exp-row:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -1169,7 +1425,6 @@ ul.cases-list li:last-child {
 .exp-body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   padding-right: 84px;
 }
 
@@ -1178,6 +1433,9 @@ ul.cases-list li:last-child {
   font-size: 16px;
   line-height: 16px;
   color: var(--text-main);
+  /* doubles as the 8px gap to .exp-org AND gives the gradient-clip box
+     room for the descender in "Designer" (Figma: title top 0, org top 24) */
+  padding-bottom: 8px;
 }
 
 .exp-row--current .exp-title.gradient-text {
@@ -1280,7 +1538,7 @@ ul.cases-list li:last-child {
   }
 
   .exp-row::before { left: 0; top: 5px; }
-  .exp-row--current::before { left: 0; top: 2px; }
+  .exp-row--current::before { left: 0; top: 5px; }
 
   .exp-row:not(:last-child)::after {
     left: 7px;
