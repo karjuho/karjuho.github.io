@@ -7,7 +7,7 @@
 
    Breakpoints (kept from the old Sass):
      palm   = 600px
-     laptop = 800px
+     mobile/desktop switch = 1050px (case-page prose still 800px)
    ============================================================= */
 
 
@@ -240,12 +240,16 @@ dl, dd, ol, ul, figure {
    Base
    ------------------------------------------------------------- */
 
-/* The layout is locked to a 1400px frame. Past that, scale the whole
-   page up so it always fills the viewport - zoom (unlike transform)
-   still reflows, keeps position: sticky and hit-testing, and
-   re-rasterises text crisply. max(1, ...) never scales below 1400. */
-html {
-  zoom: max(1, 100vw / 1400px);
+/* Above the mobile breakpoint the desktop layout is a rigid 1400px
+   canvas. Scale the whole page so it always fits the viewport - it never
+   reflows in the 1050-1400 range, and keeps filling wider screens past
+   1400. zoom (unlike transform) reflows, keeps position: sticky and
+   hit-testing, and re-rasterises text crisply. Below 1050 the mobile
+   layout takes over, unscaled. Case pages are fluid prose - left natural. */
+@media (min-width: 1050px) {
+  body:not(.cases) {
+    zoom: calc(100vw / 1400px);
+  }
 }
 
 body {
@@ -264,7 +268,7 @@ body {
   background-size: 1147px auto;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1050px) {
   body {
     background-position: center bottom;
     background-size: 720px auto;
@@ -524,18 +528,30 @@ hr {
   );
 }
 
+/* Large-mobile (881-1050): the sidebar is collapsed, so give the content
+   column most of the width - enough for the work cards to stay side-by-side. */
+@media (min-width: 881px) {
+  .home-content .wrapper {
+    width: min(956px, 100% - 96px);
+    max-width: none;
+    margin: 0 48px 0 0;
+    padding: 0;
+  }
+}
+
 /* -- Sidebar, desktop: 1:1 with Figma 16:862 (left-sidebar) --------- */
-@media (min-width: 800px) {
+@media (min-width: 1050px) {
   .home {
     display: flex;
     gap: 62px;
+    width: 1400px;      /* fixed canvas - the zoom above scales it to fit */
+    max-width: none;
   }
 
-  /* the redesigned sections are a ~956px column (Figma), not the old
-     narrow .wrapper - override it inside .home-content on desktop */
+  /* exact 956px column inside the fixed 1400 canvas */
   .home-content .wrapper {
-    max-width: 956px;
-    width: 100%;
+    width: 956px;
+    max-width: none;
     margin: 0 80px 0 0;
     padding: 0;
   }
@@ -552,10 +568,12 @@ hr {
     top: 0;
     align-self: flex-start;
     /* when the sidebar is taller than the viewport, let it scroll on its
-       own so the nav at the bottom stays reachable */
+       own so the nav at the bottom stays reachable. No overscroll-behavior:
+       a container that has nothing to scroll must hand the wheel straight
+       back to the page, and once a scrolling one reaches its end the page
+       should carry on - both are the default chaining behaviour. */
     max-height: 100dvh;
     overflow-y: auto;
-    overscroll-behavior: contain;
   }
 
   .home-header {
@@ -585,7 +603,7 @@ hr {
   gap: 12px;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1050px) {
   .profile-brand {
     padding: 0 var(--sidebar-pad);
   }
@@ -795,7 +813,31 @@ hr {
 .contact-pin--4 { right: 357px; bottom: 468px; }
 .contact-pin--5 { right: 583px; bottom: 304px; }
 
-@media (max-width: 800px) {
+/* pins fade + drop 10px into place, 0.5s after the section scrolls into
+   view (JS adds .pins-armed, then .pins-in). Static without JS or motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .contact-pins.pins-armed .contact-pin {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transition-delay: 0.5s;
+  }
+
+  /* staggered so they don't all drop together; current-location pin lands
+     first, the rest scatter in over the next ~0.5s */
+  .contact-pins.pins-armed .contact-pin--1 { transition-delay: 0.5s; }
+  .contact-pins.pins-armed .contact-pin--2 { transition-delay: 0.74s; }
+  .contact-pins.pins-armed .contact-pin--3 { transition-delay: 0.62s; }
+  .contact-pins.pins-armed .contact-pin--4 { transition-delay: 0.98s; }
+  .contact-pins.pins-armed .contact-pin--5 { transition-delay: 0.86s; }
+
+  .contact-pins.pins-armed.pins-in .contact-pin {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1050px) {
   .home-content .section#contact {
     min-height: 0;
   }
@@ -806,7 +848,7 @@ hr {
   }
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1050px) {
   .home-content {
     flex: 1;
   }
@@ -872,7 +914,7 @@ hr {
   word-spacing: -6.6px;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1050px) {
   .big-header {
     font: var(--font-heading-64);
   }
@@ -901,7 +943,7 @@ hr {
 .nav {
   display: flex;
   margin: 0;
-  padding: 0;
+  padding: 0 0 3rem 0;
   list-style: none;
 }
 
@@ -983,13 +1025,13 @@ hr {
   }
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1050px) {
   .nav {
     flex-direction: column;
   }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1050px) {
   .nav a {
     padding: 8px 0;
   }
@@ -1066,6 +1108,7 @@ hr {
 
 .work-card--dark .work-card__body {
   gap: 24px;
+  padding-top: 16px;
 }
 
 .work-card__head {
@@ -1077,6 +1120,9 @@ hr {
 .work-card__client {
   margin: 0;
   font: var(--font-uppercase-14-bold);
+  /* Figma has this one line on "auto" leading, not the 100% the
+     Uppercase/14-bold style carries - it sets the whole column's rhythm */
+  line-height: normal;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: inherit;
@@ -1148,74 +1194,196 @@ hr {
   mask: url("icons/angle-right.svg") no-repeat center / contain;
 }
 
-/* ---- image stack: sits at the right, screenshots bleed off the card
-        edge (and top/bottom) and are clipped by the card's overflow ---- */
+/* ---- image stack ------------------------------------------------
+   Geometry is lifted straight from Figma 16:878. The stack is a
+   zero-height positioning box pinned to the top-left of where the
+   Figma group sits (card content-box top-right), so every shot can
+   use the exact left/top/size/rotation from the design and bleed off
+   the card edge, clipped by the card's own overflow.
+
+   Each shot's transform is composed from custom properties so the
+   hover "pop" can add lift + spread on top of the resting angle.
+   ------------------------------------------------------------- */
 .work-card__shots {
-  position: static;
-  flex: 0 0 440px;
-  align-self: stretch;
+  position: relative;
+  flex: none;
+  height: 0; /* must not contribute to the card's height */
+}
+
+.work-card--light .work-card__shots {
+  width: 453.593px;
+}
+
+.work-card--dark .work-card__shots {
+  width: 446.5px;
 }
 
 .work-card__shot {
+  --rot: 0deg;   /* resting angle, from Figma */
+  --tx: 0px;     /* layout offset (only used by the stacked mobile view) */
+  --ty: 0px;
+  --lift: 0px;   /* hover */
+  --spread: 0deg;
   position: absolute;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-  object-fit: cover;
-  transform-origin: center;
+  overflow: hidden;
+  transform: translate(var(--tx), calc(var(--ty) + var(--lift)))
+    rotate(calc(var(--rot) + var(--spread)));
+  transform-origin: 50% 50%;
 }
 
-/* white cards: two ~1.6:1 tiles, fanned +/- a couple of degrees,
-   bleeding off the right edge and clipped top/bottom */
+.work-card__shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* how the image sits inside its frame (Figma fill mode) */
+.work-card__shot.is-contain {
+  background: var(--gray-0);
+}
+
+.work-card__shot.is-contain img {
+  object-fit: contain;
+}
+
+.work-card__shot.is-top img {
+  object-position: top;
+}
+
+/* a phone shot pinned to the left edge of an otherwise empty frame -
+   only the sliver left of the front shot is ever visible */
+.work-card__shot.is-strip {
+  background: var(--gray-0);
+}
+
+.work-card__shot.is-strip img {
+  width: 28.86%;
+  height: 100%;
+}
+
+/* white cards: two 425.6x266 tiles fanned a couple of degrees apart */
 .work-card--light .work-card__shot {
-  top: 50%;
-  width: 600px;
-  height: 300px;
+  width: 425.6px;
+  height: 266px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .work-card--light .work-card__shot--1 {
-  right: -110px;
-  transform: translateY(-50%) rotate(-2.4deg);
+  left: 5.44px;
+  top: 10.48px;
+  --rot: -2.43deg;
   z-index: 0;
 }
 
 .work-card--light .work-card__shot--2 {
-  right: -150px;
-  transform: translateY(-50%) rotate(1.8deg);
+  left: 24.01px;
+  top: 6.48px;
+  --rot: 1.76deg;
   z-index: 1;
 }
 
-/* Doconomy: phone hero + calendar behind + "New car" cards on top */
-.work-card--dark .work-card__shot.is-hero {
-  top: 40px;
-  right: 40px;
-  width: 232px;
-  height: auto;
-  border-radius: 24px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
-  transform: rotate(5.6deg);
-  z-index: 1;
-}
-
-.work-card--dark .work-card__shot.is-back {
-  top: 128px;
-  right: 224px;
-  width: 156px;
-  height: auto;
-  transform: rotate(-7deg);
+/* Doconomy: date picker behind, phone hero, savings cards on top.
+   The picker and the cards carry their own shadow in the PNG. */
+.work-card--dark .work-card__shot--1 {
+  left: 14.08px;
+  top: 167.33px;
+  width: 233.5px;
+  height: 245px;
+  --rot: -7.01deg;
   z-index: 0;
 }
 
-.work-card--dark .work-card__shot.is-front {
-  top: 150px;
-  right: -44px;
-  width: 244px;
-  height: auto;
-  box-shadow: none;
+.work-card--dark .work-card__shot--2 {
+  left: 69.28px;
+  top: 10.36px;
+  width: 254px;
+  height: 831px;
+  border-radius: 24px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+  --rot: 5.57deg;
+  z-index: 1;
+}
+
+.work-card--dark .work-card__shot--3 {
+  left: 240px;
+  top: 145px;
+  width: 206.5px;
+  height: 179.5px;
   z-index: 2;
 }
 
+/* ---- hover: a half-pop - the whole stack lifts and fans out a touch.
+        Hovering any shot arms it (:hover matches the stack through its
+        children even though the stack box itself is zero-height), so the
+        rest of the card is not a hover target. ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .work-card__shot {
+    transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.28, 1),
+      box-shadow 0.45s cubic-bezier(0.22, 0.8, 0.28, 1);
+  }
+
+  /* fan: the back tile tips further back, the front one further forward */
+  .work-card--light .work-card__shots:hover .work-card__shot--1 {
+    --spread: -1.6deg;
+    --lift: -5px;
+  }
+
+  .work-card--light .work-card__shots:hover .work-card__shot--2 {
+    --spread: 1.6deg;
+    --lift: -11px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
+
+  .work-card--dark .work-card__shots:hover .work-card__shot--1 {
+    --spread: -2deg;
+    --lift: -5px;
+  }
+
+  .work-card--dark .work-card__shots:hover .work-card__shot--2 {
+    --spread: 1.4deg;
+    --lift: -12px;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.32);
+  }
+
+  .work-card--dark .work-card__shots:hover .work-card__shot--3 {
+    --spread: 2.4deg;
+    --lift: -9px;
+  }
+}
+
 /* -- Mobile: screenshots drop below the text, centred, still cropped -- */
-@media (max-width: 800px) {
+/* 881-1050: cards keep the side-by-side layout, just tightened so the
+   text column stays readable as the card narrows toward ~800px. */
+@media (max-width: 1050px) {
+  .work-card {
+    gap: clamp(40px, 7%, 90px);
+  }
+
+  .work-card--dark {
+    gap: clamp(44px, 8%, 96px);
+  }
+
+  /* the shot stack is one fixed-size composition, so shrink it as a
+     whole rather than reflowing it - keeps the Figma fan intact and
+     leaves the text column at least ~300px */
+  .work-card__shots {
+    zoom: clamp(0.72, calc((100vw - 550px) / 454px), 1);
+  }
+
+  .work-card__title {
+    font-size: 30px;
+  }
+
+  .work-card--dark .work-card__text p {
+    font-size: 16px;
+  }
+}
+
+/* under 880: stack the screenshots below the text, centred + cropped */
+@media (max-width: 880px) {
   .work-card,
   .work-card--dark {
     flex-direction: column;
@@ -1232,56 +1400,72 @@ hr {
     font-size: 16px;
   }
 
-  .work-card__shots {
+  /* the stack becomes a full-width window with the fan centred inside it */
+  .work-card--light .work-card__shots,
+  .work-card--dark .work-card__shots {
     position: relative;
     overflow: hidden;
     flex: none;
     align-self: auto;
+    zoom: 1;
     width: 100%;
     height: 200px;
     border-radius: 4px;
   }
 
-  /* now positioned inside the 200px window, centred, over-sized -> cropped */
-  .work-card__shot {
-    right: auto;
+  /* re-anchor to the middle of the window - needs the same two-class
+     specificity as the desktop per-shot left/top to override them */
+  .work-card--light .work-card__shot,
+  .work-card--dark .work-card__shot {
     left: 50%;
     top: 50%;
   }
 
   .work-card--light .work-card__shot {
     width: 420px;
-    height: 262px;
+    height: 262.5px;
   }
 
   .work-card--light .work-card__shot--1 {
-    transform: translate(-54%, -50%) rotate(-3deg);
+    --tx: -54%;
+    --ty: -50%;
+    --rot: -3deg;
   }
 
   .work-card--light .work-card__shot--2 {
-    transform: translate(-46%, -48%) rotate(2.6deg);
+    --tx: -46%;
+    --ty: -48%;
+    --rot: 2.6deg;
   }
 
   .work-card--dark .work-card__shots {
     height: 260px;
   }
 
-  .work-card--dark .work-card__shot.is-hero {
-    width: 150px;
-    height: auto;
-    transform: translate(-50%, -42%) rotate(5deg);
-  }
-
-  .work-card--dark .work-card__shot.is-back {
+  /* same reading order as the desktop fan - date picker low on the left,
+     phone centred and bleeding off the bottom, savings cards over its right */
+  .work-card--dark .work-card__shot--1 {
     width: 114px;
-    height: auto;
-    transform: translate(-128%, -34%) rotate(-8deg);
+    height: 119.6px;
+    --tx: -160%;
+    --ty: -10%;
+    --rot: -8deg;
   }
 
-  .work-card--dark .work-card__shot.is-front {
+  .work-card--dark .work-card__shot--2 {
     width: 150px;
-    height: auto;
-    transform: translate(16%, -12%) rotate(0deg);
+    height: 490.7px;
+    --tx: -50%;
+    --ty: -12%;
+    --rot: 5deg;
+  }
+
+  .work-card--dark .work-card__shot--3 {
+    width: 150px;
+    height: 130.4px;
+    --tx: 20%;
+    --ty: -60%;
+    --rot: 0deg;
   }
 }
 
@@ -1513,7 +1697,7 @@ hr {
   color: var(--text-muted);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1050px) {
   .about-block {
     width: 100%;
   }

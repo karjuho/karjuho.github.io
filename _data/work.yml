@@ -1,6 +1,12 @@
 # Home "Work" section. Order = display order.
 # blurb is Markdown (bold with **…**, blank line = new paragraph).
-# variant: dark (Doconomy hero card) | light. shots bleed off the card edge.
+# variant: dark (Doconomy hero card) | light.
+#
+# shots: the screenshot stack on the right. Position/rotation live in CSS
+# (.work-card__shot--N) straight from Figma 16:878; here we only carry the
+# file, its intrinsic size, and how the image sits inside its frame:
+#   fit: cover (default) | contain | top | strip
+# Images are exported at 2x their display size, so they stay crisp.
 
 - client: Doconomy
   title: |
@@ -16,9 +22,9 @@
     responsibility has been to lead product design for a product with over
     **100,000 monthly users**.
   shots:
-    - { src: /assets/images/work/doconomy-calendar.jpg, w: 953,  h: 1000, pos: back }
-    - { src: /assets/images/work/doconomy-phone.png,    w: 305,  h: 1000, pos: hero }
-    - { src: /assets/images/work/doconomy-cards.jpg,    w: 1000, h: 869,  pos: front }
+    - { src: /assets/images/work/doconomy-calendar.png, w: 467, h: 490,  alt: "Doconomy date picker" }
+    - { src: /assets/images/work/doconomy-phone.jpg,    w: 508, h: 1662, alt: "Doconomy goal-based savings screen" }
+    - { src: /assets/images/work/doconomy-cards.png,    w: 413, h: 359,  alt: "Doconomy savings goal cards" }
 
 - client: Juusto
   title: Mealplanner
@@ -26,25 +32,23 @@
   blurb: |
     A personal product I have designed and built myself end-to-end.
 
-    I explored a bit different design style than your typical flat design
-    application. The goal was to build something that could fit into your
-    kitchen's fridge door.
+    I explored a different design style than your typical flat design app —
+    something that could live on your kitchen's fridge door.
   shots:
-    - { src: /assets/images/work/juusto-a.jpg, w: 462,  h: 1000, pos: back }
-    - { src: /assets/images/work/juusto-b.jpg, w: 1000, h: 625,  pos: front }
+    - { src: /assets/images/work/juusto-a.jpg, w: 246, h: 532, fit: strip, alt: "" }
+    - { src: /assets/images/work/juusto-b.jpg, w: 851, h: 532, alt: "Juusto weekly meal planner" }
 
 - client: Stora Enso
   title: Design System
   variant: light
   blurb: >-
     Redesigning the world's oldest company's Design System and facilitating the
-    design-system processes in a multi-product environment across cross-functional
-    international teams. I updated everything from UI components to colours and
-    typography in cooperation with product teams, rebuilt the documentation and
-    coded the animation by hand with CSS.
+    design-system processes across cross-functional international teams. I updated
+    UI components, colours and typography, rebuilt the documentation and coded the
+    animation by hand with CSS.
   shots:
-    - { src: /assets/images/work/storaenso-a.jpg, w: 1000, h: 542, pos: back }
-    - { src: /assets/images/work/storaenso-b.jpg, w: 1000, h: 688, pos: front }
+    - { src: /assets/images/work/storaenso-a.jpg, w: 851, h: 461, fit: contain, alt: "" }
+    - { src: /assets/images/work/storaenso-b.jpg, w: 851, h: 586, fit: top, alt: "Stora Enso SEEDS design system documentation" }
 
 - client: Bromma
   title: IoT Monitoring
@@ -53,11 +57,10 @@
     The world's leading smart-spreader system needed a user-friendly UI.
 
     My role was facilitating workshops, designing new features and redesigning
-    in a cross-functional team to improve the usability of a heavy-industry
-    IoT monitoring service.
+    in a cross-functional team to improve a heavy-industry IoT service.
   shots:
-    - { src: /assets/images/work/bromma-a.jpg, w: 1000, h: 703, pos: back }
-    - { src: /assets/images/work/bromma-b.jpg, w: 1000, h: 625, pos: front }
+    - { src: /assets/images/work/bromma-a.jpg, w: 790, h: 494, alt: "" }
+    - { src: /assets/images/work/bromma-b.jpg, w: 851, h: 532, alt: "Bromma spreader monitoring dashboard" }
 
 - client: InWell
   title: Streaming Service
@@ -67,5 +70,5 @@
     by over 900% during my involvement, redesigning the player and library
     experience and shipping features end-to-end.
   shots:
-    - { src: /assets/images/work/inwell-a.jpg, w: 1000, h: 614, pos: back }
-    - { src: /assets/images/work/inwell-b.jpg, w: 1000, h: 600, pos: front }
+    - { src: /assets/images/work/inwell-a.jpg, w: 851, h: 532, alt: "" }
+    - { src: /assets/images/work/inwell-b.jpg, w: 851, h: 532, alt: "InWell workout class library" }

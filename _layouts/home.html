@@ -25,7 +25,7 @@ layout: default
             </h1>
 
             <div class="intro">
-              <p><span class="intro-lead"><strong>I design, code and ship</strong></span> digital products with over 15 years of experience from everything between startups to enterprises. I love creating great user experiences that align with business objectives and I use AI tools to raise the ceiling of what is possible.</p>
+              <p><span class="intro-lead"><strong>I design, code and ship</strong></span> digital products with over 15 years of experience from various industries. I love creating great user experiences that align with business objectives and I use AI tools to raise the ceiling of what is possible.</p>
             </div>
           </div>
 
@@ -80,11 +80,12 @@ layout: default
                   {%- endif -%}
                 </div>
                 {%- if item.shots -%}
-                <div class="work-card__shots" aria-hidden="true">
+                <div class="work-card__shots">
                   {%- for shot in item.shots -%}
-                  <img class="work-card__shot work-card__shot--{{ forloop.index }} is-{{ shot.pos }}"
-                       src="{{ shot.src | relative_url }}" width="{{ shot.w }}" height="{{ shot.h }}"
-                       alt="" loading="lazy" decoding="async">
+                  <div class="work-card__shot work-card__shot--{{ forloop.index }} is-{{ shot.fit | default: 'cover' }}">
+                    <img src="{{ shot.src | relative_url }}" width="{{ shot.w }}" height="{{ shot.h }}"
+                         alt="{{ shot.alt }}" loading="lazy" decoding="async">
+                  </div>
                   {%- endfor -%}
                 </div>
                 {%- endif -%}

@@ -22,6 +22,22 @@
     node.appendChild(link);
   }
 
+  /* Contact map pins: fade + drop in ~0.5s after first scrolled into view. */
+  var pins = document.querySelector(".contact-pins");
+  if (pins && "IntersectionObserver" in window) {
+    pins.classList.add("pins-armed"); /* CSS only hides them once armed */
+    var pinObs = new IntersectionObserver(
+      function (entries) {
+        if (entries[0].isIntersecting) {
+          pins.classList.add("pins-in");
+          pinObs.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+    pinObs.observe(pins);
+  }
+
   /* Scroll-spy: highlight the nav link whose section is crossing
      the vertical middle of the viewport. Replaces the old jQuery
      scroll handler. */
