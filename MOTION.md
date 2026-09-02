@@ -14,7 +14,7 @@ Every animation must:
 | Figma name | Where | Technique | Tokens | Reduced-motion |
 |---|---|---|---|---|
 | Headline gradient (`Design`) | `.big-header .gradient-text` in `assets/main.css` | `background-position` pan on a 200%-wide palindrome gradient (`--gradient-headline-loop`), `alternate` + `ease-in-out` | `--dur-breathe` (9s per sweep) | static `--gradient-headline` (exact Figma stops) |
-| Experience "current" dot | `.experience-table .row:first-child .dots::before` | `@keyframes activeDot` box-shadow pulse | 2s (literal) | `animation: none` |
+| Experience "current" dot | `.exp-row--current::before` | `@keyframes activeDot` box-shadow pulse | 2s (literal) | `animation: none` |
 
 ## Headline gradient — notes
 

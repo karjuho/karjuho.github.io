@@ -146,33 +146,48 @@
   /* Spacing */
   --spacing: 30px;
 
-  /* Colour */
-  --color-heading: #1f1e1d;
-  --color-text: #4d4846;
-  --color-bg: #f2f1f0;
-  --color-role: #7a7370;
-  --color-nav: #696461;
-  --color-nav-icon: #7a7673;
-  --color-brand: #fa4900;
-  --color-grey: #828282;
-  --color-grey-light: #e8e8e8; /* lighten(#828282, 40%) */
+  /* --- Colour (mirrors the Figma colour variables) ----------------- */
+  --background: #f2f1f0;           /* Background */
+  --text-main: #0d0c0a;            /* Text/Main */
+  --text-muted: #66625c;           /* Text/Muted */
+  --inverted-main: #ffffff;        /* Inverted/Main */
+  --inverted-muted: #c0bcb6;       /* Inverted/Muted */
+  --inverted-background: #1f1e1d;  /* Inverted/Background */
+  --gray-0: #ffffff;               /* Gray/0 */
+  --gray-500: #66625c;             /* Gray/500 (== Text/Muted) */
+  --orange-bg: #ffd7c6;            /* Orange BG */
 
-  /* Brand gradients (Figma 16:862) */
+  /* gradient stops: Figma Gradient/Orange - Gradient/Yellow - Gradient/Red */
+  --gradient-orange: #fa4900;
+  --gradient-yellow: #ff9501;
+  --gradient-red: #eb1410;
+
+  /* the three stop arrangements the site uses */
   --gradient-brand: linear-gradient(
-    90deg, #fa4900 0%, #ff8d01 44.231%, #dc0400 100%
-  );
-  --gradient-brand-v: linear-gradient(
-    180deg, #fa4900 0%, #ff8d01 44.231%, #dc0400 100%
+    90deg,
+    var(--gradient-orange) 0%, var(--gradient-yellow) 44.231%, var(--gradient-red) 100%
   );
   --gradient-headline: linear-gradient(
-    90deg, #fa4900 26.923%, #ff8d01 51.923%, #eb1410 75%
+    90deg,
+    var(--gradient-orange) 26.923%, var(--gradient-yellow) 51.923%, var(--gradient-red) 75%
   );
   /* palindrome of the headline colours so a background-position pan
      loops seamlessly in either direction (see .big-header .gradient-text) */
   --gradient-headline-loop: linear-gradient(
     90deg,
-    #fa4900 0%, #ff8d01 25%, #eb1410 50%, #ff8d01 75%, #fa4900 100%
+    var(--gradient-orange) 0%, var(--gradient-yellow) 25%, var(--gradient-red) 50%,
+    var(--gradient-yellow) 75%, var(--gradient-orange) 100%
   );
+
+  /* --- Type (mirrors the Figma text styles) ----------------------- */
+  --font-heading-64: 800 64px/1 var(--font-family);         /* Heading/64 */
+  --font-heading-36: 800 36px/1.3 var(--font-family);       /* Heading/36 */
+  --font-heading-24: 800 24px/1 var(--font-family);         /* Heading/24 */
+  --font-body-22: 700 22px/1 var(--font-family);            /* Body/22 */
+  --font-body-16: 400 16px/1.3 var(--font-family);          /* Body/16 */
+  --font-body-14: 400 14px/1 var(--font-family);            /* Body/14 */
+  --font-uppercase-14: 600 14px/1 var(--font-family);       /* Uppercase/14 (+ ls 1px, uppercase) */
+  --font-uppercase-14-bold: 800 14px/1 var(--font-family);  /* Uppercase/14-bold */
 
   /* slow, eased sway for the headline gradient - a calm "breathing" pace */
   --dur-breathe: 9s;
@@ -225,24 +240,27 @@ dl, dd, ol, ul, figure {
 body {
   font: var(--font-weight-base) var(--font-size-base) / var(--line-height-base)
     var(--font-family);
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  color: var(--text-muted);
+  background-color: var(--background);
   font-kerning: normal;
 
-  background-image: url("images/footer.svg");
-  background-position: right bottom;
+  /* faint dotted Europe map - lives on <body> so it bleeds behind the
+     whole layout and sits in the bottom-right corner (Figma contact bg). */
+  background-image: url("images/contact-map.svg");
   background-repeat: no-repeat;
-  background-size: 1150px auto;
+  background-position: right bottom;
+  background-size: 1147px auto;
 }
 
 @media (max-width: 800px) {
   body {
     background-position: center bottom;
+    background-size: 720px auto;
   }
 }
 
 body.cases {
-  background: #fff;
+  background: var(--gray-0);
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -290,7 +308,7 @@ li > ol {
 h1, h2, h3, h4, h5, h6 {
   font-weight: 900;
   font-style: normal;
-  color: var(--color-heading);
+  color: var(--text-main);
   line-height: 1.3em;
 }
 
@@ -305,24 +323,17 @@ h3 { font-size: 1.2em; }
 }
 
 .section-title {
-  font-size: 0.875em;
-  text-transform: uppercase;
+  font: var(--font-uppercase-14);
   letter-spacing: 1px;
-  color: #757575;
-  font-weight: 700;
-}
-
-@media (max-width: 800px) {
-  .section-title {
-    display: none;
-  }
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .margin-top { margin-top: var(--spacing); }
 .margin-bottom { margin-bottom: var(--spacing); }
 
 a {
-  color: var(--color-brand);
+  color: var(--gradient-orange);
   text-decoration: none;
 }
 
@@ -336,7 +347,7 @@ a:hover {
   color: #fff;
   font-weight: 700;
   font-size: 0.875em;
-  background: var(--color-brand);
+  background: var(--gradient-orange);
   background-image: linear-gradient(224deg, #fa4700 0%, #fa6400 100%);
   box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.25);
   border-radius: 5px;
@@ -347,8 +358,8 @@ a:hover {
 }
 
 blockquote {
-  color: var(--color-grey);
-  border-left: 4px solid var(--color-grey-light);
+  color: #828282;
+  border-left: 4px solid #e8e8e8;
   padding-left: calc(var(--spacing) / 2);
   font-size: 20.25px; /* 18 * 1.125 */
   letter-spacing: -1px;
@@ -362,7 +373,7 @@ blockquote > :last-child {
 pre,
 code {
   font-size: 16.875px; /* 18 * 0.9375 */
-  border: 1px solid var(--color-grey-light);
+  border: 1px solid #e8e8e8;
   border-radius: 3px;
   background-color: #eef;
 }
@@ -424,7 +435,7 @@ table {
   text-align: left;
   color: #7d7572; /* lighten(#4d4846, 18%) */
   border-collapse: collapse;
-  border: 1px solid var(--color-grey-light);
+  border: 1px solid #e8e8e8;
 }
 
 table tr:nth-child(even) {
@@ -443,7 +454,7 @@ table th {
 }
 
 table td {
-  border: 1px solid var(--color-grey-light);
+  border: 1px solid #e8e8e8;
 }
 
 hr {
@@ -496,7 +507,7 @@ hr {
      rgba(242,241,240,0) is --color-bg (#f2f1f0) at zero alpha. */
   background: linear-gradient(
     180deg,
-    var(--color-bg) 65%,
+    var(--background) 65%,
     rgba(242, 241, 240, 0) 100%
   );
 }
@@ -584,7 +595,7 @@ hr {
   line-height: normal;
   letter-spacing: 1.44px;
   text-transform: uppercase;
-  color: var(--color-heading);
+  color: var(--text-main);
 }
 
 .profile-role {
@@ -592,13 +603,13 @@ hr {
   font-size: 14px;
   line-height: normal;
   letter-spacing: 0.7px;
-  color: var(--color-role);
+  color: var(--text-muted);
 }
 
 /* -- Gradient text -------------------------------------------------- */
 
 .gradient-text {
-  color: var(--color-brand); /* fallback where background-clip: text is absent */
+  color: var(--gradient-orange); /* fallback where background-clip: text is absent */
 }
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
@@ -625,25 +636,117 @@ hr {
   padding-bottom: 0;
 }
 
+/* -------------------------------------------------------------
+   Contact section - Figma 16:3147 (940 x 731)
+   ------------------------------------------------------------- */
+
 .home-content .section#contact {
+  position: relative;
+  min-height: 731px;
   padding: 0;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   align-items: flex-end;
+  justify-content: space-between;
   text-align: right;
 }
 
-.home-content .section#contact h2 {
-  flex: 1;
+.home-content .section#contact > .section-title,
+.home-content .section#contact > .contact-body {
+  position: relative;
+  z-index: 1; /* keep text above the decorative pins */
+}
+
+.home-content .section#contact > .section-title {
   width: 100%;
-  padding-top: calc(var(--spacing) * 1.3);
   text-align: center;
 }
 
-.home-content .section#contact p {
-  max-width: 380px;
+.contact-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.contact-heading {
+  margin: 0;
+  font: var(--font-heading-24);
+  color: var(--text-main);
+}
+
+.contact-lead {
+  margin: 0;
+  font: var(--font-body-16);
+  color: var(--text-muted);
+}
+
+.contact-phone {
+  font: var(--font-body-22);
+}
+
+.contact-email,
+.contact-email a {
+  font: var(--font-body-16);
+  color: var(--text-main);
+}
+
+.contact-email a:hover {
+  text-decoration: underline;
+}
+
+.contact-copyright {
+  margin: 0 0 2rem 0;
+  font: var(--font-body-14);
+  color: var(--inverted-muted);
+}
+
+/* Pins - absolute within the 940px section, offsets straight from Figma
+   (node 19:4222). Decorative, so hidden from assistive tech. */
+.contact-pins {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.contact-pin {
+  position: absolute;
+  width: 21px;
+  height: 30px;
+}
+
+.contact-pin img {
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 25px;
+  height: 34px;
+  max-width: none;
+}
+
+.contact-pin--1 { right: 481px; bottom: 274px; } /* current location */
+.contact-pin--2 { right: 517px; bottom: 306px; }
+.contact-pin--3 { right: 357px; bottom: 336px; }
+.contact-pin--4 { right: 357px; bottom: 468px; }
+.contact-pin--5 { right: 583px; bottom: 304px; }
+
+@media (max-width: 800px) {
+  .home-content .section#contact {
+    min-height: 0;
+  }
+
+  /* pin offsets are for the 940px column; they fall off a phone screen */
+  .contact-pins {
+    display: none;
+  }
 }
 
 @media (min-width: 800px) {
@@ -662,7 +765,7 @@ hr {
    .profile-name instead. Case pages are redesigned in a later step. */
 .site-title,
 .site-title:hover {
-  color: var(--color-brand);
+  color: var(--gradient-orange);
   font-weight: 700;
   font-size: 0.875em;
   letter-spacing: 0.3em;
@@ -679,7 +782,7 @@ hr {
   font-size: 56px;
   line-height: 1;
   letter-spacing: normal;
-  color: var(--color-heading);
+  color: var(--text-main);
 }
 
 .big-header-line {
@@ -721,12 +824,12 @@ hr {
 
 /* the single space in "& Code" is tracked -1.6px in Figma */
 .big-header-line + .big-header-line {
-  word-spacing: -1.6px;
+  word-spacing: -6.6px;
 }
 
 @media (min-width: 800px) {
   .big-header {
-    font-size: 64px;
+    font: var(--font-heading-64);
   }
 }
 
@@ -734,19 +837,18 @@ hr {
 
 .intro p {
   margin: 0;
-  font-size: 16px;
-  line-height: 1.3;
-  color: var(--color-text);
+  font: var(--font-body-16);
+  color: var(--text-muted);
+  text-align: justify;
 }
 
-/* matches the empty line Figma draws with <br><br>: 16px x 1.3 */
-.intro p + p {
-  margin-top: 20.8px;
+/* opening clause "I design, code and ship" is Text/Main; the rest Text/Muted */
+.intro-lead {
+  color: var(--text-main);
 }
 
 .intro strong {
   font-weight: 700;
-  color: var(--color-heading);
 }
 
 /* -- Navigation (32:23141) ------------------------------------------ */
@@ -763,22 +865,19 @@ hr {
 }
 
 .nav a {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px var(--sidebar-pad);
-  color: var(--color-nav);
-  font-weight: 600;
-  font-size: 14px;
-  line-height: normal;
+  color: var(--text-muted);
+  font: var(--font-uppercase-14);
   letter-spacing: 1px;
   text-transform: uppercase;
   transition: color var(--dur-base) var(--ease-standard);
 }
 
 .nav a:hover {
-  color: var(--color-heading);
+  color: var(--text-main);
   text-decoration: none;
 }
 
@@ -788,7 +887,7 @@ hr {
   flex: 0 0 14px;
   width: 14px;
   height: 14px;
-  background-color: var(--color-nav-icon);
+  background-color: var(--text-muted);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
@@ -813,13 +912,15 @@ hr {
 }
 
 .nav a:hover .nav-icon {
-  background-color: var(--color-heading);
+  background-color: var(--text-main);
 }
 
 /* Active item: gradient glyph + label, plus the 2px bar at the sidebar edge */
 .nav a.active {
-  font-weight: 700;
-  color: var(--color-brand);
+  font: var(--font-uppercase-14-bold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gradient-orange);
 }
 
 .nav a.active .nav-icon {
@@ -840,17 +941,6 @@ hr {
 @media (min-width: 800px) {
   .nav {
     flex-direction: column;
-  }
-
-  .nav a.active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 6px;
-    width: 2px;
-    height: 21px;
-    border-radius: 0 2px 2px 0;
-    background-image: var(--gradient-brand-v);
   }
 }
 
@@ -910,7 +1000,7 @@ ul.cases-list li:last-child {
 
 .case-link {
   display: block;
-  color: var(--color-text);
+  color: var(--text-muted);
 }
 
 .case-link .box {
@@ -952,103 +1042,177 @@ ul.cases-list li:last-child {
 
 
 /* -------------------------------------------------------------
-   About
+   About section - Figma 16:3036 (940 wide)
    ------------------------------------------------------------- */
 
-@media (min-width: 800px) {
-  .inset {
-    margin: 0 var(--spacing);
-  }
+.about-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  margin-top: 40px;
 }
 
-.experience-table {
-  margin: 0 0 var(--spacing) 0;
+.about-block {
+  width: min(600px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.experience-table .row {
-  display: grid;
-  grid-template-columns: 46px 33px 2fr 1fr;
+/* Experience + Languages carry 20px extra top space in Figma */
+.about-block--pad {
+  padding-top: 20px;
 }
 
-@media (min-width: 800px) {
-  .experience-table .row {
-    grid-template-columns: auto 33px 2fr 1fr;
-  }
+.about-block-title {
+  margin: 0 0 20px;
+  font: var(--font-heading-24);
+  color: var(--text-main);
 }
 
-.experience-table .years {
-  color: #827a77; /* lighten(#4d4846, 20%) */
-  font-variant-numeric: tabular-nums;
-  font-size: 0.875rem;
-  margin-top: 4px;
+.about-block--pad .about-block-title {
+  margin-bottom: 24px;
 }
 
-.experience-table .title {
-  font-weight: 700;
-  color: var(--color-heading);
-  margin-bottom: 2px;
+.about-bio {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-muted);
 }
 
-.experience-table .content {
-  padding-bottom: 20px;
+.about-bio + .about-bio {
+  margin-top: 20px;
 }
 
-.experience-table .category {
-  text-align: right;
+/* -- Experience list (each row 65px, Figma 16:3606 et al) ---------- */
+
+.experience-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.experience-table .category span {
-  color: #fa4900;
-  background: #ffd7c6;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  text-align: right;
-  border-radius: 1rem;
-}
-
-.experience-table .category span.education {
-  color: #564e4b;
-  background: #dbd3d1;
-}
-
-.experience-table .dots {
+.exp-row {
   position: relative;
-  width: 33px;
-  min-height: 90px;
-  margin-bottom: 5px;
-  text-align: center;
+  height: 65px;
+  padding-left: 106px;
 }
 
-.experience-table .dots::before {
+.exp-year {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 90px;
+  font: var(--font-body-14);
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+.exp-row--current .exp-year strong {
+  display: block;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.exp-row--current .exp-year em {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* rail dot - grey 10px (Figma left 82, 16px box) */
+.exp-row::before {
   content: "";
-  display: inline-block;
+  position: absolute;
+  left: 82px;
+  top: 3px;
   width: 10px;
   height: 10px;
-  border-radius: 100%;
-  background: #999595;
+  border-radius: 50%;
+  background: var(--text-muted);
 }
 
-.experience-table .dots::after {
-  content: "";
-  display: inline-block;
-  position: absolute;
-  bottom: 0;
-  left: calc(50% - 1px);
-  top: 35px;
-  margin-right: -1px;
-  border-left: 2px dashed #c7c7c7;
-}
-
-.experience-table .row:first-child .dots::before {
-  width: 15px;
-  height: 15px;
-  margin-top: 6px;
-  background: var(--color-brand);
+/* current: 16px, #ffd7c6 ring + gradient core, gentle pulse */
+.exp-row--current::before {
+  top: 0;
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+  background:
+    radial-gradient(circle at 50% 45%, var(--gradient-orange), var(--gradient-red))
+      content-box,
+    var(--orange-bg) border-box;
+  background-clip: content-box, border-box;
   animation: activeDot 2s infinite;
 }
 
-.experience-table .row:last-child .dots::after {
-  content: none;
+/* dashed connector - grey #dedede, 4px dash / 2px gap (Figma) */
+.exp-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 89px;
+  top: 19px;
+  bottom: -4px;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom, #dedede 0 4px, transparent 4px 6px
+  );
+}
+
+.exp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 84px;
+}
+
+.exp-title {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 16px;
+  color: var(--text-main);
+}
+
+.exp-row--current .exp-title.gradient-text {
+  --gradient: var(--gradient-brand);
+}
+
+.exp-org {
+  font: var(--font-body-14);
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+/* Work / Education pill (Figma Type component 32:22736) */
+.exp-badge {
+  position: absolute;
+  right: 0;
+  top: calc(50% - 9.5px);
+  transform: translateY(-50%);
+  padding: 4px 8px;
+  border: 1px solid var(--inverted-main);
+  border-radius: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+.exp-badge--work {
+  background: var(--gradient-orange);
+  color: var(--gray-0);
+}
+
+.exp-badge--education {
+  background: var(--inverted-muted);
+  color: var(--text-main);
 }
 
 @keyframes activeDot {
@@ -1057,58 +1221,87 @@ ul.cases-list li:last-child {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .experience-table .row:first-child .dots::before {
+  .exp-row--current::before {
     animation: none;
   }
 }
 
+/* -- Languages (Figma 16:3133: 4 cols, 24px gaps) ----------------- */
+
 .languages {
+  width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-}
-
-@media (min-width: 800px) {
-  .languages {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 1fr;
-  }
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
 }
 
 .languages li {
-  margin-bottom: 0.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .languages li strong {
-  display: block;
   font-weight: 700;
-  color: var(--color-heading);
+  font-size: 16px;
+  color: var(--text-main);
 }
 
-
-/* -------------------------------------------------------------
-   Contact
-   ------------------------------------------------------------- */
-
-.email {
-  text-align: center;
-  padding: 37vh 0 calc(var(--spacing) * 7);
+.languages li span {
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
-.email a {
-  font-size: 2em;
-  font-weight: 900;
+@media (max-width: 800px) {
+  .about-block {
+    width: 100%;
+  }
+
+  /* No mobile frame in Figma - reflow the experience rows into a simple
+     stack: date, then title / org, then badge. Keep a short dot rail. */
+  .exp-row {
+    display: block;
+    height: auto;
+    padding-left: 24px;
+    padding-bottom: 20px;
+  }
+
+  .exp-year {
+    position: static;
+    width: auto;
+    margin-bottom: 4px;
+  }
+
+  .exp-row--current .exp-year strong {
+    display: inline;
+  }
+
+  .exp-row::before { left: 0; top: 5px; }
+  .exp-row--current::before { left: 0; top: 2px; }
+
+  .exp-row:not(:last-child)::after {
+    left: 7px;
+    top: 24px;
+    bottom: 4px;
+  }
+
+  .exp-body { padding-right: 0; }
+
+  .exp-badge {
+    position: static;
+    transform: none;
+    display: inline-block;
+    margin-top: 10px;
+  }
+
+  .languages {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.copyright {
-  color: #ccc8c6; /* lighten(#4d4846, 50%) */
-  margin: 2rem 0;
-  font-size: 0.875em;
-  text-align: right;
-}
 
 
 /* -------------------------------------------------------------
@@ -1135,7 +1328,10 @@ ul.cases-list li:last-child {
 }
 
 .case-footer .copyright {
-  margin-bottom: 0;
+  margin: 2rem 0 0;
+  font-size: 0.875em;
+  text-align: right;
+  color: #ccc8c6;
 }
 
 .back {
@@ -1196,7 +1392,7 @@ ul.cases-list li:last-child {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-brand);
+  outline: 2px solid var(--gradient-orange);
   outline-offset: 2px;
 }
 
@@ -1206,8 +1402,8 @@ ul.cases-list li:last-child {
   left: -9999px;
   z-index: 10000;
   padding: 0.6em 1em;
-  background: var(--color-brand);
-  color: #fff;
+  background: var(--gradient-orange);
+  color: var(--gray-0);
   font-weight: 700;
 }
 
