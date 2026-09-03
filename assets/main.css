@@ -246,7 +246,7 @@ dl, dd, ol, ul, figure {
    1400. zoom (unlike transform) reflows, keeps position: sticky and
    hit-testing, and re-rasterises text crisply. Below 1050 the mobile
    layout takes over, unscaled. Case pages are fluid prose - left natural. */
-@media (min-width: 1050px) {
+@media (min-width: 1250px) {
   body:not(.cases) {
     zoom: calc(100vw / 1400px);
   }
@@ -268,10 +268,18 @@ body {
   background-size: 1147px auto;
 }
 
-@media (max-width: 1050px) {
+/* keep the map pinned to the bottom-right corner at every width (same as
+   desktop) - only shrink it once the viewport is too narrow to give a
+   1147px map anywhere to sit */
+@media (max-width: 900px) {
   body {
-    background-position: center bottom;
-    background-size: 720px auto;
+    background-size: 820px auto;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    background-size: 620px auto;
   }
 }
 
@@ -410,11 +418,10 @@ pre > code {
 }
 
 .wrapper {
-  max-width: calc(var(--content-width) - (var(--spacing) * 2));
   margin-right: auto;
   margin-left: auto;
-  padding-right: calc(var(--spacing) * 2);
-  padding-left: calc(var(--spacing) * 2);
+  padding-right: calc(var(--spacing) * 1);
+  padding-left: calc(var(--spacing) * 1);
 }
 
 .wrapper::after {
@@ -425,7 +432,6 @@ pre > code {
 
 @media (max-width: 800px) {
   .wrapper {
-    max-width: calc(var(--content-width) - var(--spacing));
     padding-right: var(--spacing);
     padding-left: var(--spacing);
   }
@@ -519,28 +525,41 @@ hr {
   width: 100%;
   box-sizing: border-box;
   padding: 16px var(--sidebar-pad);
-  /* mostly-opaque so content scrolls under it, fading out at the bottom.
-     rgba(242,241,240,0) is --color-bg (#f2f1f0) at zero alpha. */
-  background: linear-gradient(
-    180deg,
-    var(--background) 65%,
-    rgba(242, 241, 240, 0) 100%
-  );
 }
 
-/* Large-mobile (881-1050): the sidebar is collapsed, so give the content
-   column most of the width - enough for the work cards to stay side-by-side. */
+.nav-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -3rem;
+   background: linear-gradient(
+    180deg,
+    var(--background) 25%,
+    rgba(242, 241, 240, 0) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-mask-image: linear-gradient(180deg, black 0%, black 25%, transparent 100%);
+  mask-image: linear-gradient(180deg, black 0%, black 25%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Large-mobile (881-1050): the sidebar is collapsed, so the content
+   column is the full page. Line it up with the header + nav (both inset
+   var(--sidebar-pad)) and centre it, so the work cards sit under the
+   intro text at the same width. */
 @media (min-width: 881px) {
   .home-content .wrapper {
-    width: min(956px, 100% - 96px);
+    width: auto;
     max-width: none;
-    margin: 0 48px 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 0 var(--sidebar-pad);
   }
 }
 
 /* -- Sidebar, desktop: 1:1 with Figma 16:862 (left-sidebar) --------- */
-@media (min-width: 1050px) {
+@media (min-width: 1250px) {
   .home {
     display: flex;
     gap: 62px;
@@ -593,6 +612,10 @@ hr {
     padding: 0;
     background: none;
   }
+
+  .nav-container::before {
+    content: none;
+  }
 }
 
 /* -- Profile: photo + name + role (16:863) -------------------------- */
@@ -603,7 +626,7 @@ hr {
   gap: 12px;
 }
 
-@media (min-width: 1050px) {
+@media (min-width: 1250px) {
   .profile-brand {
     padding: 0 var(--sidebar-pad);
   }
@@ -807,11 +830,15 @@ hr {
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
 }
 
-.contact-pin--1 { right: 481px; bottom: 274px; } /* current location */
-.contact-pin--2 { right: 517px; bottom: 306px; }
-.contact-pin--3 { right: 357px; bottom: 336px; }
-.contact-pin--4 { right: 357px; bottom: 468px; }
-.contact-pin--5 { right: 583px; bottom: 304px; }
+/* Offsets from the contact section's bottom-right corner, tuned so each
+   pin tip sits on its city in the bottom-right contact-map.svg (map is
+   1147x787, right/bottom-aligned to <body>; the section's right edge is
+   80px in from that). See #pin-* in _layouts/home.html. */
+.contact-pin--1 { right: 497px; bottom: 295px; } /* Sigtuna - current location */
+.contact-pin--2 { right: 591px; bottom: 323px; } /* Oslo */
+.contact-pin--3 { right: 519px; bottom: 343px; } /* Mockfjärd (Dalarna) */
+.contact-pin--4 { right: 407px; bottom: 487px; } /* Oulu */
+.contact-pin--5 { right: 349px; bottom: 343px; } /* Tampere */
 
 /* pins fade + drop 10px into place, 0.5s after the section scrolls into
    view (JS adds .pins-armed, then .pins-in). Static without JS or motion. */
@@ -837,18 +864,27 @@ hr {
   }
 }
 
-@media (max-width: 1050px) {
+/* stacked layout keeps the tall, right-aligned contact block (same shape
+   as desktop) so the corner map has open space to sit in */
+@media (max-width: 1250px) {
   .home-content .section#contact {
-    min-height: 0;
+    min-height: 560px;
   }
 
-  /* pin offsets are for the 940px column; they fall off a phone screen */
+  /* pin offsets are tuned to the 940px desktop column - drop them once
+     the column is a different width */
   .contact-pins {
     display: none;
   }
 }
 
-@media (min-width: 1050px) {
+@media (max-width: 700px) {
+  .home-content .section#contact {
+    min-height: 0;
+  }
+}
+
+@media (min-width: 1250px) {
   .home-content {
     flex: 1;
   }
@@ -914,7 +950,7 @@ hr {
   word-spacing: -6.6px;
 }
 
-@media (min-width: 1050px) {
+@media (min-width: 1250px) {
   .big-header {
     font: var(--font-heading-64);
   }
@@ -943,7 +979,7 @@ hr {
 .nav {
   display: flex;
   margin: 0;
-  padding: 0 0 3rem 0;
+  padding: 0;
   list-style: none;
 }
 
@@ -953,6 +989,7 @@ hr {
 
 .nav a {
   display: flex;
+  position: relative;
   align-items: center;
   gap: 8px;
   padding: 8px var(--sidebar-pad);
@@ -1025,13 +1062,13 @@ hr {
   }
 }
 
-@media (min-width: 1050px) {
+@media (min-width: 1250px) {
   .nav {
     flex-direction: column;
   }
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1250px) {
   .nav a {
     padding: 8px 0;
   }
@@ -1508,7 +1545,7 @@ hr {
 /* -- Mobile: screenshots drop below the text, centred, still cropped -- */
 /* 881-1050: cards keep the side-by-side layout, just tightened so the
    text column stays readable as the card narrows toward ~800px. */
-@media (max-width: 1050px) {
+@media (max-width: 1250px) {
   .work-card {
     gap: clamp(40px, 7%, 90px);
   }
@@ -1533,7 +1570,10 @@ hr {
   }
 }
 
-/* under 880: stack the screenshots below the text, centred + cropped */
+/* under 880: the shots drop below the text as one full-bleed band -
+   same idea as desktop (over-sized screenshots fanned and bleeding off
+   the card edges, clipped by the card), just placed under the copy
+   instead of beside it. */
 @media (max-width: 880px) {
   .work-card,
   .work-card--dark {
@@ -1541,6 +1581,7 @@ hr {
     align-items: stretch;
     gap: 24px;
     min-height: 0;
+    padding-bottom: 0; /* the band runs to the card's bottom edge */
   }
 
   .work-card__title {
@@ -1551,71 +1592,93 @@ hr {
     font-size: 16px;
   }
 
-  /* the stack becomes a full-width window with the fan centred inside it */
+  /* full-bleed: pull the band out past the card's 32px padding on both
+     sides and the bottom, so the card itself (overflow:hidden + the 8px
+     radius) is the only thing clipping the screenshots */
   .work-card--light .work-card__shots,
   .work-card--dark .work-card__shots {
     position: relative;
     overflow: hidden;
     flex: none;
-    align-self: auto;
+    align-self: stretch;
     zoom: 1;
-    width: 100%;
-    height: 200px;
-    border-radius: 4px;
+    width: auto;
+    height: 230px;
+    margin: 0 -32px -32px;
   }
 
-  /* re-anchor to the middle of the window - needs the same two-class
-     specificity as the desktop per-shot left/top to override them */
+  /* each shot is sized as a % of the band so it scales with the card and
+     keeps bleeding off the edges; anchored on the band's centre and then
+     nudged with --tx/--ty (translate %, i.e. relative to the shot). */
   .work-card--light .work-card__shot,
   .work-card--dark .work-card__shot {
     left: 50%;
     top: 50%;
+    height: auto;
+  }
+
+  /* in the band every shot fills - the framed "contain" / "strip" tiles
+     from the desktop fan would only show as slabs of white here.
+     Scoped to :not(.is-shot-open) so the lightbox keeps its own
+     contain/strip handling (which the fly-out geometry in main.js
+     is matched to). */
+  .work-card:not(.is-shot-open) .work-card__shot.is-contain,
+  .work-card:not(.is-shot-open) .work-card__shot.is-strip {
+    background: none;
+  }
+
+  .work-card:not(.is-shot-open) .work-card__shot.is-contain img,
+  .work-card:not(.is-shot-open) .work-card__shot.is-strip img {
+    width: 100%;
+    object-fit: cover;
   }
 
   .work-card--light .work-card__shot {
-    width: 420px;
-    height: 262.5px;
+    width: 118%;
+    aspect-ratio: 425.6 / 266;
   }
 
+  /* the back tile peeks out top-left behind the hero, like the desktop fan */
   .work-card--light .work-card__shot--1 {
-    --tx: -54%;
-    --ty: -50%;
-    --rot: -3deg;
+    width: 104%;
+    --tx: -60%;
+    --ty: -74%;
+    --rot: -3.5deg;
   }
 
   .work-card--light .work-card__shot--2 {
-    --tx: -46%;
-    --ty: -48%;
-    --rot: 2.6deg;
+    --tx: -48%;
+    --ty: -46%;
+    --rot: 1.76deg;
   }
 
   .work-card--dark .work-card__shots {
-    height: 260px;
+    height: 250px;
   }
 
-  /* same reading order as the desktop fan - date picker low on the left,
-     phone centred and bleeding off the bottom, savings cards over its right */
+  /* same reading order as the desktop fan - date picker off the left,
+     phone centred and bleeding top + bottom, savings cards off the right */
   .work-card--dark .work-card__shot--1 {
-    width: 114px;
-    height: 119.6px;
-    --tx: -160%;
-    --ty: -10%;
-    --rot: -8deg;
+    width: 46%;
+    aspect-ratio: 233.5 / 245;
+    --tx: -138%;
+    --ty: -34%;
+    --rot: -7.01deg;
   }
 
   .work-card--dark .work-card__shot--2 {
-    width: 150px;
-    height: 490.7px;
-    --tx: -50%;
-    --ty: -12%;
-    --rot: 5deg;
+    width: 48%;
+    aspect-ratio: 254 / 831;
+    --tx: -44%;
+    --ty: -22%;
+    --rot: 5.57deg;
   }
 
   .work-card--dark .work-card__shot--3 {
-    width: 150px;
-    height: 130.4px;
-    --tx: 20%;
-    --ty: -60%;
+    width: 56%;
+    aspect-ratio: 206.5 / 179.5;
+    --tx: 16%;
+    --ty: -58%;
     --rot: 0deg;
   }
 }
@@ -1644,7 +1707,8 @@ hr {
   flex-direction: column;
   align-items: center;
   gap: 32px;
-  margin-top: 40px;
+  margin: 40px auto 0;
+  max-width: 600px;
 }
 
 .about-block {
@@ -1848,7 +1912,7 @@ hr {
   color: var(--text-muted);
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1250px) {
   .about-block {
     width: 100%;
   }
