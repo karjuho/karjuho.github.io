@@ -1531,6 +1531,12 @@ hr {
       box-shadow 0.55s ease;
   }
 
+  /* opening skips the pick-up and zooms straight in, quicker than the
+     close flight (later rule -> wins the duration over .is-flying) */
+  .work-card__shot.is-flying-fast {
+    transition-duration: 0.3s;
+  }
+
   /* The clip opens with the pick-up so nothing can pop into view - the
      Doconomy phone is 831px tall in a 512px card and can never be lifted
      clear of it. The clip lives on the stack, NOT the card: clip-path

@@ -236,9 +236,10 @@
     chrome();
     open = { card: card, shots: shots, stack: stack, focus: document.activeElement };
 
-    /* Pin the clip to the card's box before releasing overflow, so the
-       release is a no-op on screen. */
-    stack.style.clipPath = closedClip(card, stack);
+    /* Open the clip up front (before .is-shot-open pulls in the clip-path
+       transition, so it snaps): no "pick up off the card" step to hide the
+       overhang behind, and no clip sweep to wait on. */
+    stack.style.clipPath = OPEN_CLIP;
     document.documentElement.classList.add("shots-open");
     card.classList.add("is-shot-open");
 
@@ -249,31 +250,19 @@
     closeBtn.focus();
 
     if (reduced()) {
-      stack.style.clipPath = OPEN_CLIP;
       fly(card, shots);
       return;
     }
 
-    /* Stage one: pick the shots up off the card, clip still closed - so on
-       the light cards the overhang is hidden the whole way up. */
+    /* The shots zoom straight from where they sit into the lightbox, on the
+       quicker .is-flying-fast timing. */
     var i;
-    var spread = stagger(shots, true); /* front shot leads on the way out */
-    for (i = 0; i < shots.length; i++) shots[i].classList.add("is-lifting");
+    stagger(shots, true); /* front shot leads on the way out */
+    for (i = 0; i < shots.length; i++) {
+      shots[i].classList.add("is-flying", "is-flying-fast");
+    }
     void card.offsetWidth; /* flush, so there is a "before" to animate from */
-    for (i = 0; i < shots.length; i++) shots[i].classList.add("is-lifted");
-
-    /* Stage two: fly out, opening the clip as they go. By now the light
-       cards are clear of the edge so this is invisible on them; Doconomy's
-       overhang sweeps in over 0.2s instead of popping. */
-    timer = setTimeout(function () {
-      for (var k = 0; k < shots.length; k++) {
-        shots[k].classList.remove("is-lifting", "is-lifted");
-        shots[k].classList.add("is-flying");
-      }
-      void card.offsetWidth;
-      stack.style.clipPath = OPEN_CLIP;
-      fly(card, shots);
-    }, LIFT_MS + spread);
+    fly(card, shots);
   }
 
   function close() {
@@ -297,10 +286,18 @@
       card.classList.remove("is-shot-open");
       stack.style.removeProperty("clip-path");
       for (var k = 0; k < shots.length; k++) {
-        shots[k].classList.remove("is-flying", "is-lifting", "is-lifted");
+        shots[k].classList.remove(
+          "is-flying",
+          "is-flying-fast",
+          "is-lifting",
+          "is-lifted"
+        );
         shots[k].style.removeProperty("transition-delay");
       }
     };
+
+    /* the close flight keeps the slower .is-flying timing */
+    for (i = 0; i < shots.length; i++) shots[i].classList.remove("is-flying-fast");
 
     if (reduced()) {
       land(shots);
