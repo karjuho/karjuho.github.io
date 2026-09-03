@@ -55,9 +55,9 @@
   var GAP = 24;      /* between shots, at scale 1 */
   var PAD = 32;      /* viewport margin */
   var MAX = 2;       /* shots are exported at 2x, so never draw beyond that */
-  var LIFT_MS = 200; /* stage one - must match .is-lifting / the clip */
-  var FLY_MS = 550;  /* stage two - must match .is-flying */
-  var STEP = 70;     /* per-shot stagger, so they move one after the other */
+  var LIFT_MS = 150; /* close stage two - must match .is-lifting / the clip */
+  var FLY_MS = 430;  /* close stage one - must match .is-flying's duration */
+  var STEP = 35;     /* per-shot stagger, so they move one after the other */
 
   var open = null; /* { card, shots, focus } while a card is open */
   var scrim, closeBtn, timer;
@@ -177,13 +177,22 @@
       r = Math.min(r, sr.right);
       b = Math.min(b, sr.bottom);
     }
+    var radius = cardRadius(card);
     return (
       "inset(" + (t - sr.top) / z + "px " + (sr.right - r) / z + "px " +
-      (sr.bottom - b) / z + "px " + (l - sr.left) / z + "px round 8px)"
+      (sr.bottom - b) / z + "px " + (l - sr.left) / z + "px round " + radius + ")"
     );
   }
 
-  var OPEN_CLIP = "inset(-3000px -3000px -3000px -3000px round 8px)";
+  /* the hero card is rounder than the rest, so both ends of the clip
+     transition have to take their corner from the card itself */
+  function cardRadius(card) {
+    return getComputedStyle(card).borderTopLeftRadius || "8px";
+  }
+
+  function openClip(card) {
+    return "inset(-3000px -3000px -3000px -3000px round " + cardRadius(card) + ")";
+  }
 
   /* Stagger the shots so they travel one quickly after the other: the front
      one leads on the way out, the back one leads on the way home. The clip
@@ -239,7 +248,7 @@
     /* Open the clip up front (before .is-shot-open pulls in the clip-path
        transition, so it snaps): no "pick up off the card" step to hide the
        overhang behind, and no clip sweep to wait on. */
-    stack.style.clipPath = OPEN_CLIP;
+    stack.style.clipPath = openClip(card);
     document.documentElement.classList.add("shots-open");
     card.classList.add("is-shot-open");
 

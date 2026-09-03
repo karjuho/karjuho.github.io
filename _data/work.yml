@@ -14,13 +14,12 @@
     Goal Based Savings
   variant: dark
   cta:
-    label: Read case
+    label: Read more
     href: /doconomy/
+  # the user count is gradient text in the design, hence the raw span
   blurb: >-
-    Turning a B2C product into a white-labeled B2B2C SaaS product embedded
-    inside consumer banking apps. Working in cross-functional teams, my
-    responsibility has been to lead product design for a product with over
-    **100,000 monthly users**.
+    Leading product design for a savings product for consumer banks with over
+    <strong class="gradient-text">100 000 users</strong> around the world.
   shots:
     - { src: /assets/images/work/doconomy-calendar.png, w: 467, h: 490,  alt: "Doconomy date picker" }
     - { src: /assets/images/work/doconomy-phone.jpg,    w: 508, h: 1662, alt: "Doconomy goal-based savings screen" }

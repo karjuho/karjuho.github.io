@@ -64,6 +64,9 @@ layout: default
             <div class="work-list">
               {%- for item in site.data.work -%}
               <article class="work-card work-card--{{ item.variant | default: 'light' }}">
+                {%- if item.variant == 'dark' -%}
+                <div class="work-card__glow" aria-hidden="true"><span class="work-card__glow-a"></span><span class="work-card__glow-b"></span></div>
+                {%- endif -%}
                 <div class="work-card__body">
                   <header class="work-card__head">
                     <p class="work-card__client">{{ item.client }}</p>

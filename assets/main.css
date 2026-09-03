@@ -194,6 +194,8 @@
 
   /* slow, eased sway for the headline gradient - a calm "breathing" pace */
   --dur-breathe: 9s;
+  /* the hero card's light sweeps drift far slower still - daylight pace */
+  --dur-glow: 24s;
 
   /* Layout */
   --content-width: 800px;
@@ -738,7 +740,10 @@ hr {
 .home-content .section#contact {
   position: relative;
   min-height: 731px;
-  padding: 0;
+  /* the section is flush to the page bottom (the corner map is anchored
+     there), but it still needs air above it - the block reset to 0 would
+     otherwise butt the title straight up against the Languages grid */
+  padding: 3rem 0 0;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -834,11 +839,11 @@ hr {
    pin tip sits on its city in the bottom-right contact-map.svg (map is
    1147x787, right/bottom-aligned to <body>; the section's right edge is
    80px in from that). See #pin-* in _layouts/home.html. */
-.contact-pin--1 { right: 497px; bottom: 295px; } /* Sigtuna - current location */
-.contact-pin--2 { right: 591px; bottom: 323px; } /* Oslo */
+.contact-pin--1 { right: 472px; bottom: 315px; } /* Sigtuna - current location */
+.contact-pin--2 { right: 585px; bottom: 338px; } /* Oslo */
 .contact-pin--3 { right: 519px; bottom: 343px; } /* Mockfjärd (Dalarna) */
-.contact-pin--4 { right: 407px; bottom: 487px; } /* Oulu */
-.contact-pin--5 { right: 349px; bottom: 343px; } /* Tampere */
+.contact-pin--4 { right: 357px; bottom: 487px; } /* Oulu */
+.contact-pin--5 { right: 379px; bottom: 373px; } /* Tampere */
 
 /* pins fade + drop 10px into place, 0.5s after the section scrolls into
    view (JS adds .pins-armed, then .pins-in). Static without JS or motion. */
@@ -867,10 +872,6 @@ hr {
 /* stacked layout keeps the tall, right-aligned contact block (same shape
    as desktop) so the corner map has open space to sit in */
 @media (max-width: 1250px) {
-  .home-content .section#contact {
-    min-height: 560px;
-  }
-
   /* pin offsets are tuned to the 940px desktop column - drop them once
      the column is a different width */
   .contact-pins {
@@ -878,9 +879,18 @@ hr {
   }
 }
 
-@media (max-width: 700px) {
+/* The section has to stay at least as tall as the corner map, or the map
+   bleeds up behind the section above it. These track the map's own
+   background-size steps: 1147/820/620 wide => 787/563/425 tall. */
+@media (max-width: 900px) {
   .home-content .section#contact {
-    min-height: 0;
+    min-height: 580px;
+  }
+}
+
+@media (max-width: 600px) {
+  .home-content .section#contact {
+    min-height: 440px;
   }
 }
 
@@ -1121,16 +1131,128 @@ hr {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
 }
 
+/* The hero gradient's warm tip, registered so it can actually interpolate.
+   Cross-fading a second gradient on top of the first banded badly - one
+   gradient whose last stop shifts colour has nothing to interfere with. */
+@property --hero-tip {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #e9cd9a;
+}
+
+/* Hero card - Figma 120:49721 */
 .work-card--dark {
+  --hero-tip: #e9cd9a;
   gap: 96px;
   min-height: 512px;
+  align-items: stretch;      /* so the body can bottom-align its content */
+  justify-content: space-between;
+  border-radius: 16px;
   color: var(--inverted-main);
   background: linear-gradient(
     61.19deg,
-    var(--inverted-background) 36.05%,
-    var(--gray-500) 100%
+    var(--inverted-background) 17.917%,
+    #86775d 67.071%,
+    var(--hero-tip) 100%
   );
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Two soft light sweeps over the gradient (Figma Ellipse 2170 / 2171).
+   Own clipping layer, so they stay inside the card even while the
+   lightbox has the card itself on overflow: visible. */
+.work-card__glow {
+  /* no z-index: it must NOT make a stacking context, or the sweeps'
+     mix-blend-mode would only see each other instead of the card's
+     gradient underneath. It is the card's first child, and both the body
+     (z-index 1) and the shots come after it, so it stays at the back. */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.work-card__glow span {
+  --grot: -23.11deg; /* the sweeps' resting angle, from Figma */
+  position: absolute;
+  display: block;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  transform: rotate(var(--grot));
+  /* they are cream on an already-cream gradient, so plain alpha barely
+     registers - screen makes them behave like light instead: they lift
+     the dark end of the card and fade out where it is already bright */
+  mix-blend-mode: screen;
+}
+
+.work-card__glow-a {
+  left: 119.55px;
+  top: -185.97px;
+  width: 1216.18px;
+  height: 332.82px;
+  background-image: url("images/work/glow-a.svg");
+}
+
+.work-card__glow-b {
+  left: 260.56px;
+  top: 16.35px;
+  width: 1077.17px;
+  height: 384.12px;
+  background-image: url("images/work/glow-b.svg");
+}
+
+/* Daylight drift: the two sweeps swell and slide a little, on purposely
+   unrelated cycles (24s against 17.3s) so they never settle into a
+   visible rhythm - the way light through a window wanders rather than
+   pulses. Compositor-only work: transform + opacity, nothing repaints. */
+@media (prefers-reduced-motion: no-preference) {
+  .work-card__glow-a {
+    animation: glow-drift-a var(--dur-glow) ease-in-out infinite alternate;
+  }
+
+  .work-card__glow-b {
+    animation: glow-drift-b calc(var(--dur-glow) * 0.72) ease-in-out infinite
+      alternate;
+    animation-delay: calc(var(--dur-glow) * -0.31); /* start out of phase */
+  }
+
+  /* same duration and easing as sweep A, so the gradient's warm end
+     brightens in step with the light rather than against it */
+  .work-card--dark {
+    animation: hero-tip-warm var(--dur-glow) ease-in-out infinite alternate;
+  }
+}
+
+@keyframes glow-drift-a {
+  from {
+    transform: rotate(var(--grot)) translate(0, 0) scale(0.92);
+    opacity: 0.45;
+  }
+  to {
+    transform: rotate(var(--grot)) translate(52px, -28px) scale(1.26);
+    opacity: 1;
+  }
+}
+
+@keyframes glow-drift-b {
+  from {
+    transform: rotate(var(--grot)) translate(0, 0) scale(1.22);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(var(--grot)) translate(-44px, 32px) scale(0.94);
+    opacity: 0.5;
+  }
+}
+
+@keyframes hero-tip-warm {
+  from {
+    --hero-tip: #e9cd9a;
+  }
+  to {
+    --hero-tip: #f9e6c3;
+  }
 }
 
 .work-card__body {
@@ -1143,9 +1265,11 @@ hr {
   gap: 16px;
 }
 
+/* fixed 333.5px column, content sitting on the card's bottom padding edge */
 .work-card--dark .work-card__body {
   gap: 24px;
-  padding-top: 16px;
+  flex: 0 0 330px;
+  justify-content: flex-end;
 }
 
 .work-card__head {
@@ -1199,17 +1323,16 @@ hr {
   color: var(--inverted-main);
 }
 
-/* CTA - Doconomy card only (Figma 39:23202) */
+/* CTA - Doconomy card only (Figma 120:49732): plain white pill */
 .work-card__cta {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 24px;
-  border: 1.5px solid var(--gradient-orange);
+  border: 0;
   border-radius: 48px;
   background: var(--inverted-main);
-  box-shadow: 0 0 0 1px var(--inverted-main);
   text-decoration: none;
 }
 
@@ -1313,7 +1436,7 @@ hr {
   /* divided by the lightbox scale so the corner stays 4px on screen
      as the shot grows (--oscale is 1 at rest) */
   border-radius: calc(4px / var(--oscale));
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 2px 32px rgba(0, 0, 0, 0.35);
 }
 
 .work-card--light .work-card__shot--1 {
@@ -1455,7 +1578,6 @@ hr {
 .work-card.is-shot-open .work-card__shot.is-strip,
 .work-card.is-shot-open .work-card__shot.is-contain {
   background: transparent;
-  box-shadow: none;
 }
 
 .work-card.is-shot-open .work-card__shot.is-strip img,
@@ -1468,8 +1590,9 @@ hr {
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(242, 241, 240, 0.78); /* --background, 78% (Figma) */
+  background: rgba(242, 241, 240, 0.8); /* --background, 78% (Figma) */
   opacity: 0;
+  backdrop-filter: blur(4px);
   pointer-events: none; /* stays in the DOM while it fades back out */
 }
 
@@ -1520,19 +1643,28 @@ hr {
     transition: opacity 0.35s ease;
   }
 
-  /* stage one: a short, hover-like pick-up */
+  /* close, stage two: drop the last bit into place. Quick, and it opens
+     fast off the mark to pick up stage one's momentum rather than starting
+     from a standstill. */
   .work-card__shot.is-lifting {
-    transition: transform 0.2s cubic-bezier(0.22, 0.8, 0.28, 1);
+    transition: transform 0.15s cubic-bezier(0.12, 0.75, 0.3, 1);
   }
 
-  /* stage two: the flight - longer and softer than the hover pop */
+  /* the flight - shared shape with the open zoom */
   .work-card__shot.is-flying {
-    transition: transform 0.55s cubic-bezier(0.22, 0.75, 0.2, 1),
-      box-shadow 0.55s ease;
+    transition: transform 0.43s cubic-bezier(0.22, 0.75, 0.2, 1),
+      box-shadow 0.43s ease;
   }
 
-  /* opening skips the pick-up and zooms straight in, quicker than the
-     close flight (later rule -> wins the duration over .is-flying) */
+  /* close, stage one: it hands straight off to the drop above, so it must
+     not ease out to a crawl first - this curve keeps it moving into the
+     hand-off. Open never gets .is-lifted, so its zoom is untouched. */
+  .work-card__shot.is-flying.is-lifted {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.7, 0.6);
+  }
+
+  /* opening zooms straight in, quicker than the close flight
+     (later rule -> wins the duration over .is-flying) */
   .work-card__shot.is-flying-fast {
     transition-duration: 0.3s;
   }
@@ -1544,7 +1676,7 @@ hr {
      stack's z-index below the scrim. JS sizes the closed inset to the
      card's own box, so it starts out identical to overflow: hidden. */
   .work-card.is-shot-open .work-card__shots {
-    transition: clip-path 0.2s ease;
+    transition: clip-path 0.15s ease;
   }
 }
 
@@ -1588,6 +1720,12 @@ hr {
     gap: 24px;
     min-height: 0;
     padding-bottom: 0; /* the band runs to the card's bottom edge */
+  }
+
+  /* the hero's 333.5px basis is a column width - in a column flex box it
+     would become a height instead */
+  .work-card--dark .work-card__body {
+    flex: 0 1 auto;
   }
 
   .work-card__title {
