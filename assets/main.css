@@ -1224,10 +1224,16 @@ hr {
   --ty: 0px;
   --lift: 0px;   /* hover */
   --spread: 0deg;
+  --ox: 0px;     /* lightbox: fly-out offset, scale and rotation kill-switch */
+  --oy: 0px;
+  --oscale: 1;
+  --orot: 1;
   position: absolute;
   overflow: hidden;
-  transform: translate(var(--tx), calc(var(--ty) + var(--lift)))
-    rotate(calc(var(--rot) + var(--spread)));
+  transform: translate(calc(var(--tx) + var(--ox)),
+      calc(var(--ty) + var(--lift) + var(--oy)))
+    scale(var(--oscale))
+    rotate(calc((var(--rot) + var(--spread)) * var(--orot)));
   transform-origin: 50% 50%;
 }
 
@@ -1267,7 +1273,9 @@ hr {
 .work-card--light .work-card__shot {
   width: 425.6px;
   height: 266px;
-  border-radius: 4px;
+  /* divided by the lightbox scale so the corner stays 4px on screen
+     as the shot grows (--oscale is 1 at rest) */
+  border-radius: calc(4px / var(--oscale));
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
@@ -1301,7 +1309,7 @@ hr {
   top: 10.36px;
   width: 254px;
   height: 831px;
-  border-radius: 24px;
+  border-radius: calc(24px / var(--oscale));
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
   --rot: 5.57deg;
   z-index: 1;
@@ -1326,31 +1334,174 @@ hr {
   }
 
   /* fan: the back tile tips further back, the front one further forward */
-  .work-card--light .work-card__shots:hover .work-card__shot--1 {
+  .work-card--light:not(.is-shot-open) .work-card__shots:hover .work-card__shot--1 {
     --spread: -1.6deg;
     --lift: -5px;
   }
 
-  .work-card--light .work-card__shots:hover .work-card__shot--2 {
+  .work-card--light:not(.is-shot-open) .work-card__shots:hover .work-card__shot--2 {
     --spread: 1.6deg;
     --lift: -11px;
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
   }
 
-  .work-card--dark .work-card__shots:hover .work-card__shot--1 {
+  .work-card--dark:not(.is-shot-open) .work-card__shots:hover .work-card__shot--1 {
     --spread: -2deg;
     --lift: -5px;
   }
 
-  .work-card--dark .work-card__shots:hover .work-card__shot--2 {
+  .work-card--dark:not(.is-shot-open) .work-card__shots:hover .work-card__shot--2 {
     --spread: 1.4deg;
     --lift: -12px;
     box-shadow: 0 14px 38px rgba(0, 0, 0, 0.32);
   }
 
-  .work-card--dark .work-card__shots:hover .work-card__shot--3 {
+  .work-card--dark:not(.is-shot-open) .work-card__shots:hover .work-card__shot--3 {
     --spread: 2.4deg;
     --lift: -9px;
+  }
+}
+
+/* -------------------------------------------------------------
+   Screenshot lightbox - Figma 81:29494
+
+   Clicking a case's screenshots flies the real <img> elements out
+   of the card into a large, un-rotated, centred view; closing flies
+   them home. Nothing is cloned: the card is un-clipped and lifted
+   above the scrim, and JS writes --ox/--oy/--oscale/--orot on each
+   shot, so one transform carries the resting angle, the hover pop
+   and the fly-out together.
+
+   JS-only enhancement - with JS off the shots are inert decoration.
+   ------------------------------------------------------------- */
+.shots-open {
+  overflow: hidden;         /* freeze the page under the overlay */
+  scrollbar-gutter: stable; /* ...without the content shifting */
+}
+
+.work-card__shots[role="button"] {
+  cursor: zoom-in;
+}
+
+/* the stack box is zero-height on desktop, so put the focus ring on the
+   shots themselves rather than on the (invisible) container */
+.work-card__shots:focus-visible {
+  outline: none;
+}
+
+.work-card__shots:focus-visible .work-card__shot {
+  outline: 2px solid var(--gradient-orange);
+  outline-offset: 2px;
+}
+
+.work-card.is-shot-open {
+  overflow: visible; /* let the shots leave the card */
+}
+
+.work-card.is-shot-open .work-card__shots {
+  cursor: default;
+  /* below 880px the stack is itself a clipping window - the shots have
+     to be able to leave that too, not just the card */
+  overflow: visible;
+  /* Lift only the stack over the scrim, never the whole card: .work-card
+     is position:relative with z-index:auto, so it makes no stacking
+     context and this competes directly with .shot-scrim. Raising the card
+     instead would drag its text (z-index 1) above the scrim undimmed, and
+     would still leave that text painting over shot--1 (z-index 0). */
+  z-index: 60;
+}
+
+/* `strip` and `contain` shots are a frame with the image sitting inside
+   it - the frame only exists to fill the tile in the card. The lightbox
+   targets the image, so hand the frame's chrome over to it and let the
+   rest of the box go transparent. */
+.work-card.is-shot-open .work-card__shot.is-strip,
+.work-card.is-shot-open .work-card__shot.is-contain {
+  background: transparent;
+  box-shadow: none;
+}
+
+.work-card.is-shot-open .work-card__shot.is-strip img,
+.work-card.is-shot-open .work-card__shot.is-contain img {
+  border-radius: calc(4px / var(--oscale));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.shot-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(242, 241, 240, 0.78); /* --background, 78% (Figma) */
+  opacity: 0;
+  pointer-events: none; /* stays in the DOM while it fades back out */
+}
+
+.shot-close {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--text-main);
+  color: var(--inverted-main);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.shot-close:focus-visible {
+  outline: 2px solid var(--gradient-orange);
+  outline-offset: 3px;
+}
+
+.shot-close {
+  pointer-events: none;
+}
+
+.shot-scrim.is-in,
+.shot-close.is-in {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Stage one of the fly-out: the shots pick themselves up off the card,
+   far enough that the light cards' ~22px overhang clears the bottom
+   edge, so releasing the clip is invisible. */
+.work-card__shot.is-lifted {
+  --lift: -28px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shot-scrim,
+  .shot-close {
+    transition: opacity 0.35s ease;
+  }
+
+  /* stage one: a short, hover-like pick-up */
+  .work-card__shot.is-lifting {
+    transition: transform 0.2s cubic-bezier(0.22, 0.8, 0.28, 1);
+  }
+
+  /* stage two: the flight - longer and softer than the hover pop */
+  .work-card__shot.is-flying {
+    transition: transform 0.55s cubic-bezier(0.22, 0.75, 0.2, 1),
+      box-shadow 0.55s ease;
+  }
+
+  /* The clip opens with the pick-up so nothing can pop into view - the
+     Doconomy phone is 831px tall in a 512px card and can never be lifted
+     clear of it. The clip lives on the stack, NOT the card: clip-path
+     creates a stacking context, and on the card that would trap the
+     stack's z-index below the scrim. JS sizes the closed inset to the
+     card's own box, so it starts out identical to overflow: hidden. */
+  .work-card.is-shot-open .work-card__shots {
+    transition: clip-path 0.2s ease;
   }
 }
 
