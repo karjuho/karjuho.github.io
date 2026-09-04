@@ -1,0 +1,368 @@
+/* -------------------------------------------------------------
+   Improving Deposits - Doconomy case study write-up
+
+   Implemented from Figma (file 3bj2vwJkv0ykpj5xoku8fo,
+   node 107:45568 "Doconomy").
+
+   The frame is a 1400px canvas: a VERTICAL auto-layout with
+   75/53 padding, a 59px gap and CENTER cross-axis alignment.
+   So the page is one centred column where each block carries its
+   own width - 600 (prose), 940 (lead/media) or 1294 (spec grid).
+   main.css scales the whole canvas with `zoom` at >=1250px (see
+   `body.case-study` there), exactly as the home and dark case
+   pages do; below that the blocks just shrink and the layout
+   collapses to a single column with var(--spacing) gutters.
+
+   Type and colour come from the Figma text/colour styles via the
+   tokens in main.css.
+   ------------------------------------------------------------- */
+
+:root {
+  --cs-canvas: 1400px;  /* Figma frame width */
+  --cs-pad: 53px;       /* frame side padding */
+  --cs-gap: 59px;       /* auto-layout gap between blocks */
+
+  --cs-w-body: 600px;   /* sub-head + prose blocks */
+  --cs-w-lead: 940px;   /* h1, intro, figures, quotes, the split */
+  --cs-w-wide: 1294px;  /* spec grid (1400 - 2 * 53) */
+}
+
+/* Light page - override body.cases (white) and the corner map.
+   NB the body class is `case-study-page`, not `case-study`: main.css
+   already uses `.case-study` for the teaser section on /doconomy, and
+   on <body> that rule turned the page into a padded flex container. */
+body.case-study-page {
+  color: var(--text-muted);
+  background-color: var(--background);
+  background-image: none;
+}
+
+.cs {
+  max-width: var(--cs-canvas);
+  margin: 0 auto;
+  padding: 75px var(--cs-pad);
+  box-sizing: border-box;
+}
+
+/* the centred stack - every child sets its own max-width */
+.cs__article {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cs-gap);
+}
+
+.cs__article > * {
+  width: 100%;
+  margin: 0;
+}
+
+/* -- Close button (Figma 124:21579 - 48px, fixed while the page scrolls,
+      the frame's only `numberOfFixedChildren`) --------------------- */
+
+.cs__close {
+  position: fixed;
+  top: 75px;
+  right: var(--cs-pad);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--text-main);
+  color: var(--inverted-main);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.cs__close:hover {
+  text-decoration: none;
+  transform: scale(1.06);
+}
+
+.cs__close:focus-visible {
+  outline: 2px solid var(--gradient-orange);
+  outline-offset: 3px;
+}
+
+.cs__close-icon {
+  display: block;
+}
+
+/* -- Heading + intro ------------------------------------------------ */
+
+/* Heading/48 */
+.cs__title {
+  max-width: var(--cs-w-lead);
+  font: var(--font-heading-48);
+  color: var(--text-main);
+}
+
+/* Body/22 - SemiBold 22/30. The site token --font-body-22 is the older
+   700/1 cut still used by the contact block, so this one is local. */
+.cs__intro {
+  max-width: var(--cs-w-lead);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  color: var(--text-muted);
+}
+
+/* the metric call-outs are flat Gradient/Orange in the design, not the
+   clipped brand gradient */
+.cs__hl {
+  color: var(--gradient-orange);
+}
+
+.cs__split-body .cs__hl {
+  font-weight: 700;
+}
+
+/* -- Prose block: Heading/24 sub-head + Body/16 ------------------- */
+
+.cs__section {
+  max-width: var(--cs-w-body);
+}
+
+/* Heading/24, but on Figma's AUTO leading rather than the token's 100% */
+.cs__section h2 {
+  font: var(--font-heading-24);
+  line-height: 1.2;
+  color: var(--text-main);
+  margin: 0 0 20px;
+}
+
+.cs__section p {
+  font: var(--font-body-16);
+  color: var(--text-muted);
+  margin: 0 0 1.3em;
+}
+
+.cs__section p:last-child {
+  margin-bottom: 0;
+}
+
+/* -- Interstitial note / caption - Body/14 ------------------------ */
+
+.cs__note {
+  max-width: var(--cs-w-lead);
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text-muted);
+}
+
+.cs__note--italic {
+  font-style: italic;
+}
+
+/* -- Figures ---------------------------------------------------- */
+
+.cs__figure {
+  max-width: var(--cs-w-lead);
+}
+
+.cs__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cs__figcaption {
+  margin-top: 24px;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text-muted);
+}
+
+/* -- Pull quotes - Regular 48/AUTO, cite Italic 20/34 --------------
+   Overrides the site's default blockquote (border, italic, colour). */
+
+.cs__quote {
+  max-width: var(--cs-w-lead);
+  margin: 90px 0;
+  padding: 0;
+  border: 0;
+  text-align: center;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--text-muted);
+}
+
+.cs__quote-cite {
+  display: block;
+  margin-top: 44px;
+  font-size: 20px;
+  font-style: italic;
+  line-height: 34px;
+  color: var(--text-muted);
+}
+
+/* -- Result split: tall phone mock beside prose that sticks -------
+   Figma 107:45664 - HORIZONTAL, gap 44, top-aligned: a 375x1227
+   screen next to a 521x387 text column. The column is barely a third
+   of the screenshot's height, so it is pinned while the phone scrolls
+   past and released at the end of the section. `align-items: start`
+   is what makes that possible - a stretched grid item is as tall as
+   its row and has nothing to stick within. */
+
+.cs__split {
+  max-width: var(--cs-w-lead);
+  display: grid;
+  grid-template-columns: minmax(0, 375px) minmax(0, 521px);
+  gap: 44px;
+  align-items: start;
+}
+
+.cs__split-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cs__split-body {
+  position: sticky;
+  top: 75px;
+  padding: 24px 0;
+}
+
+.cs__split-body h2 {
+  font: var(--font-heading-24);
+  line-height: 1.2;
+  color: var(--text-main);
+  margin: 0 0 16px;
+}
+
+.cs__split-body p {
+  font: var(--font-body-16);
+  color: var(--text-muted);
+  margin: 0 0 1.3em;
+}
+
+.cs__split-body p:last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs__split-body {
+    position: static;
+  }
+}
+
+/* -- Spec grid - Figma 107:45673, 2 x 639 cells, 16px gutters ------
+   Each cell is exported whole, so its 1px #e3e1de border and 8px
+   radius are in the PNG - no CSS chrome to keep in sync. */
+
+.cs__specs {
+  max-width: var(--cs-w-wide);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.cs__spec img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* -------------------------------------------------------------
+   Below the zoom breakpoint - blocks shrink, then stack, and the
+   page falls back to var(--spacing) gutters.
+   ------------------------------------------------------------- */
+
+@media (max-width: 1250px) {
+  .cs {
+    padding: 78px var(--spacing) 90px;
+  }
+
+  .cs__close {
+    top: 20px;
+    right: 20px;
+    width: 46px;
+    height: 46px;
+  }
+
+  .cs__split-body,
+  .cs__quote {
+    top: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .cs__article {
+    gap: 44px;
+  }
+
+  .cs__split {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  /* nothing tall left to scroll past once it is stacked */
+  .cs__split-body {
+    position: static;
+    padding: 0;
+  }
+
+  .cs__split-media img {
+    width: 320px;
+    margin: 0 auto;
+  }
+
+  .cs__quote {
+    margin: 48px 0;
+    font-size: 34px;
+  }
+
+  .cs__quote-cite {
+    margin-top: 28px;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 700px) {
+  .cs {
+    padding-top: 78px;
+    padding-bottom: 72px;
+  }
+
+  .cs__article {
+    gap: 36px;
+  }
+
+  .cs__title {
+    font-size: 32px;
+  }
+
+  .cs__intro {
+    font-size: 19px;
+    line-height: 1.45;
+  }
+
+  .cs__section h2 {
+    font-size: 21px;
+  }
+
+  .cs__quote {
+    margin: 40px 0;
+    font-size: 26px;
+  }
+
+  /* the design's line breaks are tuned to a 940px measure */
+  .cs__quote br {
+    display: none;
+  }
+
+  .cs__quote-cite {
+    font-size: 16px;
+  }
+
+  .cs__specs {
+    grid-template-columns: 1fr;
+  }
+}

@@ -2,12 +2,30 @@
 permalink: /404.html
 layout: default
 title: Page not found
+body_class: error-page
 sitemap: false
 ---
 
 <main class="error" id="main" tabindex="-1">
-  <h1>404</h1>
 
-  <p><strong>Page not found</strong></p>
-  <p>The requested page could not be found.</p>
+  <a class="error-back" href="{{ "/" | relative_url }}">
+    <span class="error-back-icon" aria-hidden="true"></span>
+    <span class="profile-brand">
+      <span class="profile-photo">
+        <img src="{{ "/assets/images/juho-profile.jpg" | relative_url }}"
+             width="48" height="48" alt="">
+      </span>
+      <span class="profile-id">
+        <span class="profile-name">Juho Karhu</span>
+        <span class="profile-role">Product Designer</span>
+      </span>
+    </span>
+  </a>
+
+  <div class="error-body">
+    <p class="error-eyebrow">Oops...</p>
+    <h1 class="error-code">404</h1>
+    <p class="error-message">This page does not exist</p>
+  </div>
+
 </main>

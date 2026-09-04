@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32.475" height="15.636" viewBox="0 0 32.475 15.636" fill="none">
+<g transform="translate(0.155 4.977)"><path id="a_Vector" d="M32.1649 5.67871H32.0979C31.3593 8.33204 24.4711 10.4115 16.0818 10.4115C7.69287 10.4115 0.805572 8.33197 0.0669393 5.67871H0V0H32.1649V5.67871Z" fill="#E0AD2A" style="fill:#E0AD2A;fill:color(display-p3 0.8789 0.6790 0.1649);fill-opacity:1;"/></g>
+<g transform="translate(0.155 0.247)"><path id="b_Vector" d="M16.0825 10.4116C24.9646 10.4116 32.1649 8.08085 32.1649 5.20578C32.1649 2.33071 24.9646 0 16.0825 0C7.20036 0 0 2.33071 0 5.20578C0 8.08085 7.20036 10.4116 16.0825 10.4116Z" fill="#F7C33D" style="fill:#F7C33D;fill:color(display-p3 0.9679 0.7643 0.2409);fill-opacity:1;"/></g>
+<g transform="translate(4.88 2.141)"><path id="c_Vector" d="M11.3559 6.63408C17.6276 6.63408 22.7118 5.14899 22.7118 3.31704C22.7118 1.48509 17.6276 0 11.3559 0C5.08422 0 0 1.48509 0 3.31704C0 5.14899 5.08422 6.63408 11.3559 6.63408Z" fill="url(#c_paint0_linear_0_5090)"/>
+<defs>
+<linearGradient id="c_paint0_linear_0_5090" x1="0" y1="3.31704" x2="22.7118" y2="3.31704" gradientUnits="userSpaceOnUse">
+<stop stop-color="#E5B230" style="stop-color:#E5B230;stop-color:color(display-p3 0.8986 0.6997 0.1883);stop-opacity:1;"/>
+<stop offset="1" stop-color="#F7C33D" style="stop-color:#F7C33D;stop-color:color(display-p3 0.9686 0.7647 0.2392);stop-opacity:1;"/>
+</linearGradient>
+</defs></g>
+</svg>

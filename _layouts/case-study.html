@@ -1,0 +1,17 @@
+---
+layout: default
+---
+
+<main class="cs" id="main" tabindex="-1">
+
+  <a class="cs__close" href="{{ page.close_url | default: '/doconomy' | relative_url }}"
+     aria-label="{{ page.close_label | default: 'Close case study' }}">
+    <svg class="cs__close-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+         fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <path d="M6 6l12 12M18 6L6 18"></path>
+    </svg>
+  </a>
+
+  {{ content }}
+
+</main>

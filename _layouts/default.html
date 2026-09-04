@@ -13,13 +13,16 @@
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ "/assets/fonts/lato-400-latin.woff2" | relative_url }}">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ "/assets/fonts/lato-800-latin.woff2" | relative_url }}">
     <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
+{%- for css in page.extra_css %}
+    <link rel="stylesheet" href="{{ css | relative_url }}">
+{%- endfor %}
 
     <script src="{{ "/assets/main.js" | relative_url }}" defer></script>
     {% if jekyll.environment == 'production' %}{% include analytics.html %}{% endif %}
 
     {%- seo -%}
   </head>
-  <body class="{{ page.collection }}">
+  <body class="{{ page.collection }}{% if page.body_class %} {{ page.body_class }}{% endif %}">
     <a class="skip-link" href="#main">Skip to content</a>
     {{ content }}
   </body>

@@ -15,7 +15,7 @@
   variant: dark
   cta:
     label: Read more
-    href: /doconomy/
+    href: /doconomy
   # the user count is gradient text in the design, hence the raw span
   blurb: >-
     Leading product design for a savings product for consumer banks with over

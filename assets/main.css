@@ -23,6 +23,50 @@
 @font-face {
   font-family: "Lato";
   font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("fonts/lato-300-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("fonts/lato-300-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/lato-400-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/lato-400-italic-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Lato";
+  font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url("fonts/lato-400-latin.woff2") format("woff2");
@@ -155,6 +199,7 @@
   --inverted-background: #1f1e1d;  /* Inverted/Background */
   --gray-0: #ffffff;               /* Gray/0 */
   --gray-500: #66625c;             /* Gray/500 (== Text/Muted) */
+  --gray-700: #312e2b;             /* Gray/700 */
   --orange-bg: #ffd7c6;            /* Orange BG */
 
   /* gradient stops: Figma Gradient/Orange - Gradient/Yellow - Gradient/Red */
@@ -184,6 +229,7 @@
 
   /* --- Type (mirrors the Figma text styles) ----------------------- */
   --font-heading-64: 800 64px/1 var(--font-family);         /* Heading/64 */
+  --font-heading-48: 800 48px/1 var(--font-family);         /* Heading/48 */
   --font-heading-36: 800 36px/1.3 var(--font-family);       /* Heading/36 */
   --font-heading-24: 800 24px/1 var(--font-family);         /* Heading/24 */
   --font-body-22: 700 22px/1 var(--font-family);            /* Body/22 */
@@ -247,9 +293,14 @@ dl, dd, ol, ul, figure {
    reflows in the 1050-1400 range, and keeps filling wider screens past
    1400. zoom (unlike transform) reflows, keeps position: sticky and
    hit-testing, and re-rasterises text crisply. Below 1050 the mobile
-   layout takes over, unscaled. Case pages are fluid prose - left natural. */
+   layout takes over, unscaled. The old (markdown) case pages are fluid
+   prose - left natural; the redesigned ones opt back in by class.
+   The 404 page is a single centred block that needs the real viewport
+   height, so it opts out of the zoom too. */
 @media (min-width: 1250px) {
-  body:not(.cases) {
+  body:not(.cases):not(.error-page),
+  body.case-dark,
+  body.case-study-page {
     zoom: calc(100vw / 1400px);
   }
 }
@@ -287,6 +338,14 @@ body {
 
 body.cases {
   background: var(--gray-0);
+}
+
+/* the redesigned (dark) case pages are a 1400px canvas like the home
+   page, so they keep the map off and take the inverted background */
+body.case-dark {
+  color: var(--inverted-muted);
+  background: var(--inverted-background);
+  background-image: none;
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -626,10 +685,15 @@ hr {
   display: flex;
   align-items: center;
   gap: 12px;
+  text-decoration: none;
+}
+
+.profile-brand:hover {
+  text-decoration: none;
 }
 
 @media (min-width: 1250px) {
-  .profile-brand {
+  .home-header .profile-brand {
     padding: 0 var(--sidebar-pad);
   }
 }
@@ -866,6 +930,149 @@ hr {
   .contact-pins.pins-armed.pins-in .contact-pin {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Marker tooltips (Figma 139:25902) -------------------------------------
+   Each pin is a <button>. On hover the pin image lifts ~4px to signal it
+   is interactive; on click it snaps back down and the tooltip opens. The
+   hover lift is suppressed while that pin's tooltip is open. Opening one
+   tooltip closes any other (wired in assets/main.js). */
+.contact-pin {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  pointer-events: auto; /* .contact-pins itself stays click-through */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.contact-pin:focus-visible {
+  outline: 2px solid var(--gradient-orange);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+/* the image sits in a wrapper span in older markup; here it is a direct
+   child of the button, positioned by the rules further up. */
+.contact-pin img {
+  transition: transform 0.16s ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .contact-pin:hover img {
+    transform: translateY(-4px);
+  }
+}
+
+/* open state: image parked down, no hover response, tooltip visible */
+.contact-pin.is-open img,
+.contact-pin.is-open:hover img {
+  transform: none;
+  transition: none;
+}
+
+.contact-pin.is-open {
+  z-index: 5;
+}
+
+/* lift the whole decorative layer above the contact text while a tip is
+   open, so the card is never covered by the copy */
+.contact-pins.has-open-tip {
+  z-index: 2;
+}
+
+/* Dark card, 16px radius, downward tail centred on the pin. The muted
+   place sits above the white note (Figma 139:25902). */
+.contact-pin__tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  box-sizing: border-box;
+  width: 223px;
+  padding: 16px 16px 32px;
+  border-radius: 16px;
+  background: var(--inverted-background);
+  box-shadow: 0 16px 40px rgba(13, 12, 10, 0.24),
+    0 4px 12px rgba(13, 12, 10, 0.12);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.16s ease, transform 0.16s ease,
+    visibility 0s linear 0.16s;
+}
+
+.contact-pin.is-open .contact-pin__tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+/* the tail - same fill as the card, pointing down at the pin */
+.contact-pin__tip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 9px solid var(--inverted-background);
+}
+
+.contact-pin__place {
+  display: block;
+  margin: 0;
+  padding-right: 20px; /* clear the close glyph */
+  font: 400 12px/1.25 var(--font-family);
+  color: var(--inverted-muted);
+  white-space: normal;
+}
+
+.contact-pin__note {
+  display: block;
+  margin: 14px 0 0;
+  font: 400 14px/1.35 var(--font-family);
+  color: var(--inverted-main);
+  white-space: normal;
+}
+
+.contact-pin__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--inverted-muted);
+  cursor: pointer;
+}
+
+.contact-pin__close:hover {
+  color: var(--inverted-main);
+}
+
+.contact-pin__close:focus-visible {
+  outline: 2px solid var(--inverted-muted);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-pin__tip {
+    transition: opacity 0.001s linear, visibility 0s linear 0.001s;
   }
 }
 
@@ -2177,11 +2384,6 @@ hr {
   margin: 0 0 calc(var(--spacing) * 2) 0;
 }
 
-.error {
-  padding: var(--spacing);
-}
-
-
 /* -------------------------------------------------------------
    Motion & accessibility foundation
    ------------------------------------------------------------- */
@@ -2210,4 +2412,689 @@ hr {
 
 .skip-link:focus {
   left: 0;
+}
+
+/* -- 404 (136:24010) ------------------------------------------------
+   A plain white page: the back-to-home brand pinned top-left, and one
+   vertically centred block. Gaps come straight from the Figma stack
+   (14 / 11 / 64 / 38 / 30). */
+
+body.error-page {
+  background-color: var(--gray-0);
+  background-image: none;
+}
+
+.error {
+  position: relative;
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Out of flow so it can never sit under (and steal clicks/hover from)
+   the centred body below - the two used to be flex siblings with the
+   body pulled up over it via a negative margin. */
+.error-back {
+  position: absolute;
+  top: 48px;
+  left: 64px;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+}
+
+.error-back:hover {
+  text-decoration: none;
+}
+
+/* Font Awesome angle-left is the exact mirror of the angle-right we
+   already ship, so flip the one mask rather than adding a second file. */
+.error-back-icon {
+  flex: none;
+  width: 13px;
+  height: 21px;
+  background-color: var(--text-main);
+  -webkit-mask: url("icons/angle-right.svg") no-repeat center / contain;
+  mask: url("icons/angle-right.svg") no-repeat center / contain;
+  transform: scaleX(-1);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.error-back:hover .error-back-icon,
+.error-back:focus-visible .error-back-icon {
+  transform: scaleX(-1) translateX(var(--move-sm));
+}
+
+.error-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.error-eyebrow {
+  margin: 0 0 11px;
+  font: var(--font-uppercase-14);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.error-code {
+  margin: 0 0 38px;
+  font: var(--font-heading-64);
+  color: var(--text-main);
+}
+
+.error-message {
+  margin: 0;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .error-back {
+    top: 24px;
+    left: 24px;
+  }
+
+  .error-code {
+    font-size: 48px;
+    margin-bottom: 28px;
+  }
+
+  .error-message {
+    font-size: 18px;
+    line-height: 26px;
+  }
+}
+
+/* -------------------------------------------------------------
+   Case page - dark (Figma 107:36782, "Doconomy")
+
+   Same rigid 1400px canvas as the home page (see the zoom rule near
+   the top), so every measurement below is the Figma pixel value. The
+   page is one column of full-width sections, each carrying the 64px
+   side padding from the design.
+   ------------------------------------------------------------- */
+
+.case-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-x: clip; /* the hero wash bleeds a couple of px past 1400 */
+}
+
+@media (min-width: 1250px) {
+  .case-page {
+    width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+/* the warm gradient wash behind the header + hero. Same artwork as the
+   Doconomy work card's background: one gradient with two soft light
+   sweeps, exported as a single SVG. */
+.case-page__bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1398px;
+  height: 1186px;
+  max-width: 100%;
+  background: url("images/doconomy/hero-bg.svg") no-repeat left top / 1398px 1186px;
+  pointer-events: none;
+}
+
+/* every section sits above the wash */
+.case-page > *:not(.case-page__bg) {
+  position: relative;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -- Top bar ------------------------------------------------------- */
+
+.case-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 48px 64px;
+}
+
+.case-back {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+}
+
+.case-back:hover {
+  text-decoration: none;
+}
+
+.case-back__icon {
+  width: 24px;
+  height: 24px;
+  background: var(--inverted-main);
+  -webkit-mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
+  mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.case-back:hover .case-back__icon {
+  transform: translateX(calc(var(--move-sm) * -1));
+}
+
+.case-back .profile-name {
+  letter-spacing: 0.9px;
+  color: var(--inverted-main);
+}
+
+.case-back .profile-role {
+  letter-spacing: 1.078px;
+  color: var(--inverted-muted);
+}
+
+/* -- Shared pieces -------------------------------------------------- */
+
+/* white pill with gradient label - same button as the work cards' CTA,
+   with a leading Font Awesome "book" glyph instead of the chevron */
+.case-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 24px;
+  border-radius: 48px;
+  background: var(--inverted-main);
+  text-decoration: none;
+}
+
+.case-pill:hover {
+  text-decoration: none;
+}
+
+.case-pill__icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: var(--gradient-nav);
+  -webkit-mask: url("icons/book.svg") no-repeat center / contain;
+  mask: url("icons/book.svg") no-repeat center / contain;
+}
+
+.case-pill__label {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.case-figure {
+  margin: 0;
+}
+
+.case-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* -- Hero ----------------------------------------------------------- */
+
+.case-hero {
+  display: flex;
+  gap: 32px;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 128px 32px 64px;
+}
+
+.case-hero__text {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.case-hero__logo {
+  display: block;
+  width: 161.25px;
+  height: 30px;
+}
+
+.case-hero__title {
+  margin: 0;
+  font: var(--font-heading-64);
+  color: var(--inverted-main);
+}
+
+.case-hero__lead {
+  width: 630px;
+  max-width: 100%;
+}
+
+.case-hero__lead p {
+  margin: 0 0 30px;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  color: var(--inverted-muted);
+}
+
+.case-hero__lead p:last-child {
+  margin-bottom: 0;
+}
+
+.case-hero__lead strong {
+  font-weight: 600;
+  color: var(--inverted-main);
+}
+
+/* the product blurb hangs off the right edge of the text column, under
+   the phone (Figma 107:43918) */
+.case-hero__product {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  width: 100%;
+  padding-top: 40px;
+  text-align: right;
+}
+
+.case-hero__product-title {
+  width: 364px;
+  margin: 0;
+  font: var(--font-heading-24);
+  line-height: normal;
+  color: var(--inverted-main);
+}
+
+.case-hero__product-body {
+  width: 609px;
+  max-width: 100%;
+  margin: 0;
+  font: var(--font-body-16);
+  color: var(--inverted-muted);
+}
+
+.case-hero__visual {
+  flex: none;
+  width: 375px;
+  height: 764px;
+  overflow: hidden;
+  border-radius: 32px;
+  background: #1a1a1a;
+}
+
+.case-hero__visual img {
+  display: block;
+  width: 375px;
+  height: 764px;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* -- Stats ---------------------------------------------------------- */
+
+.case-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 64px 64px 0;
+}
+
+.case-stats__list {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-stat {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.case-stat__label {
+  font: var(--font-uppercase-14);
+  line-height: normal;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--inverted-muted);
+}
+
+/* Lato Light - the one place on the site that uses 300 */
+.case-stat__value {
+  font-weight: 300;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--inverted-main);
+}
+
+.case-rule {
+  height: 6px;
+  border-radius: 8px;
+  background: var(--gray-700);
+}
+
+/* -- Screenshot grid ------------------------------------------------ */
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 64px;
+}
+
+.case-grid__tile {
+  margin: 0;
+}
+
+.case-grid__tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* -- Prose blocks --------------------------------------------------- */
+
+.case-block {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 80px 64px 0;
+}
+
+.case-block__title {
+  margin: 0;
+  font: var(--font-heading-36);
+  text-align: center;
+  color: var(--inverted-main);
+}
+
+.case-cols {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.case-cols__prose {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.case-cols__aside {
+  flex: none;
+  width: 561px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.case-stats__list--pair .case-stat {
+  flex: none;
+  width: 277.856px;
+  gap: 5px;
+}
+
+.case-caption {
+  margin: 0;
+  font-style: italic;
+  font-size: 14px;
+  line-height: normal;
+  color: var(--inverted-muted);
+}
+
+.case-split {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  padding: 0 64px;
+}
+
+.case-split__media {
+  flex: none;
+  width: 558px;
+}
+
+.case-split__prose {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* shared prose scale for both text columns (Figma 107:44399 / 107:44877) */
+.case-cols__prose h3,
+.case-split__prose h3 {
+  margin: 0 0 27px;
+  font: var(--font-heading-24);
+  line-height: 27px;
+  color: var(--inverted-main);
+}
+
+.case-cols__prose p,
+.case-split__prose p {
+  margin: 0 0 27px;
+  font: var(--font-body-16);
+  color: #e4e4e4;
+}
+
+.case-cols__prose p:last-child,
+.case-split__prose p:last-child {
+  margin-bottom: 0;
+}
+
+.case-cols__prose strong,
+.case-split__prose strong {
+  font-weight: 400;
+  color: var(--inverted-main);
+}
+
+/* -- Case-study teaser --------------------------------------------- */
+
+.case-study {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 80px 64px 128px;
+}
+
+.case-study__board img {
+  background: var(--gray-0);
+}
+
+.case-study__outro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.case-study__title {
+  width: 584px;
+  max-width: 100%;
+  margin: 0;
+  font: var(--font-heading-24);
+  line-height: normal;
+  color: var(--inverted-main);
+}
+
+.case-study__lead {
+  width: 886px;
+  max-width: 100%;
+  margin: 0;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  color: #e4e4e4;
+}
+
+/* -- Case page: below the 1400 canvas ------------------------------
+   No zoom down here, so the Figma-fixed widths go fluid and the two
+   side-by-side sections stack. Same idea as the home page. */
+@media (max-width: 1250px) {
+  .case-page__bg {
+    width: 100%;
+    height: 1000px;
+    background-size: cover;
+    background-position: left top;
+  }
+
+  .case-topbar {
+    padding: 24px;
+  }
+
+  .case-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 40px;
+    padding: 0 24px 24px;
+  }
+
+  .case-hero__title {
+    font-size: clamp(36px, 6vw, 64px);
+  }
+
+  .case-hero__lead {
+    width: 100%;
+  }
+
+  .case-hero__lead p {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  /* the blurb loses its hang-off-the-phone placement and reads as a
+     normal paragraph under the intro */
+  .case-hero__product {
+    align-items: flex-start;
+    padding-top: 8px;
+    text-align: left;
+  }
+
+  .case-hero__product-title,
+  .case-hero__product-body {
+    width: 100%;
+  }
+
+  .case-hero__visual {
+    align-self: center;
+    max-width: 100%;
+  }
+
+  .case-stats {
+    gap: 20px;
+    padding: 40px 24px 0;
+  }
+
+  .case-stats__list {
+    flex-wrap: wrap;
+  }
+
+  .case-stat {
+    flex: 1 1 200px;
+  }
+
+  .case-stat__value {
+    font-size: clamp(32px, 4.5vw, 48px);
+  }
+
+  .case-grid {
+    padding: 40px 24px;
+  }
+
+  .case-block {
+    gap: 28px;
+    padding: 56px 24px 0;
+  }
+
+  .case-block__title {
+    font-size: 28px;
+  }
+
+  .case-cols {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .case-cols__aside {
+    width: 100%;
+  }
+
+  .case-stats__list--pair .case-stat {
+    flex: 1 1 0;
+    width: auto;
+  }
+
+  .case-split {
+    flex-direction: column;
+    padding: 40px 24px 0;
+  }
+
+  .case-split__media {
+    width: 100%;
+  }
+
+  .case-study {
+    padding: 56px 24px 80px;
+  }
+
+  .case-study__title,
+  .case-study__lead {
+    width: 100%;
+  }
+
+  .case-study__lead {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .case-study__lead br {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .case-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .case-hero__visual {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 375 / 764;
+  }
+
+  .case-hero__visual img {
+    width: 100%;
+    height: 100%;
+  }
 }

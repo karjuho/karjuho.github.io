@@ -38,6 +38,85 @@
     pinObs.observe(pins);
   }
 
+  /* Contact map pins: click a pin to open its place tooltip. Opening one
+     closes any other; a click outside, the tooltip's x button, or Escape
+     also closes it. (Figma 139:25902) */
+  if (pins) {
+    var pinButtons = pins.querySelectorAll(".contact-pin");
+    var openPin = null;
+
+    var closeTip = function () {
+      if (!openPin) return;
+      var pin = openPin;
+      openPin = null;
+      pin.classList.remove("is-open");
+      pin.setAttribute("aria-expanded", "false");
+      var tip = pin.querySelector(".contact-pin__tip");
+      if (tip) tip.parentNode.removeChild(tip);
+      pins.classList.remove("has-open-tip");
+    };
+
+    var openTip = function (pin) {
+      closeTip();
+
+      var tip = document.createElement("span");
+      tip.className = "contact-pin__tip";
+      tip.setAttribute("role", "tooltip");
+
+      var place = document.createElement("span");
+      place.className = "contact-pin__place";
+      place.textContent = pin.getAttribute("data-place") || "";
+
+      var note = document.createElement("span");
+      note.className = "contact-pin__note";
+      note.textContent = pin.getAttribute("data-note") || "";
+
+      var closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "contact-pin__close";
+      closeBtn.setAttribute("aria-label", "Close");
+      closeBtn.innerHTML =
+        '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" ' +
+        'fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>';
+      closeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        closeTip();
+        pin.focus();
+      });
+
+      tip.appendChild(place);
+      tip.appendChild(note);
+      tip.appendChild(closeBtn);
+      pin.appendChild(tip);
+
+      pin.classList.add("is-open");
+      pin.setAttribute("aria-expanded", "true");
+      pins.classList.add("has-open-tip");
+      openPin = pin;
+    };
+
+    for (var pb = 0; pb < pinButtons.length; pb++) {
+      pinButtons[pb].addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (openPin === this) closeTip();
+        else openTip(this);
+      });
+    }
+
+    document.addEventListener("click", function (e) {
+      if (openPin && !openPin.contains(e.target)) closeTip();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && openPin) {
+        var pin = openPin;
+        closeTip();
+        pin.focus();
+      }
+    });
+  }
+
   /* ---------------------------------------------------------------
      Screenshot lightbox (Figma 81:29494).
 
