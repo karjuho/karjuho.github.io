@@ -29,7 +29,7 @@
   title: Mealplanner
   variant: light
   blurb: |
-    Built a meal planner app as a solo designer and developer. Built it first with Laravel and Vue, but moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design laguage different from typical corporate flat design, and got inspried by my kitchen, cook books and art.
+    Built a meal planner app as a solo designer and developer. Built it first with Laravel and Vue, but moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design language different from typical corporate flat design, and got inspired by my kitchen, cook books and art.
   shots:
     - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "" }
     - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
@@ -52,7 +52,7 @@
   blurb: |
     The world's leading smart-spreader system needed a user-friendly UI.
 
-    My role was facilitating the complete design process in a cross-functional team consisting of developers and clients repesentatives to improve a leading heavy-industry IoT service.
+    My role was facilitating the complete design process in a cross-functional team consisting of developers and clients representatives to improve a leading heavy-industry IoT service.
   shots:
     - { src: /assets/images/work/bromma-a.png, w: 1400, h: 875, alt: "" }
     - { src: /assets/images/work/bromma-b.png, w: 1400, h: 875, alt: "Bromma spreader monitoring dashboard" }
