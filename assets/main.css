@@ -1,24 +1,42 @@
 /* =============================================================
-   Juho Karhu — portfolio
+   Juho Karhu - portfolio
+   Site chrome + home page. Case pages load their own stylesheet
+   on top of this one (see `extra_css` in their front matter):
+     /doconomy           -> assets/case-doconomy.css
+     /improving-deposits -> assets/case-improving-deposits.css
 
-   Plain CSS. No preprocessor, no framework.
-   Ported from the old Sass on 2026-09-02. Values that used
-   Sass colour functions (lighten/darken) are pre-computed hex.
+   Plain CSS. No preprocessor, no framework. Ported from the old
+   Sass on 2026-09-02; values that used Sass colour functions
+   (lighten/darken) are pre-computed hex.
 
-   Breakpoints (kept from the old Sass):
-     palm   = 600px
-     mobile/desktop switch = 1050px (case-page prose still 800px)
+   Layout is a rigid 1400px canvas scaled with `zoom` at >=1250px,
+   so most lengths here are Figma design pixels. Below 1250px the
+   layout reflows unscaled; 900px and 600px are the two minor steps.
+
+   Contents
+     1. Fonts
+     2. Tokens (:root) - colour, type, spacing, motion
+     3. Reset
+     4. Base - canvas scaling, background map
+     5. Home layout - sidebar, profile, headline, nav, gradient text
+     6. Contact section + map pins
+     7. Work cards + screenshot stack
+     8. Screenshot lightbox
+     9. About section
+    10. Motion & accessibility foundation
+    11. 404
    ============================================================= */
 
 
-/* -------------------------------------------------------------
+/* =============================================================
+   1. Fonts
    Lato — self-hosted (files in assets/fonts/). Subsets and
    unicode-ranges match what Google Fonts served for
    family=Lato:wght@400;700;900 for 400/700/900. Lato has no 600/800 on the
    Google Fonts API, so those two are subset from the OFL statics in
    google/fonts to identical codepoint coverage. Licence: fonts/OFL.txt.
    font-display: swap throughout.
-   ------------------------------------------------------------- */
+   ============================================================= */
 
 @font-face {
   font-family: "Lato";
@@ -175,6 +193,15 @@
 }
 
 
+/* =============================================================
+   2. Tokens
+
+   Mirrors the Figma colour, type and spacing variables. Motion
+   tokens (--dur-*, --ease-*, --move-*) are zeroed under
+   prefers-reduced-motion at the bottom of this block, which is
+   how most animation here collapses to nothing.
+   ============================================================= */
+
 :root {
   color-scheme: light;
 
@@ -195,7 +222,7 @@
   --text-main: #0d0c0a;            /* Text/Main */
   --text-muted: #66625c;           /* Text/Muted */
   --inverted-main: #ffffff;        /* Inverted/Main */
-  --inverted-muted: #c0bcb6;       /* Inverted/Muted */
+  --inverted-muted: #E3E1DE;       /* Inverted/Muted */
   --inverted-background: #1f1e1d;  /* Inverted/Background */
   --gray-0: #ffffff;               /* Gray/0 */
   --gray-500: #66625c;             /* Gray/500 (== Text/Muted) */
@@ -273,7 +300,7 @@
 
 
 /* -------------------------------------------------------------
-   Reset
+   3. Reset
    ------------------------------------------------------------- */
 
 body, h1, h2, h3, h4, h5, h6,
@@ -285,22 +312,18 @@ dl, dd, ol, ul, figure {
 
 
 /* -------------------------------------------------------------
-   Base
+   4. Base - canvas scaling, background map
    ------------------------------------------------------------- */
 
-/* Above the mobile breakpoint the desktop layout is a rigid 1400px
-   canvas. Scale the whole page so it always fits the viewport - it never
-   reflows in the 1050-1400 range, and keeps filling wider screens past
-   1400. zoom (unlike transform) reflows, keeps position: sticky and
-   hit-testing, and re-rasterises text crisply. Below 1050 the mobile
-   layout takes over, unscaled. The old (markdown) case pages are fluid
-   prose - left natural; the redesigned ones opt back in by class.
-   The 404 page is a single centred block that needs the real viewport
-   height, so it opts out of the zoom too. */
+/* Above the mobile breakpoint every page is a rigid 1400px canvas.
+   Scale the whole page so it always fits the viewport - it never reflows
+   in the 1250-1400 range, and keeps filling wider screens past 1400.
+   zoom (unlike transform) reflows, keeps position: sticky and
+   hit-testing, and re-rasterises text crisply. Below 1250 the mobile
+   layout takes over, unscaled. The 404 page is a single centred block
+   that needs the real viewport height, so it opts out. */
 @media (min-width: 1250px) {
-  body:not(.cases):not(.error-page),
-  body.case-dark,
-  body.case-study-page {
+  body:not(.error-page) {
     zoom: calc(100vw / 1400px);
   }
 }
@@ -334,18 +357,6 @@ body {
   body {
     background-size: 620px auto;
   }
-}
-
-body.cases {
-  background: var(--gray-0);
-}
-
-/* the redesigned (dark) case pages are a 1400px canvas like the home
-   page, so they keep the map off and take the inverted background */
-body.case-dark {
-  color: var(--inverted-muted);
-  background: var(--inverted-background);
-  background-image: none;
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -413,9 +424,6 @@ h3 { font-size: 1.2em; }
   text-transform: uppercase;
   color: var(--text-muted);
 }
-
-.margin-top { margin-top: var(--spacing); }
-.margin-bottom { margin-bottom: var(--spacing); }
 
 a {
   color: var(--gradient-orange);
@@ -550,7 +558,7 @@ hr {
 
 
 /* -------------------------------------------------------------
-   Home layout
+   5. Home layout - sidebar, profile, gradient text
    ------------------------------------------------------------- */
 
 .home {
@@ -798,7 +806,7 @@ hr {
 }
 
 /* -------------------------------------------------------------
-   Contact section - Figma 16:3147 (940 x 731)
+   6. Contact section + map pins - Figma 16:3147 (940 x 731)
    ------------------------------------------------------------- */
 
 .home-content .section#contact {
@@ -1113,17 +1121,6 @@ hr {
   }
 }
 
-/* .site-title is the case-page header link; the home sidebar uses
-   .profile-name instead. Case pages are redesigned in a later step. */
-.site-title,
-.site-title:hover {
-  color: var(--gradient-orange);
-  font-weight: 700;
-  font-size: 0.875em;
-  letter-spacing: 0.3em;
-  text-decoration: none;
-}
-
 /* -- Headline: "Design" / "& Code" (16:866) ------------------------- */
 
 .big-header {
@@ -1256,12 +1253,19 @@ hr {
   background-color: var(--text-main);
 }
 
-/* Active item: gradient glyph + label (orange -> yellow, no red - Figma 32:23143) */
+/* Active item: pill row (32:23142) - a rounded, barely-lifted container
+   (radius 40 + an 8%-opacity shadow that reads as a hairline under the
+   icon/label, not a card) around a gradient glyph + label. The icon
+   gradient is the 2-stop orange->yellow of 32:23143; the label is the
+   full 3-stop orange/yellow/red brand gradient of 32:23149 - they are
+   deliberately different gradients in the design, not a typo. */
 .nav a.active {
   font: var(--font-uppercase-14-bold);
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--gradient-orange);
+  border-radius: 40px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
 }
 
 .nav a.active .nav-icon {
@@ -1271,7 +1275,7 @@ hr {
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .nav a.active .nav-label {
-    background-image: var(--gradient-nav);
+    background-image: var(--gradient-brand);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1309,7 +1313,7 @@ hr {
 
 
 /* -------------------------------------------------------------
-   Work cards - Figma 16:878
+   7. Work cards + screenshot stack - Figma 16:878
    ------------------------------------------------------------- */
 
 .work-list {
@@ -1327,9 +1331,23 @@ hr {
   width: 100%;
   padding: 32px;
   box-sizing: border-box;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
   color: var(--text-main);
+  /* the dark hero card is a real <a> (whole card links to its case);
+     .work-card--dark still wins the text colour below by source order */
+  text-decoration: none;
+}
+
+/* .work-card's own text-decoration: none loses to the global a:hover
+   underline (higher specificity) - this beats it back on hover too */
+a.work-card:hover {
+  text-decoration: none;
+}
+
+a.work-card:focus-visible {
+  outline: 2px solid var(--gradient-orange);
+  outline-offset: 2px;
 }
 
 .work-card--light {
@@ -1391,6 +1409,18 @@ hr {
      registers - screen makes them behave like light instead: they lift
      the dark end of the card and fade out where it is already bright */
   mix-blend-mode: screen;
+  /* filter is on the sweep itself (already its own stacking context via
+     mix-blend-mode), never on .work-card__glow - that wrapper must stay
+     free of anything stacking-context-inducing or the screen blend above
+     would stop seeing the card's gradient (see its comment) */
+  filter: brightness(1) saturate(1);
+  transition: filter 0.4s ease;
+}
+
+/* hover: brighten the light sweeps a touch, warming the gradient under
+   them without fighting the ambient drift animation above */
+.work-card--dark:hover .work-card__glow span {
+  filter: brightness(1.28) saturate(1.1);
 }
 
 .work-card__glow-a {
@@ -1523,7 +1553,7 @@ hr {
 .work-card--dark .work-card__text p {
   font-size: 18px;
   line-height: 1.6;
-  color: var(--inverted-muted);
+  color: var(--inverted-main);
 }
 
 .work-card--dark .work-card__text strong {
@@ -1579,6 +1609,10 @@ hr {
 
 .work-card--light .work-card__shots {
   width: 453.593px;
+  /* pin the stack to the card's bottom edge instead of its top, so a
+     longer blurb (taller card) only adds room above the shots - the
+     crop at the bottom edge stays the same amount for every card */
+  align-self: flex-end;
 }
 
 .work-card--dark .work-card__shots {
@@ -1640,22 +1674,25 @@ hr {
 .work-card--light .work-card__shot {
   width: 425.6px;
   height: 266px;
-  /* divided by the lightbox scale so the corner stays 4px on screen
+  /* divided by the lightbox scale so the corner stays 8px on screen
      as the shot grows (--oscale is 1 at rest) */
-  border-radius: calc(4px / var(--oscale));
+  border-radius: calc(8px / var(--oscale));
   box-shadow: 0 2px 32px rgba(0, 0, 0, 0.35);
 }
 
 .work-card--light .work-card__shot--1 {
   left: 5.44px;
-  top: 10.48px;
+  /* equivalent to top: 10.48px against the 294px min-height card, but
+     measured from the bottom edge so the crop is constant regardless
+     of how tall the blurb makes the card */
+  bottom: -46.48px;
   --rot: -2.43deg;
   z-index: 0;
 }
 
 .work-card--light .work-card__shot--2 {
   left: 24.01px;
-  top: 6.48px;
+  bottom: -42.48px;
   --rot: 1.76deg;
   z-index: 1;
 }
@@ -1691,9 +1728,11 @@ hr {
 }
 
 /* ---- hover: a half-pop - the whole stack lifts and fans out a touch.
-        Hovering any shot arms it (:hover matches the stack through its
-        children even though the stack box itself is zero-height), so the
-        rest of the card is not a hover target. ---- */
+        Light cards: only the shots stack arms it (:hover matches through
+        its children even though the stack box itself is zero-height), so
+        the rest of the card is not a hover target - those still open the
+        lightbox on click. Dark card: it's a single whole-card link now
+        (no lightbox), so hovering anywhere on the card arms the fan. ---- */
 @media (prefers-reduced-motion: no-preference) {
   .work-card__shot {
     transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.28, 1),
@@ -1712,25 +1751,25 @@ hr {
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
   }
 
-  .work-card--dark:not(.is-shot-open) .work-card__shots:hover .work-card__shot--1 {
+  .work-card--dark:hover .work-card__shot--1 {
     --spread: -2deg;
     --lift: -5px;
   }
 
-  .work-card--dark:not(.is-shot-open) .work-card__shots:hover .work-card__shot--2 {
+  .work-card--dark:hover .work-card__shot--2 {
     --spread: 1.4deg;
     --lift: -12px;
     box-shadow: 0 14px 38px rgba(0, 0, 0, 0.32);
   }
 
-  .work-card--dark:not(.is-shot-open) .work-card__shots:hover .work-card__shot--3 {
+  .work-card--dark:hover .work-card__shot--3 {
     --spread: 2.4deg;
     --lift: -9px;
   }
 }
 
 /* -------------------------------------------------------------
-   Screenshot lightbox - Figma 81:29494
+   8. Screenshot lightbox - Figma 81:29494
 
    Clicking a case's screenshots flies the real <img> elements out
    of the card into a large, un-rotated, centred view; closing flies
@@ -1789,7 +1828,7 @@ hr {
 
 .work-card.is-shot-open .work-card__shot.is-strip img,
 .work-card.is-shot-open .work-card__shot.is-contain img {
-  border-radius: calc(4px / var(--oscale));
+  border-radius: calc(8px / var(--oscale));
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
@@ -1943,114 +1982,87 @@ hr {
     font-size: 16px;
   }
 
-  /* full-bleed: pull the band out past the card's 32px padding on both
-     sides and the bottom, so the card itself (overflow:hidden + the 8px
-     radius) is the only thing clipping the screenshots */
+  /* The fan is one fixed composition (the px geometry from Figma further
+     up), so rather than reflowing it, reproduce it exactly - just
+     smaller. Every offset and size below is that desktop value as a
+     percentage of the stack, and the stack carries the fan's aspect
+     ratio, so the whole composition scales as one with the card and no
+     shot is ever cropped at the sides.
+
+     The stack's height is the slice desktop shows: that card's
+     min-height minus its 32px top padding, i.e. exactly what sits
+     between the stack's top and the card's bottom edge there. Whatever
+     runs past it (the hero's tall phone) meets the card's bottom edge -
+     padding-bottom is 0 here - and is clipped by the card's
+     overflow: hidden, so the shots are only ever cut at the bottom. */
   .work-card--light .work-card__shots,
   .work-card--dark .work-card__shots {
-    position: relative;
-    overflow: hidden;
-    flex: none;
-    align-self: stretch;
-    zoom: 1;
-    width: auto;
-    height: 230px;
-    margin: 0 -32px -32px;
-  }
-
-  /* each shot is sized as a % of the band so it scales with the card and
-     keeps bleeding off the edges; anchored on the band's centre and then
-     nudged with --tx/--ty (translate %, i.e. relative to the shot). */
-  .work-card--light .work-card__shot,
-  .work-card--dark .work-card__shot {
-    left: 50%;
-    top: 50%;
-    height: auto;
-  }
-
-  /* in the band every shot fills - the framed "contain" / "strip" tiles
-     from the desktop fan would only show as slabs of white here.
-     Scoped to :not(.is-shot-open) so the lightbox keeps its own
-     contain/strip handling (which the fly-out geometry in main.js
-     is matched to). */
-  .work-card:not(.is-shot-open) .work-card__shot.is-contain,
-  .work-card:not(.is-shot-open) .work-card__shot.is-strip {
-    background: none;
-  }
-
-  .work-card:not(.is-shot-open) .work-card__shot.is-contain img,
-  .work-card:not(.is-shot-open) .work-card__shot.is-strip img {
+    align-self: center;
     width: 100%;
-    object-fit: cover;
+    height: auto;
+    margin: 0;
+    zoom: 1; /* the 1250 rule above shrinks against the text column */
   }
 
+  .work-card--light .work-card__shots {
+    max-width: 453.593px;
+    aspect-ratio: 453.593 / 262; /* 294px card min-height - 32px padding */
+  }
+
+  .work-card--dark .work-card__shots {
+    max-width: 446.5px;
+    aspect-ratio: 446.5 / 480; /* 512px card min-height - 32px padding */
+  }
+
+  /* 425.6x266 tiles at 5.44,10.48 and 24.01,6.48 in a 453.593x262 box */
   .work-card--light .work-card__shot {
-    width: 118%;
-    aspect-ratio: 425.6 / 266;
+    width: 93.8286%;
+    height: 101.5267%;
   }
 
-  /* the back tile peeks out top-left behind the hero, like the desktop fan */
   .work-card--light .work-card__shot--1 {
-    width: 104%;
-    --tx: -60%;
-    --ty: -74%;
-    --rot: -3.5deg;
+    left: 1.1993%;
+    top: 4%;
+    bottom: auto; /* the desktop rule pins these to the bottom instead */
   }
 
   .work-card--light .work-card__shot--2 {
-    --tx: -48%;
-    --ty: -46%;
-    --rot: 1.76deg;
+    left: 5.2933%;
+    top: 2.4733%;
+    bottom: auto;
   }
 
-  .work-card--dark .work-card__shots {
-    height: 250px;
-  }
-
-  /* same reading order as the desktop fan - date picker off the left,
-     phone centred and bleeding top + bottom, savings cards off the right */
+  /* date picker, phone and savings cards in a 446.5x480 box */
   .work-card--dark .work-card__shot--1 {
-    width: 46%;
-    aspect-ratio: 233.5 / 245;
-    --tx: -138%;
-    --ty: -34%;
-    --rot: -7.01deg;
+    left: 3.1534%;
+    top: 34.8604%;
+    width: 52.2956%;
+    height: 51.0417%;
   }
 
   .work-card--dark .work-card__shot--2 {
-    width: 48%;
-    aspect-ratio: 254 / 831;
-    --tx: -44%;
-    --ty: -22%;
-    --rot: 5.57deg;
+    left: 15.5162%;
+    top: 2.1583%;
+    width: 56.8869%;
+    height: 173.125%;
+    /* 24px on the desktop phone's 254x831 box, as a percentage per axis so
+       the corner scales with the shot instead of reading twice as round
+       here. Safe as a percentage because this card has no lightbox (the
+       whole card is the link), so --oscale never leaves 1. */
+    border-radius: 9.4488% / 2.888%;
   }
 
   .work-card--dark .work-card__shot--3 {
-    width: 56%;
-    aspect-ratio: 206.5 / 179.5;
-    --tx: 16%;
-    --ty: -58%;
-    --rot: 0deg;
-  }
-}
-
-/* markdown prose box used by case pages (kept) */
-.box {
-  background: var(--gray-0);
-  box-shadow: 5px 5px 32px 0 rgba(0, 0, 0, 0.14);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-@media (min-width: 800px) {
-  .box {
-    border-radius: 7px;
+    left: 53.7514%;
+    top: 30.2083%;
+    width: 46.2486%;
+    height: 37.3958%;
   }
 }
 
 
 /* -------------------------------------------------------------
-   About section - Figma 16:3036 (940 wide)
+   9. About section - Figma 16:3036 (940 wide)
    ------------------------------------------------------------- */
 
 .about-body {
@@ -2313,79 +2325,7 @@ hr {
 
 
 /* -------------------------------------------------------------
-   Case pages
-   ------------------------------------------------------------- */
-
-.case-header {
-  display: flex;
-  flex-flow: row-reverse;
-  padding: var(--spacing) 0;
-}
-
-.case-header .back {
-  flex: 1;
-}
-
-.case-footer {
-  padding: var(--spacing) 0;
-}
-
-.case-footer .back-link {
-  margin: calc(var(--spacing) * 3) 0;
-  text-align: center;
-}
-
-.case-footer .copyright {
-  margin: 2rem 0 0;
-  font-size: 0.875em;
-  text-align: right;
-  color: #ccc8c6;
-}
-
-.back {
-  color: #696461;
-  font-weight: 700;
-  font-size: 0.875em;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: color var(--dur-base) var(--ease-standard);
-}
-
-.back:hover {
-  color: #383532;
-  text-decoration: none;
-}
-
-.case-intro {
-  margin: var(--spacing) auto calc(var(--spacing) * 3);
-}
-
-.case-intro p {
-  font-size: 1.2em;
-}
-
-.narrow {
-  max-width: 680px;
-  margin-right: auto;
-  margin-left: auto;
-}
-
-.narrow figure.image {
-  margin: var(--spacing) 0;
-}
-
-@media (min-width: 800px) {
-  .narrow figure.image {
-    margin: var(--spacing) calc(var(--spacing) * -1);
-  }
-}
-
-.case-video {
-  margin: 0 0 calc(var(--spacing) * 2) 0;
-}
-
-/* -------------------------------------------------------------
-   Motion & accessibility foundation
+   10. Motion & accessibility foundation
    ------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -2414,10 +2354,13 @@ hr {
   left: 0;
 }
 
-/* -- 404 (136:24010) ------------------------------------------------
+/* =============================================================
+   11. 404 - Figma 136:24010
+
    A plain white page: the back-to-home brand pinned top-left, and one
    vertically centred block. Gaps come straight from the Figma stack
-   (14 / 11 / 64 / 38 / 30). */
+   (14 / 11 / 64 / 38 / 30).
+   ============================================================= */
 
 body.error-page {
   background-color: var(--gray-0);
@@ -2511,590 +2454,5 @@ body.error-page {
   .error-message {
     font-size: 18px;
     line-height: 26px;
-  }
-}
-
-/* -------------------------------------------------------------
-   Case page - dark (Figma 107:36782, "Doconomy")
-
-   Same rigid 1400px canvas as the home page (see the zoom rule near
-   the top), so every measurement below is the Figma pixel value. The
-   page is one column of full-width sections, each carrying the 64px
-   side padding from the design.
-   ------------------------------------------------------------- */
-
-.case-page {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  overflow-x: clip; /* the hero wash bleeds a couple of px past 1400 */
-}
-
-@media (min-width: 1250px) {
-  .case-page {
-    width: 1400px;
-    margin: 0 auto;
-  }
-}
-
-/* the warm gradient wash behind the header + hero. Same artwork as the
-   Doconomy work card's background: one gradient with two soft light
-   sweeps, exported as a single SVG. */
-.case-page__bg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 1398px;
-  height: 1186px;
-  max-width: 100%;
-  background: url("images/doconomy/hero-bg.svg") no-repeat left top / 1398px 1186px;
-  pointer-events: none;
-}
-
-/* every section sits above the wash */
-.case-page > *:not(.case-page__bg) {
-  position: relative;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* -- Top bar ------------------------------------------------------- */
-
-.case-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 48px 64px;
-}
-
-.case-back {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  text-decoration: none;
-}
-
-.case-back:hover {
-  text-decoration: none;
-}
-
-.case-back__icon {
-  width: 24px;
-  height: 24px;
-  background: var(--inverted-main);
-  -webkit-mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
-  mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
-  transition: transform var(--dur-fast) var(--ease-standard);
-}
-
-.case-back:hover .case-back__icon {
-  transform: translateX(calc(var(--move-sm) * -1));
-}
-
-.case-back .profile-name {
-  letter-spacing: 0.9px;
-  color: var(--inverted-main);
-}
-
-.case-back .profile-role {
-  letter-spacing: 1.078px;
-  color: var(--inverted-muted);
-}
-
-/* -- Shared pieces -------------------------------------------------- */
-
-/* white pill with gradient label - same button as the work cards' CTA,
-   with a leading Font Awesome "book" glyph instead of the chevron */
-.case-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 24px;
-  border-radius: 48px;
-  background: var(--inverted-main);
-  text-decoration: none;
-}
-
-.case-pill:hover {
-  text-decoration: none;
-}
-
-.case-pill__icon {
-  flex: none;
-  width: 14px;
-  height: 14px;
-  background: var(--gradient-nav);
-  -webkit-mask: url("icons/book.svg") no-repeat center / contain;
-  mask: url("icons/book.svg") no-repeat center / contain;
-}
-
-.case-pill__label {
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.case-figure {
-  margin: 0;
-}
-
-.case-figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-/* -- Hero ----------------------------------------------------------- */
-
-.case-hero {
-  display: flex;
-  gap: 32px;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 128px 32px 64px;
-}
-
-.case-hero__text {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 24px;
-}
-
-.case-hero__logo {
-  display: block;
-  width: 161.25px;
-  height: 30px;
-}
-
-.case-hero__title {
-  margin: 0;
-  font: var(--font-heading-64);
-  color: var(--inverted-main);
-}
-
-.case-hero__lead {
-  width: 630px;
-  max-width: 100%;
-}
-
-.case-hero__lead p {
-  margin: 0 0 30px;
-  font-weight: 600;
-  font-size: 22px;
-  line-height: 30px;
-  color: var(--inverted-muted);
-}
-
-.case-hero__lead p:last-child {
-  margin-bottom: 0;
-}
-
-.case-hero__lead strong {
-  font-weight: 600;
-  color: var(--inverted-main);
-}
-
-/* the product blurb hangs off the right edge of the text column, under
-   the phone (Figma 107:43918) */
-.case-hero__product {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 16px;
-  width: 100%;
-  padding-top: 40px;
-  text-align: right;
-}
-
-.case-hero__product-title {
-  width: 364px;
-  margin: 0;
-  font: var(--font-heading-24);
-  line-height: normal;
-  color: var(--inverted-main);
-}
-
-.case-hero__product-body {
-  width: 609px;
-  max-width: 100%;
-  margin: 0;
-  font: var(--font-body-16);
-  color: var(--inverted-muted);
-}
-
-.case-hero__visual {
-  flex: none;
-  width: 375px;
-  height: 764px;
-  overflow: hidden;
-  border-radius: 32px;
-  background: #1a1a1a;
-}
-
-.case-hero__visual img {
-  display: block;
-  width: 375px;
-  height: 764px;
-  object-fit: cover;
-  object-position: top center;
-}
-
-/* -- Stats ---------------------------------------------------------- */
-
-.case-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  padding: 64px 64px 0;
-}
-
-.case-stats__list {
-  display: flex;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.case-stat {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-}
-
-.case-stat__label {
-  font: var(--font-uppercase-14);
-  line-height: normal;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--inverted-muted);
-}
-
-/* Lato Light - the one place on the site that uses 300 */
-.case-stat__value {
-  font-weight: 300;
-  font-size: 48px;
-  line-height: 1;
-  color: var(--inverted-main);
-}
-
-.case-rule {
-  height: 6px;
-  border-radius: 8px;
-  background: var(--gray-700);
-}
-
-/* -- Screenshot grid ------------------------------------------------ */
-
-.case-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 64px;
-}
-
-.case-grid__tile {
-  margin: 0;
-}
-
-.case-grid__tile img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-/* -- Prose blocks --------------------------------------------------- */
-
-.case-block {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  padding: 80px 64px 0;
-}
-
-.case-block__title {
-  margin: 0;
-  font: var(--font-heading-36);
-  text-align: center;
-  color: var(--inverted-main);
-}
-
-.case-cols {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-}
-
-.case-cols__prose {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.case-cols__aside {
-  flex: none;
-  width: 561px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.case-stats__list--pair .case-stat {
-  flex: none;
-  width: 277.856px;
-  gap: 5px;
-}
-
-.case-caption {
-  margin: 0;
-  font-style: italic;
-  font-size: 14px;
-  line-height: normal;
-  color: var(--inverted-muted);
-}
-
-.case-split {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-  padding: 0 64px;
-}
-
-.case-split__media {
-  flex: none;
-  width: 558px;
-}
-
-.case-split__prose {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-/* shared prose scale for both text columns (Figma 107:44399 / 107:44877) */
-.case-cols__prose h3,
-.case-split__prose h3 {
-  margin: 0 0 27px;
-  font: var(--font-heading-24);
-  line-height: 27px;
-  color: var(--inverted-main);
-}
-
-.case-cols__prose p,
-.case-split__prose p {
-  margin: 0 0 27px;
-  font: var(--font-body-16);
-  color: #e4e4e4;
-}
-
-.case-cols__prose p:last-child,
-.case-split__prose p:last-child {
-  margin-bottom: 0;
-}
-
-.case-cols__prose strong,
-.case-split__prose strong {
-  font-weight: 400;
-  color: var(--inverted-main);
-}
-
-/* -- Case-study teaser --------------------------------------------- */
-
-.case-study {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding: 80px 64px 128px;
-}
-
-.case-study__board img {
-  background: var(--gray-0);
-}
-
-.case-study__outro {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  padding-top: 16px;
-  text-align: center;
-}
-
-.case-study__title {
-  width: 584px;
-  max-width: 100%;
-  margin: 0;
-  font: var(--font-heading-24);
-  line-height: normal;
-  color: var(--inverted-main);
-}
-
-.case-study__lead {
-  width: 886px;
-  max-width: 100%;
-  margin: 0;
-  font-weight: 600;
-  font-size: 22px;
-  line-height: 30px;
-  color: #e4e4e4;
-}
-
-/* -- Case page: below the 1400 canvas ------------------------------
-   No zoom down here, so the Figma-fixed widths go fluid and the two
-   side-by-side sections stack. Same idea as the home page. */
-@media (max-width: 1250px) {
-  .case-page__bg {
-    width: 100%;
-    height: 1000px;
-    background-size: cover;
-    background-position: left top;
-  }
-
-  .case-topbar {
-    padding: 24px;
-  }
-
-  .case-hero {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 40px;
-    padding: 0 24px 24px;
-  }
-
-  .case-hero__title {
-    font-size: clamp(36px, 6vw, 64px);
-  }
-
-  .case-hero__lead {
-    width: 100%;
-  }
-
-  .case-hero__lead p {
-    font-size: 18px;
-    line-height: 26px;
-  }
-
-  /* the blurb loses its hang-off-the-phone placement and reads as a
-     normal paragraph under the intro */
-  .case-hero__product {
-    align-items: flex-start;
-    padding-top: 8px;
-    text-align: left;
-  }
-
-  .case-hero__product-title,
-  .case-hero__product-body {
-    width: 100%;
-  }
-
-  .case-hero__visual {
-    align-self: center;
-    max-width: 100%;
-  }
-
-  .case-stats {
-    gap: 20px;
-    padding: 40px 24px 0;
-  }
-
-  .case-stats__list {
-    flex-wrap: wrap;
-  }
-
-  .case-stat {
-    flex: 1 1 200px;
-  }
-
-  .case-stat__value {
-    font-size: clamp(32px, 4.5vw, 48px);
-  }
-
-  .case-grid {
-    padding: 40px 24px;
-  }
-
-  .case-block {
-    gap: 28px;
-    padding: 56px 24px 0;
-  }
-
-  .case-block__title {
-    font-size: 28px;
-  }
-
-  .case-cols {
-    flex-direction: column;
-    gap: 32px;
-  }
-
-  .case-cols__aside {
-    width: 100%;
-  }
-
-  .case-stats__list--pair .case-stat {
-    flex: 1 1 0;
-    width: auto;
-  }
-
-  .case-split {
-    flex-direction: column;
-    padding: 40px 24px 0;
-  }
-
-  .case-split__media {
-    width: 100%;
-  }
-
-  .case-study {
-    padding: 56px 24px 80px;
-  }
-
-  .case-study__title,
-  .case-study__lead {
-    width: 100%;
-  }
-
-  .case-study__lead {
-    font-size: 18px;
-    line-height: 26px;
-  }
-
-  .case-study__lead br {
-    display: none;
-  }
-}
-
-@media (max-width: 700px) {
-  .case-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .case-hero__visual {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 375 / 764;
-  }
-
-  .case-hero__visual img {
-    width: 100%;
-    height: 100%;
   }
 }

@@ -1,53 +1,841 @@
 /* -------------------------------------------------------------
-   Doconomy case page - tile animations
+   /doconomy - dark case page
 
-   GENERATED from Figma Motion (file 3bj2vwJkv0ykpj5xoku8fo, node
-   107:43922). Keyframe percentages, per-stop easings and values come
-   verbatim from get_motion_context. Two rewrites, both mechanical:
+   Loaded only on this page (via `extra_css` in _cases/doconomy.html),
+   so none of it ships with the home page.
 
-     - Figma's `--rotate-transform` custom property becomes the native
-       `rotate` property, which drops the @property registration;
-     - tracks Figma emitted at 6.752982s (they outlive the loop, so it
-       normalised them against their own length) are rescaled back onto
-       the 6.000643s loop. Left as-is they drift a little further out of
-       phase on every repeat - the bike tile's ripple slides off the
-       progress dot it should expand from, and its confetti reappear
-       already scattered. See MOTION.md.
+   Implemented from Figma 107:36782. Like the home page this is a rigid
+   1400px canvas that main.css scales with `zoom`, so every length here
+   is a Figma design pixel.
 
-   All three tiles share the one loop, so they stay in step with each
-   other exactly as they do in the design.
-
-   Do not hand-edit the @keyframes blocks - re-export them instead.
+   Contents
+     1. Tokens
+     2. Page shell + top bar
+     3. Shared pieces (pill, figure)
+     4. Hero
+     5. Stats
+     6. Screenshot grid - three of the six tiles are animated
+     7. Prose blocks
+     8. Case-study teaser
+     9. Narrow widths
+    10. Appendix: generated @keyframes (see MOTION.md)
    ------------------------------------------------------------- */
 
+/* =============================================================
+   1. Tokens
+   ============================================================= */
+
 :root {
+  /* the product's own palette - these are Doconomy UI colours, not
+     site brand colours, which is why they live here and not in main.css */
+  --doco-green: #40c466;
+  --doco-green-dark: #1b7e39;
+  --doco-success: #7be098;   /* dt-notice/success-bg */
+  --doco-surface: #f7f6f2;   /* dt-surface/page-bg  */
+  --doco-ink: #272725;       /* dt-content/default  */
+  --doco-phone: #1a1a1a;     /* the hero device bezel */
+  --doco-prose: #e4e4e4;     /* body copy on the dark page */
+
+  /* one Figma tile, and the loop the animated ones are built on */
+  --doco-tile-w: 628px;
+  --doco-tile-h: 504px;
+  /* aspect-ratio takes unitless numbers, so it cannot reuse the pair
+     above - `628px / 504px` is invalid and silently computes to `auto`,
+     which collapsed the animated tiles to zero height wherever the grid
+     did not pair them with an image tile (i.e. the whole mobile view). */
+  --doco-tile-ar: 628 / 504;
   --doco-loop: 6.000643s;
+
+  /* Two tiles hold still for a beat before repeating, so they run a
+     little longer than the base loop. The extra time is padding only -
+     every keyframe was remapped so the motion itself is unchanged, and
+     each track holds its last value across the added time.
+
+     Bike: the amount is back to EUR25 at 5.874s and nothing moves after
+     6.001s, so the 1s tail lands entirely in that dead stretch - it
+     reads as a pause between the reset and the next confetti burst
+     (0.682s into the following loop), stretching that gap to 1.81s. */
+  --doco-loop-bike: 7.000643s;   /* + 1s before it starts over */
+  --doco-loop-coins: 7.200643s;  /* + 2 x 600ms while the coins are up */
+
+  /* the theme fan is ours, not Figma's - one open-and-close sweep,
+     slow enough to read as ambient rather than a carousel */
+  --doco-fan: 11s;
+}
+
+/* =============================================================
+   2. Page shell + top bar
+   ============================================================= */
+
+/* the map on <body> is a home-page detail; this page is dark and flat */
+body.case-dark {
+  color: var(--inverted-muted);
+  background: var(--inverted-background);
+  background-image: none;
+}
+
+.case-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-x: clip; /* the hero wash bleeds a couple of px past 1400 */
+}
+
+@media (min-width: 1250px) {
+  .case-page {
+    width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+/* the warm gradient wash behind the header + hero. Same artwork as the
+   Doconomy work card's background: one gradient with two soft light
+   sweeps, exported as a single SVG. */
+.case-page__bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1398px;
+  height: 1186px;
+  max-width: 100%;
+  /* the sweeps used to be baked into hero-bg.svg, which is why they sat
+     still; this is the same file with the two ellipses taken out. The
+     overflow clip stands in for the SVG's own clipPath. */
+  overflow: hidden;
+  background: url("images/doconomy/hero-bg-base.svg") no-repeat left top / 1398px 1186px;
+  pointer-events: none;
+}
+
+/* -- Hero light sweeps ---------------------------------------------
+   Figma Ellipse 2170 / 2171, lifted into their own SVGs (each viewBox
+   padded by 120px so the 37.194 blur is not clipped) and positioned at
+   the coordinates they had inside the flat export. They drift on the
+   same two unrelated cycles as the home page's hero card - `--dur-glow`
+   against `--dur-glow * 0.72`, with a negative delay on the second - so
+   the light wanders instead of pulsing. Compositor-only work.
+   ------------------------------------------------------------- */
+
+.case-page__ray {
+  position: absolute;
+  display: block;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.case-page__ray--a {
+  left: 286.84px;
+  top: -481.39px;
+  width: 1822.57px;
+  height: 1027.53px;
+  background-image: url("images/doconomy/hero-ray-a.svg");
+}
+
+.case-page__ray--b {
+  left: 482.39px;
+  top: -127.25px;
+  width: 1637.35px;
+  height: 951.62px;
+  background-image: url("images/doconomy/hero-ray-b.svg");
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .case-page__ray--a {
+    animation: case-ray-drift-a var(--dur-glow) ease-in-out infinite alternate;
+  }
+
+  .case-page__ray--b {
+    animation: case-ray-drift-b calc(var(--dur-glow) * 0.72) ease-in-out infinite
+      alternate;
+    animation-delay: calc(var(--dur-glow) * -0.31); /* start out of phase */
+  }
+}
+
+@keyframes case-ray-drift-a {
+  from {
+    transform: translate(0, 0) scale(0.92);
+    opacity: 0.45;
+  }
+  to {
+    transform: translate(52px, -28px) scale(1.26);
+    opacity: 1;
+  }
+}
+
+@keyframes case-ray-drift-b {
+  from {
+    transform: translate(0, 0) scale(1.22);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-44px, 32px) scale(0.94);
+    opacity: 0.5;
+  }
+}
+
+/* every section sits above the wash */
+.case-page > *:not(.case-page__bg) {
+  position: relative;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -- Top bar ------------------------------------------------------- */
+
+.case-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 24px;
+}
+
+.case-back {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+}
+
+.case-back:hover {
+  text-decoration: none;
+}
+
+.case-back__icon {
+  width: 24px;
+  height: 24px;
+  background: var(--inverted-main);
+  -webkit-mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
+  mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.case-back:hover .case-back__icon {
+  transform: translateX(calc(var(--move-sm) * -1));
+}
+
+.case-back .profile-name {
+  letter-spacing: 0.9px;
+  color: var(--inverted-main);
+}
+
+.case-back .profile-role {
+  letter-spacing: 1.078px;
+  color: var(--inverted-muted);
+}
+
+/* =============================================================
+   3. Shared pieces
+   ============================================================= */
+
+/* white pill with gradient label - same button as the work cards' CTA,
+   with a leading Font Awesome "book" glyph instead of the chevron */
+.case-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 24px;
+  border-radius: 48px;
+  background: var(--inverted-main);
+  text-decoration: none;
+}
+
+.case-pill:hover {
+  text-decoration: none;
+}
+
+.case-pill__icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background: var(--gradient-nav);
+  -webkit-mask: url("icons/book.svg") no-repeat center / contain;
+  mask: url("icons/book.svg") no-repeat center / contain;
+}
+
+.case-pill__label {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.case-figure {
+  margin: 0;
+}
+
+.case-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* =============================================================
+   4. Hero
+   ============================================================= */
+
+.case-hero {
+  display: flex;
+  gap: 32px;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 128px 32px 64px;
+}
+
+.case-hero__text {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.case-hero__logo {
+  display: block;
+  width: 161.25px;
+  height: 30px;
+  margin: 2rem 0 0;
+}
+
+.case-hero__title {
+  margin: 0;
+  font: var(--font-heading-64);
+  color: var(--inverted-main);
+}
+
+.case-hero__lead {
+  width: 630px;
+  max-width: 100%;
+}
+
+.case-hero__lead p {
+  margin: 0 0 30px;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 30px;
+  color: var(--inverted-muted);
+}
+
+.case-hero__lead p:last-child {
+  margin-bottom: 0;
+}
+
+.case-hero__lead strong {
+  font-weight: 900;
+  color: var(--inverted-main);
+}
+
+/* the product blurb hangs off the right edge of the text column, under
+   the phone (Figma 107:43918) */
+.case-hero__product {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  width: 100%;
+  padding-top: 40px;
+  text-align: right;
+}
+
+.case-hero__product-title {
+  width: 364px;
+  margin: 0;
+  font: var(--font-heading-24);
+  line-height: normal;
+  color: var(--inverted-main);
+}
+
+.case-hero__product-body {
+  width: 450px;
+  max-width: 100%;
+  margin: 0;
+  font: var(--font-body-16);
+  color: var(--inverted-muted);
+}
+
+.case-hero__visual {
+  flex: none;
+  width: 375px;
+  height: 764px;
+  overflow: hidden;
+  border-radius: 32px;
+  background: var(--doco-phone);
+}
+
+.case-hero__visual img {
+  display: block;
+  width: 375px;
+  height: 764px;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* =============================================================
+   5. Stats
+   ============================================================= */
+
+.case-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 64px 64px 0;
+}
+
+.case-stats__list {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-stat {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.case-stat__label {
+  font: var(--font-uppercase-14);
+  line-height: normal;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--inverted-muted);
+}
+
+/* Lato Light - the one place on the site that uses 300 */
+.case-stat__value {
+  font-weight: 300;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--inverted-main);
+}
+
+.case-rule {
+  height: 6px;
+  border-radius: 8px;
+  background: var(--gray-700);
+}
+
+/* =============================================================
+   6. Screenshot grid
+
+   Six tiles. Three are plain screenshots; the other three are the
+   Figma Motion animations rebuilt as elements - their structure is
+   below, their keyframes in the appendix.
+   ============================================================= */
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 64px;
+}
+
+.case-grid__tile {
+  margin: 0;
+}
+
+.case-grid__tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* -- Static tiles --------------------------------------------------
+   Same flat panel as the animated ones, so the panel is drawn in CSS
+   and only the UI inside it ships as a PNG (exported at 3x from the
+   content node, not the whole tile). The export still carries a couple
+   of px of --doco-surface behind each card's drop shadow, which is the
+   same colour as the panel below it, so the seam is invisible.
+
+   Widths are the export's own size as a share of the 628px Figma tile.
+   ------------------------------------------------------------- */
+
+.case-grid__tile--panel {
+  position: relative;
+  aspect-ratio: var(--doco-tile-ar);
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--doco-surface);
+}
+
+.case-grid__tile--panel img {
+  position: absolute;
+  border-radius: 0;
+}
+
+/* Centred in the tile. In the export the date picker already sits dead
+   centre, but the deposit form is 26px left of it - both are centred
+   here, and each export box is symmetric about its own content. */
+.case-grid__tile--calendar img,
+.case-grid__tile--frequency img {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.case-grid__tile--calendar img {
+  width: 54.777%; /* 344 / 628 */
+}
+
+.case-grid__tile--frequency img {
+  width: 55.892%; /* 351 / 628 */
+}
+
+/* The goal row is meant to run off the right edge - Figma clips it at
+   the panel bound - so it keeps its authored placement instead. */
+.case-grid__tile--selection img {
+  left: 11.783%;  /*  74 / 628 */
+  top: 42.46%;    /* 214 / 504 */
+  width: 88.217%; /* 554 / 628 */
+}
+
+/* =============================================================
+   7. Prose blocks
+   ============================================================= */
+
+.case-block {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 80px 64px 0;
+}
+
+.case-block__title {
+  margin: 0;
+  font: var(--font-heading-36);
+  text-align: center;
+  color: var(--inverted-main);
+}
+
+.case-cols {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.case-cols__prose {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.case-cols__aside {
+  flex: none;
+  width: 561px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.case-stats__list--pair .case-stat {
+  flex: none;
+  width: 277.856px;
+  gap: 5px;
+}
+
+.case-caption {
+  margin: 0;
+  font-style: italic;
+  font-size: 14px;
+  line-height: normal;
+  color: var(--inverted-muted);
+}
+
+.case-split {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  padding: 64px 64px;
+}
+
+.case-split__media {
+  flex: none;
+  width: 558px;
+}
+
+.case-split__prose {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* shared prose scale for both text columns (Figma 107:44399 / 107:44877) */
+.case-cols__prose h3,
+.case-split__prose h3 {
+  margin: 0 0 27px;
+  font: var(--font-heading-24);
+  line-height: 27px;
+  color: var(--inverted-main);
+}
+
+.case-cols__prose p,
+.case-split__prose p {
+  margin: 0 0 27px;
+  font: var(--font-body-16);
+  color: var(--doco-prose);
+}
+
+.case-cols__prose p:last-child,
+.case-split__prose p:last-child {
+  margin-bottom: 0;
+}
+
+.case-cols__prose strong,
+.case-split__prose strong {
+  font-weight: 400;
+  color: var(--inverted-main);
+}
+
+/* =============================================================
+   8. Case-study teaser
+   ============================================================= */
+
+.case-study {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 80px 64px 128px;
+}
+
+.case-study__board img {
+  background: var(--gray-0);
+}
+
+.case-study__outro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.case-study__title {
+  width: 584px;
+  max-width: 100%;
+  margin: 0;
+  font: var(--font-heading-24);
+  line-height: normal;
+  color: var(--inverted-main);
+}
+
+.case-study__lead {
+  width: 886px;
+  max-width: 100%;
+  margin: 0;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  color: var(--doco-prose);
+}
+
+/* =============================================================
+   9. Narrow widths
+
+   No zoom down here, so the Figma-fixed widths go fluid and the two
+   side-by-side sections stack. Same idea as the home page.
+   ============================================================= */
+@media (max-width: 1250px) {
+  .case-page__bg {
+    width: 100%;
+    height: 1000px;
+    background-size: cover;
+    background-position: left top;
+  }
+
+  .case-topbar {
+    padding: 24px;
+  }
+
+  .case-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 40px;
+    padding: 0 24px 24px;
+  }
+
+  .case-hero__title {
+    font-size: clamp(36px, 6vw, 64px);
+  }
+
+  .case-hero__lead {
+    width: 100%;
+  }
+
+  .case-hero__lead p {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  /* the blurb loses its hang-off-the-phone placement and reads as a
+     normal paragraph under the intro */
+  .case-hero__product {
+    align-items: flex-start;
+    padding-top: 8px;
+    text-align: left;
+  }
+
+  .case-hero__product-title,
+  .case-hero__product-body {
+    width: 100%;
+  }
+
+  .case-hero__visual {
+    align-self: center;
+    max-width: 100%;
+  }
+
+  .case-stats {
+    gap: 20px;
+    padding: 40px 24px 0;
+  }
+
+  .case-stats__list {
+    flex-wrap: wrap;
+  }
+
+  .case-stat {
+    flex: 1 1 200px;
+  }
+
+  .case-stat__value {
+    font-size: clamp(32px, 4.5vw, 48px);
+  }
+
+  .case-grid {
+    padding: 40px 24px;
+  }
+
+  .case-block {
+    gap: 28px;
+    padding: 56px 24px 0;
+  }
+
+  .case-block__title {
+    font-size: 28px;
+  }
+
+  .case-cols {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .case-cols__aside {
+    width: 100%;
+  }
+
+  .case-stats__list--pair .case-stat {
+    flex: 1 1 0;
+    width: auto;
+  }
+
+  .case-split {
+    flex-direction: column;
+    padding: 40px 24px 0;
+  }
+
+  .case-split__media {
+    width: 100%;
+  }
+
+  .case-study {
+    padding: 56px 24px 80px;
+  }
+
+  .case-study__title,
+  .case-study__lead {
+    width: 100%;
+  }
+
+  .case-study__lead {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .case-study__lead br {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .case-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Keep the three hero stats on one row. The 1250px rule gives them
+     `flex: 1 1 200px` with wrapping, which can never fit three columns on
+     a phone, so they broke 2 + 1. Scoped to .case-stats so the Before /
+     After pair in the design-system block keeps its larger type. */
+  .case-stats .case-stats__list {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .case-stats .case-stat {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .case-stats .case-stat__label {
+    font-size: 11px;
+    letter-spacing: 0.4px;
+  }
+
+  .case-stats .case-stat__value {
+    font-size: clamp(19px, 5.4vw, 32px);
+  }
+
+  .case-hero__visual {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 375 / 764;
+  }
+
+  .case-hero__visual img {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 /* the scene is authored at the Figma tile size and scaled to whatever
    width the tile actually gets, so every offset below is a design px */
+
 .doco-scene {
   position: absolute;
   left: 0;
   top: 0;
-  width: 628px;
-  height: 504px;
-  zoom: calc(100cqw / 628px);
+  width: var(--doco-tile-w);
+  height: var(--doco-tile-h);
+  zoom: calc(100cqw / var(--doco-tile-w));
 }
 
-
 /* -- coins tile (Figma 107:43942) ----------------------------------
-   The whole tile is a flat #f7f6f2 panel plus nine coins that drop in,
+   The whole tile is a flat var(--doco-surface) panel plus nine coins that drop in,
    settle, then lift back out - twice per loop. Nothing else is in it,
    so there is no background screenshot: the coins are real elements.
    ------------------------------------------------------------- */
 
 .case-grid__tile--coins {
   position: relative;
-  aspect-ratio: 628 / 504;
+  aspect-ratio: var(--doco-tile-ar);
   overflow: hidden;
   border-radius: 8px;
-  background: #f7f6f2;
+  background: var(--doco-surface);
   container-type: inline-size;
 }
 
@@ -65,48 +853,9 @@
   height: 15.636px;
   opacity: 0;
   background: url("images/doconomy/coin.svg") no-repeat center / 100% 100%;
-  animation-duration: var(--doco-loop);
+  animation-duration: var(--doco-loop-coins);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-}
-
-@keyframes doco-coin1-op {
-  0% { opacity: 0; }
-  0.014% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  0.614% { opacity: 1; }
-  43.009% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  46.409% { opacity: 0; }
-  50% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  50.6% { opacity: 1; }
-  92.995% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  96.395% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin1-rot {
-  0% { rotate: -0.375rad; }
-  0.014% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.375rad; }
-  4.013% { rotate: 0rad; }
-  43.009% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  46.409% { rotate: -0.375rad; }
-  50% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.375rad; }
-  53.999% { rotate: 0rad; }
-  92.995% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  96.395% { rotate: -0.375rad; }
-  100% { rotate: -0.375rad; }
-}
-
-@keyframes doco-coin1-mv {
-  0% { translate: 0px -6.347px; }
-  0.014% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -6.347px; }
-  4.013% { translate: 0px 0px; }
-  43.009% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  46.409% { translate: 0px -6.347px; }
-  50% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -6.347px; }
-  53.999% { translate: 0px 0px; }
-  92.995% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  96.395% { translate: 0px -6.347px; }
-  100% { translate: 0px -6.347px; }
 }
 
 .doco-coin--1 {
@@ -115,88 +864,10 @@
   animation-name: doco-coin1-op, doco-coin1-rot, doco-coin1-mv;
 }
 
-@keyframes doco-coin2-op {
-  0% { opacity: 0; }
-  0.68% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  1.305% { opacity: 1; }
-  40.676% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  44.217% { opacity: 0; }
-  50.666% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  51.291% { opacity: 1; }
-  90.662% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  94.203% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin2-rot {
-  0% { rotate: 0.369rad; }
-  0.68% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.369rad; }
-  4.847% { rotate: 0rad; }
-  40.676% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  44.217% { rotate: 0.369rad; }
-  50.666% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.369rad; }
-  54.833% { rotate: 0rad; }
-  90.662% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  94.203% { rotate: 0.369rad; }
-  100% { rotate: 0.369rad; }
-}
-
-@keyframes doco-coin2-mv {
-  0% { translate: 0px -16.355px; }
-  0.68% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -16.355px; }
-  4.847% { translate: 0px 0px; }
-  40.676% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  44.217% { translate: 0px -16.355px; }
-  50.666% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -16.355px; }
-  54.833% { translate: 0px 0px; }
-  90.662% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  94.203% { translate: 0px -16.355px; }
-  100% { translate: 0px -16.355px; }
-}
-
 .doco-coin--2 {
   left: 44.65px;
   top: 130.62px;
   animation-name: doco-coin2-op, doco-coin2-rot, doco-coin2-mv;
-}
-
-@keyframes doco-coin3-op {
-  0% { opacity: 0; }
-  1.347% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  1.897% { opacity: 1; }
-  42.009% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  45.126% { opacity: 0; }
-  51.333% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  51.883% { opacity: 1; }
-  91.995% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  95.112% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin3-rot {
-  0% { rotate: 0.229rad; }
-  1.347% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.229rad; }
-  5.013% { rotate: 0rad; }
-  42.009% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  45.126% { rotate: 0.229rad; }
-  51.333% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.229rad; }
-  54.999% { rotate: 0rad; }
-  91.995% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  95.112% { rotate: 0.229rad; }
-  100% { rotate: 0.229rad; }
-}
-
-@keyframes doco-coin3-mv {
-  0% { translate: 0px -4.28px; }
-  1.347% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -4.28px; }
-  5.013% { translate: 0px 0px; }
-  42.009% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  45.126% { translate: 0px -4.28px; }
-  51.333% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -4.28px; }
-  54.999% { translate: 0px 0px; }
-  91.995% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  95.112% { translate: 0px -4.28px; }
-  100% { translate: 0px -4.28px; }
 }
 
 .doco-coin--3 {
@@ -205,88 +876,10 @@
   animation-name: doco-coin3-op, doco-coin3-rot, doco-coin3-mv;
 }
 
-@keyframes doco-coin4-op {
-  0% { opacity: 0; }
-  2.514% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  3.164% { opacity: 1; }
-  41.176% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  44.859% { opacity: 0; }
-  52.5% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  53.149% { opacity: 1; }
-  91.162% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  94.845% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin4-rot {
-  0% { rotate: 0.268rad; }
-  2.514% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.268rad; }
-  6.846% { rotate: 0rad; }
-  41.176% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  44.859% { rotate: 0.268rad; }
-  52.5% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.268rad; }
-  56.832% { rotate: 0rad; }
-  91.162% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  94.845% { rotate: 0.268rad; }
-  100% { rotate: 0.268rad; }
-}
-
-@keyframes doco-coin4-mv {
-  0% { translate: 0px -8.227px; }
-  2.514% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -8.227px; }
-  6.846% { translate: 0px 0px; }
-  41.176% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  44.859% { translate: 0px -8.227px; }
-  52.5% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -8.227px; }
-  56.832% { translate: 0px 0px; }
-  91.162% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  94.845% { translate: 0px -8.227px; }
-  100% { translate: 0px -8.227px; }
-}
-
 .doco-coin--4 {
   left: 92.51px;
   top: 118.88px;
   animation-name: doco-coin4-op, doco-coin4-rot, doco-coin4-mv;
-}
-
-@keyframes doco-coin5-op {
-  0% { opacity: 0; }
-  3.68% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  4.38% { opacity: 1; }
-  40.343% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  44.309% { opacity: 0; }
-  53.666% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  54.366% { opacity: 1; }
-  90.329% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  94.295% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin5-rot {
-  0% { rotate: -0.537rad; }
-  3.68% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.537rad; }
-  8.346% { rotate: 0rad; }
-  40.343% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  44.309% { rotate: -0.537rad; }
-  53.666% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.537rad; }
-  58.332% { rotate: 0rad; }
-  90.329% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  94.295% { rotate: -0.537rad; }
-  100% { rotate: -0.537rad; }
-}
-
-@keyframes doco-coin5-mv {
-  0% { translate: 0px -20.593px; }
-  3.68% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -20.593px; }
-  8.346% { translate: 0px 0px; }
-  40.343% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  44.309% { translate: 0px -20.593px; }
-  53.666% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -20.593px; }
-  58.332% { translate: 0px 0px; }
-  90.329% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  94.295% { translate: 0px -20.593px; }
-  100% { translate: 0px -20.593px; }
 }
 
 .doco-coin--5 {
@@ -295,88 +888,10 @@
   animation-name: doco-coin5-op, doco-coin5-rot, doco-coin5-mv;
 }
 
-@keyframes doco-coin6-op {
-  0% { opacity: 0; }
-  5.013% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  5.763% { opacity: 1; }
-  39.343% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  43.593% { opacity: 0; }
-  54.999% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  55.749% { opacity: 1; }
-  89.329% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  93.578% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin6-rot {
-  0% { rotate: 0.524rad; }
-  5.013% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.524rad; }
-  10.013% { rotate: 0rad; }
-  39.343% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  43.593% { rotate: 0.524rad; }
-  54.999% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.524rad; }
-  59.999% { rotate: 0rad; }
-  89.329% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  93.578% { rotate: 0.524rad; }
-  100% { rotate: 0.524rad; }
-}
-
-@keyframes doco-coin6-mv {
-  0% { translate: 0px -44.977px; }
-  5.013% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -44.977px; }
-  10.013% { translate: 0px 0px; }
-  39.343% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  43.593% { translate: 0px -44.977px; }
-  54.999% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -44.977px; }
-  59.999% { translate: 0px 0px; }
-  89.329% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  93.578% { translate: 0px -44.977px; }
-  100% { translate: 0px -44.977px; }
-}
-
 .doco-coin--6 {
   left: 92.51px;
   top: 107.52px;
   animation-name: doco-coin6-op, doco-coin6-rot, doco-coin6-mv;
-}
-
-@keyframes doco-coin7-op {
-  0% { opacity: 0; }
-  1.014% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  1.564% { opacity: 1; }
-  39.676% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  42.793% { opacity: 0; }
-  51% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  51.55% { opacity: 1; }
-  89.662% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  92.779% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin7-rot {
-  0% { rotate: 0.295rad; }
-  1.014% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.295rad; }
-  4.68% { rotate: 0rad; }
-  39.676% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  42.793% { rotate: 0.295rad; }
-  51% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.295rad; }
-  54.666% { rotate: 0rad; }
-  89.662% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  92.779% { rotate: 0.295rad; }
-  100% { rotate: 0.295rad; }
-}
-
-@keyframes doco-coin7-mv {
-  0% { translate: 0px -13.931px; }
-  1.014% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -13.931px; }
-  4.68% { translate: 0px 0px; }
-  39.676% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  42.793% { translate: 0px -13.931px; }
-  51% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -13.931px; }
-  54.666% { translate: 0px 0px; }
-  89.662% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  92.779% { translate: 0px -13.931px; }
-  100% { translate: 0px -13.931px; }
 }
 
 .doco-coin--7 {
@@ -385,88 +900,10 @@
   animation-name: doco-coin7-op, doco-coin7-rot, doco-coin7-mv;
 }
 
-@keyframes doco-coin8-op {
-  0% { opacity: 0; }
-  3.014% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  3.713% { opacity: 1; }
-  38.843% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  42.809% { opacity: 0; }
-  52.999% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  53.699% { opacity: 1; }
-  88.829% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  92.795% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin8-rot {
-  0% { rotate: -0.281rad; }
-  3.014% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.281rad; }
-  7.68% { rotate: 0rad; }
-  38.843% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  42.809% { rotate: -0.281rad; }
-  52.999% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.281rad; }
-  57.666% { rotate: 0rad; }
-  88.829% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
-  92.795% { rotate: -0.281rad; }
-  100% { rotate: -0.281rad; }
-}
-
-@keyframes doco-coin8-mv {
-  0% { translate: 0px -31.672px; }
-  3.014% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -31.672px; }
-  7.68% { translate: 0px 0px; }
-  38.843% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  42.809% { translate: 0px -31.672px; }
-  52.999% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -31.672px; }
-  57.666% { translate: 0px 0px; }
-  88.829% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  92.795% { translate: 0px -31.672px; }
-  100% { translate: 0px -31.672px; }
-}
-
 .doco-coin--8 {
   left: 47.05px;
   top: 123.08px;
   animation-name: doco-coin8-op, doco-coin8-rot, doco-coin8-mv;
-}
-
-@keyframes doco-coin9-op {
-  0% { opacity: 0; }
-  6.68% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  7.53% { opacity: 1; }
-  38.343% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  43.159% { opacity: 0; }
-  56.666% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
-  57.516% { opacity: 1; }
-  88.329% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  93.145% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-@keyframes doco-coin9-rot {
-  0% { rotate: 0.612rad; }
-  6.68% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.612rad; }
-  12.346% { rotate: 0.025rad; }
-  38.343% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.025rad; }
-  43.159% { rotate: 0.612rad; }
-  56.666% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.612rad; }
-  62.332% { rotate: 0.025rad; }
-  88.329% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.025rad; }
-  93.145% { rotate: 0.612rad; }
-  100% { rotate: 0.612rad; }
-}
-
-@keyframes doco-coin9-mv {
-  0% { translate: 0px -73.366px; }
-  6.68% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -73.366px; }
-  12.346% { translate: 0px 0px; }
-  38.343% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  43.159% { translate: 0px -73.366px; }
-  56.666% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -73.366px; }
-  62.332% { translate: 0px 0px; }
-  88.329% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
-  93.145% { translate: 0px -73.366px; }
-  100% { translate: 0px -73.366px; }
 }
 
 .doco-coin--9 {
@@ -477,6 +914,7 @@
 
 /* rest state: coins settled, nothing moving. Coin 9 rests at a slight
    angle in the design, so give it that as its base. */
+
 @media (prefers-reduced-motion: reduce) {
   .doco-coin {
     opacity: 1;
@@ -488,7 +926,6 @@
   }
 }
 
-
 /* -- confirm tile (Figma 107:43946) --------------------------------
    Also entirely vector: a flat success panel, four drifting dots, a
    twenty-piece confetti burst and a checkmark that pops in and draws
@@ -497,15 +934,21 @@
 
 .case-grid__tile--confirm {
   position: relative;
-  aspect-ratio: 628 / 504;
+  aspect-ratio: var(--doco-tile-ar);
   overflow: hidden;
   border-radius: 8px;
-  background: #7be098; /* dt-notice/success-bg */
+  background: var(--doco-success); /* dt-notice/success-bg */
   container-type: inline-size;
 }
 
 /* dots and confetti are plain circles in the design, so they are drawn
-   with border-radius rather than shipped as 24 near-identical SVGs */
+   with border-radius rather than shipped as 24 near-identical SVGs.
+
+   The four drifting dots run 1-4 with 2 missing: that one sat on the
+   bottom edge and slid 102px right-to-left, reading as a stray dot
+   detached from the burst rather than part of it. Keep the gap if the
+   tile is ever re-exported. */
+
 .doco-dot,
 .doco-spark {
   position: absolute;
@@ -514,6 +957,1320 @@
   animation-duration: var(--doco-loop);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+}
+
+.doco-dot--1 {
+  left: 177.0px;
+  top: 493.0px;
+  width: 20.0px;
+  height: 20.0px;
+  background: var(--doco-green);
+  animation-name: doco-dot1-op, doco-dot1-mv, doco-dot1-sc;
+}
+
+
+.doco-dot--3 {
+  left: 174.0px;
+  top: 253.0px;
+  width: 20.0px;
+  height: 20.0px;
+  background: var(--doco-green);
+  animation-name: doco-dot3-op, doco-dot3-mv, doco-dot3-sc;
+}
+
+.doco-dot--4 {
+  left: 396.0px;
+  top: 145.0px;
+  width: 20.0px;
+  height: 20.0px;
+  background: var(--doco-green-dark);
+  animation-name: doco-dot4-op, doco-dot4-mv, doco-dot4-sc;
+}
+
+.doco-spark--1 {
+  left: 293.14px;
+  top: 268.14px;
+  width: 13.725px;
+  height: 13.725px;
+  background: var(--doco-green);
+  animation-name: doco-spark1-op, doco-spark1-mv, doco-spark1-sc;
+}
+
+.doco-spark--2 {
+  left: 293.44px;
+  top: 268.44px;
+  width: 13.124px;
+  height: 13.124px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark2-op, doco-spark2-mv, doco-spark2-sc;
+}
+
+.doco-spark--3 {
+  left: 293.76px;
+  top: 268.76px;
+  width: 12.472px;
+  height: 12.472px;
+  background: var(--doco-green);
+  animation-name: doco-spark3-op, doco-spark3-mv, doco-spark3-sc;
+}
+
+.doco-spark--4 {
+  left: 296.55px;
+  top: 271.55px;
+  width: 6.891px;
+  height: 6.891px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark4-op, doco-spark4-mv, doco-spark4-sc;
+}
+
+.doco-spark--5 {
+  left: 294.21px;
+  top: 269.21px;
+  width: 11.579px;
+  height: 11.579px;
+  background: var(--doco-green);
+  animation-name: doco-spark5-op, doco-spark5-mv, doco-spark5-sc;
+}
+
+.doco-spark--6 {
+  left: 295.57px;
+  top: 270.57px;
+  width: 8.866px;
+  height: 8.866px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark6-op, doco-spark6-mv, doco-spark6-sc;
+}
+
+.doco-spark--7 {
+  left: 294.36px;
+  top: 269.36px;
+  width: 11.279px;
+  height: 11.279px;
+  background: var(--doco-green);
+  animation-name: doco-spark7-op, doco-spark7-mv, doco-spark7-sc;
+}
+
+.doco-spark--8 {
+  left: 294.33px;
+  top: 269.34px;
+  width: 11.329px;
+  height: 11.329px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark8-op, doco-spark8-mv, doco-spark8-sc;
+}
+
+.doco-spark--9 {
+  left: 296.52px;
+  top: 271.52px;
+  width: 6.958px;
+  height: 6.958px;
+  background: var(--doco-green);
+  animation-name: doco-spark9-op, doco-spark9-mv, doco-spark9-sc;
+}
+
+.doco-spark--10 {
+  left: 292.52px;
+  top: 267.52px;
+  width: 14.957px;
+  height: 14.957px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark10-op, doco-spark10-mv, doco-spark10-sc;
+}
+
+
+.doco-spark--11 {
+  left: 295.78px;
+  top: 270.78px;
+  width: 8.44px;
+  height: 8.44px;
+  background: var(--doco-green);
+  animation-name: doco-spark11-op, doco-spark11-mv, doco-spark11-sc;
+}
+
+.doco-spark--12 {
+  left: 291.32px;
+  top: 266.32px;
+  width: 17.358px;
+  height: 17.358px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark12-op, doco-spark12-mv, doco-spark12-sc;
+}
+
+.doco-spark--13 {
+  left: 295.24px;
+  top: 270.24px;
+  width: 9.518px;
+  height: 9.518px;
+  background: var(--doco-green);
+  animation-name: doco-spark13-op, doco-spark13-mv, doco-spark13-sc;
+}
+
+.doco-spark--14 {
+  left: 295.57px;
+  top: 270.57px;
+  width: 8.869px;
+  height: 8.869px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark14-op, doco-spark14-mv, doco-spark14-sc;
+}
+
+.doco-spark--15 {
+  left: 293.17px;
+  top: 268.17px;
+  width: 13.658px;
+  height: 13.658px;
+  background: var(--doco-green);
+  animation-name: doco-spark15-op, doco-spark15-mv, doco-spark15-sc;
+}
+
+
+.doco-spark--16 {
+  left: 292.27px;
+  top: 267.27px;
+  width: 15.455px;
+  height: 15.455px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark16-op, doco-spark16-mv, doco-spark16-sc;
+}
+
+.doco-spark--17 {
+  left: 294.6px;
+  top: 269.6px;
+  width: 10.805px;
+  height: 10.805px;
+  background: var(--doco-green);
+  animation-name: doco-spark17-op, doco-spark17-mv, doco-spark17-sc;
+}
+
+.doco-spark--18 {
+  left: 292.67px;
+  top: 267.67px;
+  width: 14.663px;
+  height: 14.663px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark18-op, doco-spark18-mv, doco-spark18-sc;
+}
+
+.doco-spark--19 {
+  left: 291.56px;
+  top: 266.56px;
+  width: 16.876px;
+  height: 16.876px;
+  background: var(--doco-green);
+  animation-name: doco-spark19-op, doco-spark19-mv, doco-spark19-sc;
+}
+
+.doco-spark--20 {
+  left: 293.67px;
+  top: 268.67px;
+  width: 12.651px;
+  height: 12.651px;
+  background: var(--doco-green-dark);
+  animation-name: doco-spark20-op, doco-spark20-mv, doco-spark20-sc;
+}
+
+/* Re-centre the confirm composition. In the export the 92px check box
+   sits at 254,229 in the 628x504 scene, where centred would be 268,206,
+   and the confetti is authored around the check's old centre. Offsetting
+   both by the same delta moves the group to the middle of the tile and
+   keeps the burst anchored to the mark, without editing any of the
+   coordinates taken from Figma. */
+.doco-check,
+.doco-spark {
+  margin: -23px 0 0 14px;
+}
+
+.doco-check {
+  position: absolute;
+  left: 254px;
+  top: 229px;
+  width: 92px;
+  height: 92px;
+  opacity: 0;
+  animation-duration: var(--doco-loop);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-name: doco-check-op, doco-check-sc;
+}
+
+.doco-check__disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--doco-green);
+}
+
+/* the two strokes are drawn, not faded in, so the SVG has to be inline:
+   the keyframes animate stroke-dasharray on the real <line> elements.
+   Both already carry pathLength="1" from the Figma export. */
+
+.doco-check__mark {
+  position: absolute;
+  inset: 0;
+  width: 92px;
+  height: 92px;
+  overflow: visible;
+}
+
+.doco-check__mark line {
+  stroke: #fff;
+  stroke-width: 5.45185;
+  stroke-linecap: round;
+  stroke-dashoffset: 0;
+  animation-duration: var(--doco-loop);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.doco-check__mark .doco-stroke--1 {
+  animation-name: doco-stroke1-op, doco-stroke1-draw;
+}
+
+.doco-check__mark .doco-stroke--2 {
+  animation-name: doco-stroke2-op, doco-stroke2-draw;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doco-dot,
+  .doco-spark {
+    animation: none;
+  }
+
+  .doco-spark {
+    display: none; /* the burst has no meaningful resting state */
+  }
+
+  .doco-dot {
+    opacity: 1;
+  }
+
+  .doco-check {
+    opacity: 1;
+    animation: none;
+  }
+
+  .doco-check__mark line {
+    animation: none;
+    stroke-dasharray: 1 1;
+  }
+}
+
+/* -- bike tile (Figma 26:11036 via 107:43925) ----------------------
+   Rebuilt as elements, not a screenshot. It has to be: the progress
+   arc grows as the deposit lands and the ripple ring is a real 16px
+   ellipse at rest, so an exported frame bakes both of them in - the
+   ring showed up as a stray dot sitting on the arc for the whole loop.
+   What is left of the export is the photograph alone.
+
+   This is also the tile whose tracks needed retiming (see the header):
+   its confetti, ripple and amount swap are authored on the longer
+   6.752982s track. The ripple is the giveaway - its size runs on the
+   loop and its position on the long track, so left alone the ring
+   drifts off the end of the arc it is supposed to expand from.
+
+   The two clipping boxes below are Figma's own ("This one" and the
+   panel); they are what stops the confetti spraying across the tile,
+   so they have to be reproduced rather than flattened away.
+   ------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/nunito-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+.case-grid__tile--bike {
+  position: relative;
+  aspect-ratio: var(--doco-tile-ar);
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--doco-surface);
+  container-type: inline-size;
+}
+
+.doco-bike__screen {
+  position: absolute;
+  left: 100px;
+  top: 0;
+  width: 375px;
+  height: 505px;
+  overflow: hidden;
+}
+
+.doco-bike__panel {
+  position: absolute;
+  left: 0;
+  top: 74px;
+  width: 375px;
+  height: 439px;
+  overflow: hidden;
+  animation-duration: var(--doco-loop-bike);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* the 328x327 "Dream states" box, centred in the 375 panel - every
+   offset below is measured from its top-left */
+
+.doco-bike__states {
+  position: absolute;
+  left: 23.5px;
+  top: 0;
+  width: 328px;
+  height: 327px;
+}
+
+/* the goal photo, circle-cropped, with the image itself oversized and
+   pulled left exactly as the Figma fill is framed */
+
+.doco-bike__photo {
+  position: absolute;
+  left: 18.99px;
+  top: 17px;
+  width: 294px;
+  height: 294px;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.doco-bike__photo img {
+  position: absolute;
+  left: -28.25px;
+  top: 0;
+  width: 454.5px;
+  height: 303px;
+  max-width: none;
+  border-radius: 0;
+}
+
+/* fades the photo into the panel behind the amount */
+
+.doco-bike__fade {
+  position: absolute;
+  left: 20.01px;
+  top: 17.99px;
+  width: 294px;
+  height: 294px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0) 53.99%, var(--doco-surface) 84.524%);
+}
+
+/* the grey track is static; the green arc on top of it is not.
+   Both selectors are scoped through .doco-bike__states so they outrank
+   the grid's generic `.case-grid__tile img { width: 100% }`. */
+
+.doco-bike__states .doco-bike__track,
+.doco-bike__states .doco-bike__progress {
+  position: absolute;
+  left: 0.5px;
+  top: 0;
+  width: 327px;
+  height: 327px;
+  border-radius: 0;
+}
+
+.doco-bike__states .doco-bike__progress {
+  overflow: visible;
+}
+
+/* one arc drawn to its fullest extent, revealed by stroke-dasharray:
+   Figma animates the ellipse's ending angle (106.51deg -> 136.51deg of
+   a 61.5deg start), which is 0.6 -> 1 of the path */
+
+.doco-bike__states .doco-bike__progress path {
+  fill: none;
+  stroke: var(--doco-green);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 0.6 1;
+  animation: doco-bike-progress var(--doco-loop-bike) linear infinite;
+}
+
+/* the deposit swaps the amount: 25 slides out right as 50 slides in */
+
+.doco-bike__amount,
+.doco-bike__of {
+  position: absolute;
+  right: 0.5px;
+  margin: 0;
+  font-family: "Nunito", var(--font-family);
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--doco-ink);
+  font-feature-settings: "zero" 1, "lnum" 1, "tnum" 1;
+}
+
+.doco-bike__amount {
+  top: 232.13px;
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: -0.2px;
+  animation-duration: var(--doco-loop-bike);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.doco-bike__of {
+  top: 268.13px;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+/* a ring that pulses out from the head of the arc on every deposit.
+   Figma keeps the 4px stroke as the ellipse grows, so this is a border
+   rather than a scaled-up SVG - which would thicken to 66px at full
+   size and read as a disc instead of a ripple. */
+
+.doco-ripple {
+  position: absolute;
+  left: 138.5px;
+  top: 383.5px;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  border: 4px solid var(--doco-green);
+  border-radius: 50%;
+  animation-duration: var(--doco-loop-bike);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.doco-burst {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation-duration: var(--doco-loop-bike);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.doco-bike__panel {
+  animation-name: doco-bike-panel-h;
+}
+
+.doco-bike__amount--from {
+  animation-name: doco-amount-from-op, doco-amount-from-mv;
+}
+
+.doco-bike__amount--to {
+  animation-name: doco-amount-to-op, doco-amount-to-mv;
+}
+
+.doco-ripple {
+  animation-name: doco-ripple-size, doco-ripple-op, doco-ripple-mv;
+}
+
+.doco-burst--1 {
+  left: 116.64px;
+  top: 311.14px;
+  width: 13.725px;
+  height: 13.725px;
+  background: var(--doco-green);
+  animation-name: doco-burst1-op, doco-burst1-mv, doco-burst1-sc;
+}
+
+.doco-burst--2 {
+  left: 116.94px;
+  top: 311.44px;
+  width: 13.124px;
+  height: 13.124px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst2-op, doco-burst2-mv, doco-burst2-sc;
+}
+
+.doco-burst--3 {
+  left: 117.26px;
+  top: 311.76px;
+  width: 12.472px;
+  height: 12.472px;
+  background: var(--doco-green);
+  animation-name: doco-burst3-op, doco-burst3-mv, doco-burst3-sc;
+}
+
+.doco-burst--4 {
+  left: 120.05px;
+  top: 314.55px;
+  width: 6.891px;
+  height: 6.891px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst4-op, doco-burst4-mv, doco-burst4-sc;
+}
+
+.doco-burst--5 {
+  left: 117.71px;
+  top: 312.21px;
+  width: 11.579px;
+  height: 11.579px;
+  background: var(--doco-green);
+  animation-name: doco-burst5-op, doco-burst5-mv, doco-burst5-sc;
+}
+
+.doco-burst--6 {
+  left: 119.07px;
+  top: 313.57px;
+  width: 8.866px;
+  height: 8.866px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst6-op, doco-burst6-mv, doco-burst6-sc;
+}
+
+.doco-burst--7 {
+  left: 117.86px;
+  top: 312.36px;
+  width: 11.279px;
+  height: 11.279px;
+  background: var(--doco-green);
+  animation-name: doco-burst7-op, doco-burst7-mv, doco-burst7-sc;
+}
+
+.doco-burst--8 {
+  left: 117.83px;
+  top: 312.34px;
+  width: 11.329px;
+  height: 11.329px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst8-op, doco-burst8-mv, doco-burst8-sc;
+}
+
+.doco-burst--9 {
+  left: 120.02px;
+  top: 314.52px;
+  width: 6.958px;
+  height: 6.958px;
+  background: var(--doco-green);
+  animation-name: doco-burst9-op, doco-burst9-mv, doco-burst9-sc;
+}
+
+.doco-burst--10 {
+  left: 116.02px;
+  top: 310.52px;
+  width: 14.957px;
+  height: 14.957px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst10-op, doco-burst10-mv, doco-burst10-sc;
+}
+
+.doco-burst--11 {
+  left: 119.28px;
+  top: 313.78px;
+  width: 8.44px;
+  height: 8.44px;
+  background: var(--doco-green);
+  animation-name: doco-burst11-op, doco-burst11-mv, doco-burst11-sc;
+}
+
+.doco-burst--12 {
+  left: 114.82px;
+  top: 309.32px;
+  width: 17.358px;
+  height: 17.358px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst12-op, doco-burst12-mv, doco-burst12-sc;
+}
+
+.doco-burst--13 {
+  left: 118.74px;
+  top: 313.24px;
+  width: 9.518px;
+  height: 9.518px;
+  background: var(--doco-green);
+  animation-name: doco-burst13-op, doco-burst13-mv, doco-burst13-sc;
+}
+
+.doco-burst--14 {
+  left: 119.07px;
+  top: 313.57px;
+  width: 8.869px;
+  height: 8.869px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst14-op, doco-burst14-mv, doco-burst14-sc;
+}
+
+.doco-burst--15 {
+  left: 116.67px;
+  top: 311.17px;
+  width: 13.658px;
+  height: 13.658px;
+  background: var(--doco-green);
+  animation-name: doco-burst15-op, doco-burst15-mv, doco-burst15-sc;
+}
+
+.doco-burst--16 {
+  left: 115.77px;
+  top: 310.27px;
+  width: 15.455px;
+  height: 15.455px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst16-op, doco-burst16-mv, doco-burst16-sc;
+}
+
+.doco-burst--17 {
+  left: 118.1px;
+  top: 312.6px;
+  width: 10.805px;
+  height: 10.805px;
+  background: var(--doco-green);
+  animation-name: doco-burst17-op, doco-burst17-mv, doco-burst17-sc;
+}
+
+.doco-burst--18 {
+  left: 116.17px;
+  top: 310.67px;
+  width: 14.663px;
+  height: 14.663px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst18-op, doco-burst18-mv, doco-burst18-sc;
+}
+
+.doco-burst--19 {
+  left: 115.06px;
+  top: 309.56px;
+  width: 16.876px;
+  height: 16.876px;
+  background: var(--doco-green);
+  animation-name: doco-burst19-op, doco-burst19-mv, doco-burst19-sc;
+}
+
+.doco-burst--20 {
+  left: 117.17px;
+  top: 311.67px;
+  width: 12.651px;
+  height: 12.651px;
+  background: var(--doco-green-dark);
+  animation-name: doco-burst20-op, doco-burst20-mv, doco-burst20-sc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doco-bike__panel,
+  .doco-bike__amount,
+  .doco-ripple,
+  .doco-burst,
+  .doco-bike__states .doco-bike__progress path {
+    animation: none;
+  }
+
+  /* rest state: the arc at its starting fill, no burst, no amount */
+  .doco-bike__amount,
+  .doco-ripple,
+  .doco-burst {
+    display: none;
+  }
+}
+
+
+/* -- Design-system theme fan (Figma 107:44395, reworked) -----------
+   The same design-system board rendered three times - cream #f7f6f2,
+   white and dark #20201d - stacked and sliced into diagonal bands that
+   fan open and closed, after the daisyUI theme preview. All three
+   themes are on screen at once, which showcases "one system, any brand"
+   far better than the Figma original did.
+
+   That original swept one flat mask off to the right, but it stops at
+   translate: 1237px against a 1272px board, so it never cleared -
+   roughly the right tenth of the previous theme stayed behind, slicing
+   through the form fields.
+
+   Geometry. The bands radiate from a pivot just below-left of the board
+   (-120, 780 in board px), so like daisyUI they converge off-canvas
+   rather than running parallel or meeting in the middle. Each band is
+   masked on a wrapper centred on that pivot, so the wrapper's centre is
+   both the rotation origin and the mask's midpoint - the band edge
+   always passes through the pivot. It is 3300 board px square, enough
+   to still cover the far corner (1596 away) once turned.
+
+   Motion. The wrapper carries the turn; the board inside counter-turns
+   by the same amount about the same pivot, so the UI stays upright and
+   pixel-registered with the base board while only the band edges move.
+   The sectors are nested - both start from the same -90deg edge, with
+   the narrow dark one stacked over the wider white one - so the visible
+   bands are the gaps between their outer edges. Swinging those edges by
+   different amounts (dark 7deg, white 17deg) widens and narrows the
+   bands: the fan opens rather than the whole pattern sliding. At rest
+   the dark is a small corner and the light themes take the body, which
+   is daisyUI's balance; at full spread the dark and white bands have
+   grown and pushed the base board out to the right. Both are plain
+   rotations, so this composites instead of repainting a clip.
+   ------------------------------------------------------------- */
+
+.doco-fan {
+  position: relative;
+  aspect-ratio: 1272 / 502;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--doco-surface);
+}
+
+.doco-fan .doco-fan__base {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* square, centred on the pivot, so 50% 50% is both the sector apex and
+   the rotation origin */
+.doco-fan__slice {
+  position: absolute;
+  left: -9.434%; /* pivot x: -120 / 1272 */
+  top: 155.378%; /* pivot y:  780 /  502 */
+  width: 259.434%; /* 3300 / 1272 */
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+
+/* Each band needs only one visible edge: the sectors' other edge sits
+   at -90deg from the pivot, which is off the board entirely, so a
+   half-plane does the same job as a wedge here.
+
+   That matters because the edge is a gradient mask rather than a
+   clip-path. A clip on a layer that is being rotated gets applied
+   geometrically at composite time, which stair-steps the diagonal; a
+   mask is rasterised into the layer itself, so the 1px transition
+   survives the rotation and the edge stays smooth. The angles are the
+   band edges (-68deg and -45deg in board space) turned into CSS
+   gradient angles, which measure from "up" instead of from +x. */
+
+.doco-fan__slice--dark {
+  -webkit-mask-image: linear-gradient(
+    112deg,
+    #000 calc(50% - 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+  mask-image: linear-gradient(
+    112deg,
+    #000 calc(50% - 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+
+.doco-fan__slice--white {
+  -webkit-mask-image: linear-gradient(
+    135deg,
+    #000 calc(50% - 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+  mask-image: linear-gradient(
+    135deg,
+    #000 calc(50% - 0.5px),
+    transparent calc(50% + 0.5px)
+  );
+}
+
+.doco-fan .doco-fan__board {
+  position: absolute;
+  left: 53.636%; /* the board's place inside the wrapper */
+  top: 26.364%;
+  width: 38.545%; /* 1272 / 3300 */
+  height: auto;
+  aspect-ratio: 1272 / 502;
+  border-radius: 0;
+  transform-origin: -9.434% 155.378%; /* the same pivot, in board coords */
+}
+
+/* At rest the bands hold their authored angles - three diagonal slices,
+   which is the daisyUI still. */
+@media (prefers-reduced-motion: no-preference) {
+  .doco-fan__slice--white,
+  .doco-fan__slice--white .doco-fan__board,
+  .doco-fan__slice--dark,
+  .doco-fan__slice--dark .doco-fan__board {
+    animation: var(--doco-fan) ease-in-out infinite alternate;
+  }
+
+  .doco-fan__slice--white {
+    animation-name: doco-fan-white;
+  }
+
+  .doco-fan__slice--white .doco-fan__board {
+    animation-name: doco-fan-white-hold;
+  }
+
+  .doco-fan__slice--dark {
+    animation-name: doco-fan-dark;
+  }
+
+  .doco-fan__slice--dark .doco-fan__board {
+    animation-name: doco-fan-dark-hold;
+  }
+}
+
+@keyframes doco-fan-white {
+  to {
+    rotate: 17deg;
+  }
+}
+
+@keyframes doco-fan-white-hold {
+  to {
+    rotate: -17deg;
+  }
+}
+
+@keyframes doco-fan-dark {
+  to {
+    rotate: 7deg;
+  }
+}
+
+@keyframes doco-fan-dark-hold {
+  to {
+    rotate: -7deg;
+  }
+}
+
+/* -- AI treatment (Figma Motion 107:44875) --------------------------
+   The editor and its colour picker are one flat 3x PNG. Only three
+   things sit on top of it, and all three run on the shared
+   --doco-loop timeline: a white veil breathing between 50% and 25%,
+   the frame's border colour, and a sparkle that spins twice a loop.
+   ------------------------------------------------------------- */
+
+.doco-ai {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* .doco-ai__shot is left to .case-figure img - width: 100% is exactly
+   right for it, and it is what gives the box its height, which the
+   three absolute layers below are then positioned against. */
+
+.doco-ai__veil,
+.doco-ai__edge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.doco-ai__veil {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Figma flattens the stroke to a vector and keyframes its `fill`; a
+   real 4px border is the same thing (see doco-ai-edge below). */
+.doco-ai__edge {
+  box-sizing: border-box;
+  border: 4px solid #3918b2;
+  border-radius: inherit;
+}
+
+/* The 29px star is centred in a 36px box at 500,19 of the 558x419
+   frame, so the offsets are percentages and it holds its place as the
+   figure scales. Width only, and the pair of classes to outweigh
+   `.case-figure img`, whose width: 100% would otherwise blow the star
+   up to the full column. */
+.doco-ai .doco-ai__spark {
+  position: absolute;
+  left: 90.28%;  /* 503.76 / 558 */
+  top: 5.43%;    /* 22.76 / 419 */
+  width: 5.104%; /* 28.48 / 558 */
+  height: auto;
+  border-radius: 0;
+}
+
+/* At rest every layer already holds its 0% keyframe - veil at 50%,
+   border indigo, star upright - so there is nothing to restate. */
+@media (prefers-reduced-motion: no-preference) {
+  .doco-ai__veil,
+  .doco-ai__edge,
+  .doco-ai .doco-ai__spark {
+    animation-duration: var(--doco-loop);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .doco-ai__veil {
+    animation-name: doco-ai-veil;
+  }
+
+  .doco-ai__edge {
+    animation-name: doco-ai-edge;
+  }
+
+  .doco-ai .doco-ai__spark {
+    animation-name: doco-ai-spark;
+  }
+}
+
+/* =============================================================
+   10. Appendix: generated @keyframes
+
+   GENERATED from Figma Motion (file 3bj2vwJkv0ykpj5xoku8fo, nodes
+   107:43922 for the tiles and 107:44875 for the AI editor) - not
+   written by hand and not read closely. The theme fan that replaced
+   107:44395 is hand-written and lives with its component, not here.
+   Percentages, per-stop easings and values are verbatim from
+   get_motion_context; the only rewrites are mechanical:
+
+     - Figma's `--rotate-transform` custom property becomes the native
+       `rotate` property, which drops the @property registration;
+     - tracks Figma emitted at 6.752982s (they outlive the loop, so it
+       normalised them against their own length) are rescaled onto the
+       6.000643s loop by multiplying every stop by 6.752982 / 6.000643.
+
+   Bike and coins were later retimed onto their own longer loops (see
+   :root) by remapping every stop; confirm and slides still run on the
+   6.000643s original. Re-export rather than hand-edit - MOTION.md
+   records every rewrite and how to verify them.
+   ============================================================= */
+
+@keyframes doco-coin1-op {
+  0% { opacity: 0; }
+  0.0116% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  0.5117% { opacity: 1; }
+  35.8415% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  38.6748% { opacity: 0; }
+  50% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  50.5% { opacity: 1; }
+  85.8298% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  88.6632% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin1-rot {
+  0% { rotate: -0.375rad; }
+  0.0116% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.375rad; }
+  3.3442% { rotate: 0rad; }
+  35.8415% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  38.6748% { rotate: -0.375rad; }
+  50% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.375rad; }
+  53.3326% { rotate: 0rad; }
+  85.8298% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  88.6632% { rotate: -0.375rad; }
+  100% { rotate: -0.375rad; }
+}
+
+@keyframes doco-coin1-mv {
+  0% { translate: 0px -6.347px; }
+  0.0116% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -6.347px; }
+  3.3442% { translate: 0px 0px; }
+  35.8415% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  38.6748% { translate: 0px -6.347px; }
+  50% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -6.347px; }
+  53.3326% { translate: 0px 0px; }
+  85.8298% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  88.6632% { translate: 0px -6.347px; }
+  100% { translate: 0px -6.347px; }
+}
+
+@keyframes doco-coin2-op {
+  0% { opacity: 0; }
+  0.5667% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  1.0875% { opacity: 1; }
+  33.8972% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  36.8482% { opacity: 0; }
+  50.555% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  51.0758% { opacity: 1; }
+  83.8856% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  86.8365% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin2-rot {
+  0% { rotate: 0.369rad; }
+  0.5667% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.369rad; }
+  4.0392% { rotate: 0rad; }
+  33.8972% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  36.8482% { rotate: 0.369rad; }
+  50.555% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.369rad; }
+  54.0276% { rotate: 0rad; }
+  83.8856% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  86.8365% { rotate: 0.369rad; }
+  100% { rotate: 0.369rad; }
+}
+
+@keyframes doco-coin2-mv {
+  0% { translate: 0px -16.355px; }
+  0.5667% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -16.355px; }
+  4.0392% { translate: 0px 0px; }
+  33.8972% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  36.8482% { translate: 0px -16.355px; }
+  50.555% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -16.355px; }
+  54.0276% { translate: 0px 0px; }
+  83.8856% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  86.8365% { translate: 0px -16.355px; }
+  100% { translate: 0px -16.355px; }
+}
+
+@keyframes doco-coin3-op {
+  0% { opacity: 0; }
+  1.1226% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  1.5809% { opacity: 1; }
+  35.0082% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  37.6056% { opacity: 0; }
+  51.1108% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  51.5692% { opacity: 1; }
+  84.9964% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  87.594% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin3-rot {
+  0% { rotate: 0.229rad; }
+  1.1226% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.229rad; }
+  4.1776% { rotate: 0rad; }
+  35.0082% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  37.6056% { rotate: 0.229rad; }
+  51.1108% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.229rad; }
+  54.1659% { rotate: 0rad; }
+  84.9964% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  87.594% { rotate: 0.229rad; }
+  100% { rotate: 0.229rad; }
+}
+
+@keyframes doco-coin3-mv {
+  0% { translate: 0px -4.28px; }
+  1.1226% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -4.28px; }
+  4.1776% { translate: 0px 0px; }
+  35.0082% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  37.6056% { translate: 0px -4.28px; }
+  51.1108% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -4.28px; }
+  54.1659% { translate: 0px 0px; }
+  84.9964% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  87.594% { translate: 0px -4.28px; }
+  100% { translate: 0px -4.28px; }
+}
+
+@keyframes doco-coin4-op {
+  0% { opacity: 0; }
+  2.0951% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  2.6367% { opacity: 1; }
+  34.314% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  37.3832% { opacity: 0; }
+  52.0833% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  52.6243% { opacity: 1; }
+  84.3023% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  87.3715% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin4-rot {
+  0% { rotate: 0.268rad; }
+  2.0951% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.268rad; }
+  5.7051% { rotate: 0rad; }
+  34.314% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  37.3832% { rotate: 0.268rad; }
+  52.0833% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.268rad; }
+  55.6935% { rotate: 0rad; }
+  84.3023% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  87.3715% { rotate: 0.268rad; }
+  100% { rotate: 0.268rad; }
+}
+
+@keyframes doco-coin4-mv {
+  0% { translate: 0px -8.227px; }
+  2.0951% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -8.227px; }
+  5.7051% { translate: 0px 0px; }
+  34.314% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  37.3832% { translate: 0px -8.227px; }
+  52.0833% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -8.227px; }
+  55.6935% { translate: 0px 0px; }
+  84.3023% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  87.3715% { translate: 0px -8.227px; }
+  100% { translate: 0px -8.227px; }
+}
+
+@keyframes doco-coin5-op {
+  0% { opacity: 0; }
+  3.0667% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  3.6501% { opacity: 1; }
+  33.6198% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  36.9248% { opacity: 0; }
+  53.0551% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  53.6384% { opacity: 1; }
+  83.6081% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  86.9132% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin5-rot {
+  0% { rotate: -0.537rad; }
+  3.0667% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.537rad; }
+  6.9551% { rotate: 0rad; }
+  33.6198% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  36.9248% { rotate: -0.537rad; }
+  53.0551% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.537rad; }
+  56.9434% { rotate: 0rad; }
+  83.6081% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  86.9132% { rotate: -0.537rad; }
+  100% { rotate: -0.537rad; }
+}
+
+@keyframes doco-coin5-mv {
+  0% { translate: 0px -20.593px; }
+  3.0667% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -20.593px; }
+  6.9551% { translate: 0px 0px; }
+  33.6198% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  36.9248% { translate: 0px -20.593px; }
+  53.0551% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -20.593px; }
+  56.9434% { translate: 0px 0px; }
+  83.6081% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  86.9132% { translate: 0px -20.593px; }
+  100% { translate: 0px -20.593px; }
+}
+
+@keyframes doco-coin6-op {
+  0% { opacity: 0; }
+  4.1776% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  4.8025% { opacity: 1; }
+  32.7864% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  36.3282% { opacity: 0; }
+  54.1659% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  54.7909% { opacity: 1; }
+  82.7748% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  86.3156% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin6-rot {
+  0% { rotate: 0.524rad; }
+  4.1776% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.524rad; }
+  8.3443% { rotate: 0rad; }
+  32.7864% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  36.3282% { rotate: 0.524rad; }
+  54.1659% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.524rad; }
+  58.3327% { rotate: 0rad; }
+  82.7748% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  86.3156% { rotate: 0.524rad; }
+  100% { rotate: 0.524rad; }
+}
+
+@keyframes doco-coin6-mv {
+  0% { translate: 0px -44.977px; }
+  4.1776% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -44.977px; }
+  8.3443% { translate: 0px 0px; }
+  32.7864% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  36.3282% { translate: 0px -44.977px; }
+  54.1659% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -44.977px; }
+  58.3327% { translate: 0px 0px; }
+  82.7748% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  86.3156% { translate: 0px -44.977px; }
+  100% { translate: 0px -44.977px; }
+}
+
+@keyframes doco-coin7-op {
+  0% { opacity: 0; }
+  0.845% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  1.3033% { opacity: 1; }
+  33.0639% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  35.6615% { opacity: 0; }
+  50.8333% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  51.2917% { opacity: 1; }
+  83.0522% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  85.6498% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin7-rot {
+  0% { rotate: 0.295rad; }
+  0.845% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.295rad; }
+  3.9001% { rotate: 0rad; }
+  33.0639% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  35.6615% { rotate: 0.295rad; }
+  50.8333% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.295rad; }
+  53.8884% { rotate: 0rad; }
+  83.0522% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  85.6498% { rotate: 0.295rad; }
+  100% { rotate: 0.295rad; }
+}
+
+@keyframes doco-coin7-mv {
+  0% { translate: 0px -13.931px; }
+  0.845% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -13.931px; }
+  3.9001% { translate: 0px 0px; }
+  33.0639% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  35.6615% { translate: 0px -13.931px; }
+  50.8333% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -13.931px; }
+  53.8884% { translate: 0px 0px; }
+  83.0522% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  85.6498% { translate: 0px -13.931px; }
+  100% { translate: 0px -13.931px; }
+}
+
+@keyframes doco-coin8-op {
+  0% { opacity: 0; }
+  2.5117% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  3.0942% { opacity: 1; }
+  32.3698% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  35.6748% { opacity: 0; }
+  52.4992% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  53.0826% { opacity: 1; }
+  82.358% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  85.6631% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin8-rot {
+  0% { rotate: -0.281rad; }
+  2.5117% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.281rad; }
+  6.4001% { rotate: 0rad; }
+  32.3698% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  35.6748% { rotate: -0.281rad; }
+  52.4992% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: -0.281rad; }
+  56.3885% { rotate: 0rad; }
+  82.358% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0rad; }
+  85.6631% { rotate: -0.281rad; }
+  100% { rotate: -0.281rad; }
+}
+
+@keyframes doco-coin8-mv {
+  0% { translate: 0px -31.672px; }
+  2.5117% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -31.672px; }
+  6.4001% { translate: 0px 0px; }
+  32.3698% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  35.6748% { translate: 0px -31.672px; }
+  52.4992% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -31.672px; }
+  56.3885% { translate: 0px 0px; }
+  82.358% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  85.6631% { translate: 0px -31.672px; }
+  100% { translate: 0px -31.672px; }
+}
+
+@keyframes doco-coin9-op {
+  0% { opacity: 0; }
+  5.5668% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  6.2751% { opacity: 1; }
+  31.9531% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  35.9664% { opacity: 0; }
+  55.5551% { animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1); opacity: 0; }
+  56.2635% { opacity: 1; }
+  81.9414% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  85.9548% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes doco-coin9-rot {
+  0% { rotate: 0.612rad; }
+  5.5668% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.612rad; }
+  10.2885% { rotate: 0.025rad; }
+  31.9531% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.025rad; }
+  35.9664% { rotate: 0.612rad; }
+  55.5551% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.612rad; }
+  60.2768% { rotate: 0.025rad; }
+  81.9414% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); rotate: 0.025rad; }
+  85.9548% { rotate: 0.612rad; }
+  100% { rotate: 0.612rad; }
+}
+
+@keyframes doco-coin9-mv {
+  0% { translate: 0px -73.366px; }
+  5.5668% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -73.366px; }
+  10.2885% { translate: 0px 0px; }
+  31.9531% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  35.9664% { translate: 0px -73.366px; }
+  55.5551% { animation-timing-function: cubic-bezier(0.2, 0, 0.6, 1); translate: 0px -73.366px; }
+  60.2768% { translate: 0px 0px; }
+  81.9414% { animation-timing-function: cubic-bezier(0.4, 0, 0.8, 1); translate: 0px 0px; }
+  85.9548% { translate: 0px -73.366px; }
+  100% { translate: 0px -73.366px; }
 }
 
 @keyframes doco-dot1-op {
@@ -550,57 +2307,8 @@
   100% { scale: 0 0; }
 }
 
-.doco-dot--1 {
-  left: 177.0px;
-  top: 493.0px;
-  width: 20.0px;
-  height: 20.0px;
-  background: #40c466;
-  animation-name: doco-dot1-op, doco-dot1-mv, doco-dot1-sc;
-}
 
-@keyframes doco-dot2-op {
-  0% { opacity: 0; }
-  10.132% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  10.965% { animation-timing-function: ease-out; opacity: 1; }
-  19.798% { animation-timing-function: ease-out; opacity: 0.7; }
-  21.798% { opacity: 0; }
-  60.127% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  60.96% { animation-timing-function: ease-out; opacity: 1; }
-  69.793% { animation-timing-function: ease-out; opacity: 0.7; }
-  71.792% { opacity: 0; }
-  100% { opacity: 0; }
-}
 
-@keyframes doco-dot2-mv {
-  0% { translate: 0px 0px; }
-  10.132% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  17.131% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); translate: -102.014px 53.087px; }
-  49.995% { translate: 0px 0px; }
-  60.127% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  67.126% { translate: -102.014px 53.087px; }
-  100% { translate: -102.014px 53.087px; }
-}
-
-@keyframes doco-dot2-sc {
-  0% { scale: 0 0; }
-  10.132% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  11.799% { animation-timing-function: ease-out; scale: 1 1; }
-  21.798% { scale: 0 0; }
-  60.127% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  61.793% { animation-timing-function: ease-out; scale: 1 1; }
-  71.792% { scale: 0 0; }
-  100% { scale: 0 0; }
-}
-
-.doco-dot--2 {
-  left: 440.0px;
-  top: 445.0px;
-  width: 20.0px;
-  height: 20.0px;
-  background: #1b7e39;
-  animation-name: doco-dot2-op, doco-dot2-mv, doco-dot2-sc;
-}
 
 @keyframes doco-dot3-op {
   0% { opacity: 0; }
@@ -634,15 +2342,6 @@
   61.927% { animation-timing-function: ease-out; scale: 1 1; }
   71.926% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-dot--3 {
-  left: 174.0px;
-  top: 253.0px;
-  width: 20.0px;
-  height: 20.0px;
-  background: #40c466;
-  animation-name: doco-dot3-op, doco-dot3-mv, doco-dot3-sc;
 }
 
 @keyframes doco-dot4-op {
@@ -679,15 +2378,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-dot--4 {
-  left: 396.0px;
-  top: 145.0px;
-  width: 20.0px;
-  height: 20.0px;
-  background: #1b7e39;
-  animation-name: doco-dot4-op, doco-dot4-mv, doco-dot4-sc;
-}
-
 @keyframes doco-spark1-op {
   0% { opacity: 0; }
   10.532% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -720,15 +2410,6 @@
   62.193% { animation-timing-function: ease-out; scale: 1 1; }
   72.192% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--1 {
-  left: 293.14px;
-  top: 268.14px;
-  width: 13.725px;
-  height: 13.725px;
-  background: #40c466;
-  animation-name: doco-spark1-op, doco-spark1-mv, doco-spark1-sc;
 }
 
 @keyframes doco-spark2-op {
@@ -765,15 +2446,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--2 {
-  left: 293.44px;
-  top: 268.44px;
-  width: 13.124px;
-  height: 13.124px;
-  background: #1b7e39;
-  animation-name: doco-spark2-op, doco-spark2-mv, doco-spark2-sc;
-}
-
 @keyframes doco-spark3-op {
   0% { opacity: 0; }
   10.799% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -806,15 +2478,6 @@
   62.46% { animation-timing-function: ease-out; scale: 1 1; }
   72.459% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--3 {
-  left: 293.76px;
-  top: 268.76px;
-  width: 12.472px;
-  height: 12.472px;
-  background: #40c466;
-  animation-name: doco-spark3-op, doco-spark3-mv, doco-spark3-sc;
 }
 
 @keyframes doco-spark4-op {
@@ -851,15 +2514,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--4 {
-  left: 296.55px;
-  top: 271.55px;
-  width: 6.891px;
-  height: 6.891px;
-  background: #1b7e39;
-  animation-name: doco-spark4-op, doco-spark4-mv, doco-spark4-sc;
-}
-
 @keyframes doco-spark5-op {
   0% { opacity: 0; }
   11.065% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -892,15 +2546,6 @@
   62.727% { animation-timing-function: ease-out; scale: 1 1; }
   72.726% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--5 {
-  left: 294.21px;
-  top: 269.21px;
-  width: 11.579px;
-  height: 11.579px;
-  background: #40c466;
-  animation-name: doco-spark5-op, doco-spark5-mv, doco-spark5-sc;
 }
 
 @keyframes doco-spark6-op {
@@ -937,15 +2582,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--6 {
-  left: 295.57px;
-  top: 270.57px;
-  width: 8.866px;
-  height: 8.866px;
-  background: #1b7e39;
-  animation-name: doco-spark6-op, doco-spark6-mv, doco-spark6-sc;
-}
-
 @keyframes doco-spark7-op {
   0% { opacity: 0; }
   11.332% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -978,15 +2614,6 @@
   62.993% { animation-timing-function: ease-out; scale: 1 1; }
   72.992% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--7 {
-  left: 294.36px;
-  top: 269.36px;
-  width: 11.279px;
-  height: 11.279px;
-  background: #40c466;
-  animation-name: doco-spark7-op, doco-spark7-mv, doco-spark7-sc;
 }
 
 @keyframes doco-spark8-op {
@@ -1023,15 +2650,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--8 {
-  left: 294.33px;
-  top: 269.34px;
-  width: 11.329px;
-  height: 11.329px;
-  background: #1b7e39;
-  animation-name: doco-spark8-op, doco-spark8-mv, doco-spark8-sc;
-}
-
 @keyframes doco-spark9-op {
   0% { opacity: 0; }
   11.599% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -1064,15 +2682,6 @@
   63.26% { animation-timing-function: ease-out; scale: 1 1; }
   73.259% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--9 {
-  left: 296.52px;
-  top: 271.52px;
-  width: 6.958px;
-  height: 6.958px;
-  background: #40c466;
-  animation-name: doco-spark9-op, doco-spark9-mv, doco-spark9-sc;
 }
 
 @keyframes doco-spark10-op {
@@ -1109,14 +2718,8 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--10 {
-  left: 292.52px;
-  top: 267.52px;
-  width: 14.957px;
-  height: 14.957px;
-  background: #1b7e39;
-  animation-name: doco-spark10-op, doco-spark10-mv, doco-spark10-sc;
-}
+
+
 
 @keyframes doco-spark11-op {
   0% { opacity: 0; }
@@ -1150,15 +2753,6 @@
   63.527% { animation-timing-function: ease-out; scale: 1 1; }
   73.525% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--11 {
-  left: 295.78px;
-  top: 270.78px;
-  width: 8.44px;
-  height: 8.44px;
-  background: #40c466;
-  animation-name: doco-spark11-op, doco-spark11-mv, doco-spark11-sc;
 }
 
 @keyframes doco-spark12-op {
@@ -1195,15 +2789,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--12 {
-  left: 291.32px;
-  top: 266.32px;
-  width: 17.358px;
-  height: 17.358px;
-  background: #1b7e39;
-  animation-name: doco-spark12-op, doco-spark12-mv, doco-spark12-sc;
-}
-
 @keyframes doco-spark13-op {
   0% { opacity: 0; }
   12.132% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -1236,15 +2821,6 @@
   63.793% { animation-timing-function: ease-out; scale: 1 1; }
   73.792% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--13 {
-  left: 295.24px;
-  top: 270.24px;
-  width: 9.518px;
-  height: 9.518px;
-  background: #40c466;
-  animation-name: doco-spark13-op, doco-spark13-mv, doco-spark13-sc;
 }
 
 @keyframes doco-spark14-op {
@@ -1281,15 +2857,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--14 {
-  left: 295.57px;
-  top: 270.57px;
-  width: 8.869px;
-  height: 8.869px;
-  background: #1b7e39;
-  animation-name: doco-spark14-op, doco-spark14-mv, doco-spark14-sc;
-}
-
 @keyframes doco-spark15-op {
   0% { opacity: 0; }
   12.399% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -1324,14 +2891,8 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--15 {
-  left: 293.17px;
-  top: 268.17px;
-  width: 13.658px;
-  height: 13.658px;
-  background: #40c466;
-  animation-name: doco-spark15-op, doco-spark15-mv, doco-spark15-sc;
-}
+
+
 
 @keyframes doco-spark16-op {
   0% { opacity: 0; }
@@ -1365,15 +2926,6 @@
   64.193% { animation-timing-function: ease-out; scale: 1 1; }
   74.192% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--16 {
-  left: 292.27px;
-  top: 267.27px;
-  width: 15.455px;
-  height: 15.455px;
-  background: #1b7e39;
-  animation-name: doco-spark16-op, doco-spark16-mv, doco-spark16-sc;
 }
 
 @keyframes doco-spark17-op {
@@ -1410,15 +2962,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--17 {
-  left: 294.6px;
-  top: 269.6px;
-  width: 10.805px;
-  height: 10.805px;
-  background: #40c466;
-  animation-name: doco-spark17-op, doco-spark17-mv, doco-spark17-sc;
-}
-
 @keyframes doco-spark18-op {
   0% { opacity: 0; }
   12.799% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -1451,15 +2994,6 @@
   64.46% { animation-timing-function: ease-out; scale: 1 1; }
   74.459% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--18 {
-  left: 292.67px;
-  top: 267.67px;
-  width: 14.663px;
-  height: 14.663px;
-  background: #1b7e39;
-  animation-name: doco-spark18-op, doco-spark18-mv, doco-spark18-sc;
 }
 
 @keyframes doco-spark19-op {
@@ -1496,15 +3030,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-spark--19 {
-  left: 291.56px;
-  top: 266.56px;
-  width: 16.876px;
-  height: 16.876px;
-  background: #40c466;
-  animation-name: doco-spark19-op, doco-spark19-mv, doco-spark19-sc;
-}
-
 @keyframes doco-spark20-op {
   0% { opacity: 0; }
   13.065% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -1537,15 +3062,6 @@
   64.726% { animation-timing-function: ease-out; scale: 1 1; }
   74.725% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-spark--20 {
-  left: 293.67px;
-  top: 268.67px;
-  width: 12.651px;
-  height: 12.651px;
-  background: #1b7e39;
-  animation-name: doco-spark20-op, doco-spark20-mv, doco-spark20-sc;
 }
 
 @keyframes doco-check-op {
@@ -1600,47 +3116,6 @@
   100% { scale: 0 0; }
 }
 
-.doco-check {
-  position: absolute;
-  left: 254px;
-  top: 229px;
-  width: 92px;
-  height: 92px;
-  opacity: 0;
-  animation-duration: var(--doco-loop);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-name: doco-check-op, doco-check-sc;
-}
-
-.doco-check__disc {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: #40c466;
-}
-
-/* the two strokes are drawn, not faded in, so the SVG has to be inline:
-   the keyframes animate stroke-dasharray on the real <line> elements.
-   Both already carry pathLength="1" from the Figma export. */
-.doco-check__mark {
-  position: absolute;
-  inset: 0;
-  width: 92px;
-  height: 92px;
-  overflow: visible;
-}
-
-.doco-check__mark line {
-  stroke: #fff;
-  stroke-width: 5.45185;
-  stroke-linecap: round;
-  stroke-dashoffset: 0;
-  animation-duration: var(--doco-loop);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
 @keyframes doco-stroke1-op {
   0% { opacity: 0; }
   8.332% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
@@ -1661,10 +3136,6 @@
   58.327% { animation-timing-function: cubic-bezier(0.3, 0, 0.1, 1); stroke-dasharray: 0 1; visibility: hidden; }
   62.493% { stroke-dasharray: 1 1; visibility: visible; }
   100% { stroke-dasharray: 1 1; visibility: visible; }
-}
-
-.doco-check__mark .doco-stroke--1 {
-  animation-name: doco-stroke1-op, doco-stroke1-draw;
 }
 
 @keyframes doco-stroke2-op {
@@ -1689,987 +3160,587 @@
   100% { stroke-dasharray: 1 1; stroke-dashoffset: 0; visibility: visible; }
 }
 
-.doco-check__mark .doco-stroke--2 {
-  animation-name: doco-stroke2-op, doco-stroke2-draw;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .doco-dot,
-  .doco-spark {
-    animation: none;
-  }
-
-  .doco-spark {
-    display: none; /* the burst has no meaningful resting state */
-  }
-
-  .doco-dot {
-    opacity: 1;
-  }
-
-  .doco-check {
-    opacity: 1;
-    animation: none;
-  }
-
-  .doco-check__mark line {
-    animation: none;
-    stroke-dasharray: 1 1;
-  }
-}
-
-
-/* -- bike tile (Figma 26:11036 via 107:43925) ----------------------
-   Rebuilt as elements, not a screenshot. It has to be: the progress
-   arc grows as the deposit lands and the ripple ring is a real 16px
-   ellipse at rest, so an exported frame bakes both of them in - the
-   ring showed up as a stray dot sitting on the arc for the whole loop.
-   What is left of the export is the photograph alone.
-
-   This is also the tile whose tracks needed retiming (see the header):
-   its confetti, ripple and amount swap are authored on the longer
-   6.752982s track. The ripple is the giveaway - its size runs on the
-   loop and its position on the long track, so left alone the ring
-   drifts off the end of the arc it is supposed to expand from.
-
-   The two clipping boxes below are Figma's own ("This one" and the
-   panel); they are what stops the confetti spraying across the tile,
-   so they have to be reproduced rather than flattened away.
-   ------------------------------------------------------------- */
-
-@font-face {
-  font-family: "Nunito";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("fonts/nunito-400-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-.case-grid__tile--bike {
-  position: relative;
-  aspect-ratio: 628 / 504;
-  overflow: hidden;
-  border-radius: 8px;
-  background: #f7f6f2;
-  container-type: inline-size;
-}
-
-.doco-bike__screen {
-  position: absolute;
-  left: 100px;
-  top: 0;
-  width: 375px;
-  height: 505px;
-  overflow: hidden;
-}
-
-.doco-bike__panel {
-  position: absolute;
-  left: 0;
-  top: 74px;
-  width: 375px;
-  height: 439px;
-  overflow: hidden;
-  animation-duration: var(--doco-loop);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-/* the 328x327 "Dream states" box, centred in the 375 panel - every
-   offset below is measured from its top-left */
-.doco-bike__states {
-  position: absolute;
-  left: 23.5px;
-  top: 0;
-  width: 328px;
-  height: 327px;
-}
-
-/* the goal photo, circle-cropped, with the image itself oversized and
-   pulled left exactly as the Figma fill is framed */
-.doco-bike__photo {
-  position: absolute;
-  left: 18.99px;
-  top: 17px;
-  width: 294px;
-  height: 294px;
-  overflow: hidden;
-  border-radius: 50%;
-}
-
-.doco-bike__photo img {
-  position: absolute;
-  left: -28.25px;
-  top: 0;
-  width: 454.5px;
-  height: 303px;
-  max-width: none;
-  border-radius: 0;
-}
-
-/* fades the photo into the panel behind the amount */
-.doco-bike__fade {
-  position: absolute;
-  left: 20.01px;
-  top: 17.99px;
-  width: 294px;
-  height: 294px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0) 53.99%, #f7f6f2 84.524%);
-}
-
-/* the grey track is static; the green arc on top of it is not.
-   Both selectors are scoped through .doco-bike__states so they outrank
-   the grid's generic `.case-grid__tile img { width: 100% }`. */
-.doco-bike__states .doco-bike__track,
-.doco-bike__states .doco-bike__progress {
-  position: absolute;
-  left: 0.5px;
-  top: 0;
-  width: 327px;
-  height: 327px;
-  border-radius: 0;
-}
-
-.doco-bike__states .doco-bike__progress {
-  overflow: visible;
-}
-
-/* one arc drawn to its fullest extent, revealed by stroke-dasharray:
-   Figma animates the ellipse's ending angle (106.51deg -> 136.51deg of
-   a 61.5deg start), which is 0.6 -> 1 of the path */
-.doco-bike__states .doco-bike__progress path {
-  fill: none;
-  stroke: #40c466;
-  stroke-width: 8;
-  stroke-linecap: round;
-  stroke-dasharray: 0.6 1;
-  animation: doco-bike-progress var(--doco-loop) linear infinite;
-}
-
-/* the deposit swaps the amount: 25 slides out right as 50 slides in */
-.doco-bike__amount,
-.doco-bike__of {
-  position: absolute;
-  right: 0.5px;
-  margin: 0;
-  font-family: "Nunito", var(--font-family);
-  font-weight: 400;
-  text-align: right;
-  white-space: nowrap;
-  color: #272725;
-  font-feature-settings: "zero" 1, "lnum" 1, "tnum" 1;
-}
-
-.doco-bike__amount {
-  top: 232.13px;
-  font-size: 32px;
-  line-height: 36px;
-  letter-spacing: -0.2px;
-  animation-duration: var(--doco-loop);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.doco-bike__of {
-  top: 268.13px;
-  font-size: 16px;
-  line-height: 20px;
-}
-
-/* a ring that pulses out from the head of the arc on every deposit.
-   Figma keeps the 4px stroke as the ellipse grows, so this is a border
-   rather than a scaled-up SVG - which would thicken to 66px at full
-   size and read as a disc instead of a ripple. */
-.doco-ripple {
-  position: absolute;
-  left: 138.5px;
-  top: 383.5px;
-  box-sizing: border-box;
-  width: 16px;
-  height: 16px;
-  opacity: 0;
-  border: 4px solid #40c466;
-  border-radius: 50%;
-  animation-duration: var(--doco-loop);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.doco-burst {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0;
-  animation-duration: var(--doco-loop);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
 @keyframes doco-bike-progress {
   0% { stroke-dasharray: 0.6001 1; }
-  23.2642% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 0.6001 1; }
-  39.9291% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 1.0 1; }
-  85.0096% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 1.0 1; }
-  94.242% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 0.6001 1; }
+  19.941% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 0.6001 1; }
+  34.2254% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 1.0 1; }
+  72.8664% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 1.0 1; }
+  80.7801% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); stroke-dasharray: 0.6001 1; }
+  85.7156% { stroke-dasharray: 0.6001 1; }
   100% { stroke-dasharray: 0.6001 1; }
 }
 
 @keyframes doco-bike-panel-h {
   0% { height: 439px; }
-  41.036% { height: 397px; }
+  35.1743% { height: 397px; }
   100% { height: 397px; }
-}
-
-.doco-bike__panel {
-  animation-name: doco-bike-panel-h;
 }
 
 @keyframes doco-amount-from-op {
   0% { opacity: 1; }
-  39.929% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  43.87% { opacity: 0; }
-  94.402% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 0; }
-  97.891% { opacity: 1; }
+  34.2253% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  37.6034% { opacity: 0; }
+  80.9172% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 0; }
+  83.9079% { opacity: 1; }
   100% { opacity: 1; }
 }
 
 @keyframes doco-amount-from-mv {
   0% { translate: 0px 0px; }
-  40.0139% { translate: 0px 0px; }
-  44.0033% { translate: 92px 0px; }
-  94.3392% { translate: 92px 0px; }
-  97.9764% { translate: 0px 0px; }
+  34.2981% { translate: 0px 0px; }
+  37.7177% { translate: 92px 0px; }
+  80.8634% { translate: 92px 0px; }
+  83.9811% { translate: 0px 0px; }
   100% { translate: 0px 0px; }
-}
-
-.doco-bike__amount--from {
-  animation-name: doco-amount-from-op, doco-amount-from-mv;
 }
 
 @keyframes doco-amount-to-op {
   0% { opacity: 0; }
-  44.003% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 0; }
-  47.15% { opacity: 1; }
-  91.106% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  94.235% { opacity: 0; }
+  37.7174% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 0; }
+  40.4149% { opacity: 1; }
+  78.092% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  80.7741% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-amount-to-mv {
   0% { translate: 92px 0px; }
-  44.1069% { translate: 92px 0px; }
-  47.3097% { translate: 1px 0px; }
-  91.106% { translate: 1px 0px; }
-  94.3392% { translate: 92px 0px; }
+  37.8065% { translate: 92px 0px; }
+  40.5518% { translate: 1px 0px; }
+  78.092% { translate: 1px 0px; }
+  80.8634% { translate: 92px 0px; }
   100% { translate: 92px 0px; }
-}
-
-.doco-bike__amount--to {
-  animation-name: doco-amount-to-op, doco-amount-to-mv;
 }
 
 @keyframes doco-ripple-size {
   0% { width: 7px; height: 7px }
-  6.664% { animation-timing-function: ease-in-out; width: 7px; height: 7px }
-  25.147% { width: 265px; height: 265px }
+  5.7121% { animation-timing-function: ease-in-out; width: 7px; height: 7px }
+  21.5549% { width: 265px; height: 265px }
   100% { width: 265px; height: 265px }
 }
 
 @keyframes doco-ripple-op {
   0% { opacity: 0; }
-  6.664% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 0; }
-  16.558% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
-  25.164% { opacity: 0; }
+  5.7121% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 0; }
+  14.1928% { animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); opacity: 1; }
+  21.5695% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-ripple-mv {
   0% { translate: 4.5px 4.5px; }
-  6.6645% { animation-timing-function: ease-in-out; translate: 4.5px 4.5px; }
-  25.1477% { translate: -124.5px -124.5px; }
+  5.7125% { animation-timing-function: ease-in-out; translate: 4.5px 4.5px; }
+  21.5555% { translate: -124.5px -124.5px; }
   100% { translate: -124.5px -124.5px; }
-}
-
-.doco-ripple {
-  animation-name: doco-ripple-size, doco-ripple-op, doco-ripple-mv;
 }
 
 @keyframes doco-burst1-op {
   0% { opacity: 0; }
-  10.532% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  11.365% { animation-timing-function: ease-out; opacity: 1; }
-  20.198% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.198% { opacity: 0; }
+  9.0275% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  9.7416% { animation-timing-function: ease-out; opacity: 1; }
+  17.3129% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.0271% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst1-mv {
   0% { translate: 0px 0px; }
-  10.5324% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  17.5311% { translate: -172.154px -80.394px; }
+  9.0279% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.0269% { translate: -172.154px -80.394px; }
   100% { translate: -172.154px -80.394px; }
 }
 
 @keyframes doco-burst1-sc {
   0% { scale: 0 0; }
-  10.5324% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.1991% { animation-timing-function: ease-out; scale: 1 1; }
-  22.198% { scale: 0 0; }
+  9.0279% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  10.4565% { animation-timing-function: ease-out; scale: 1 1; }
+  19.0271% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--1 {
-  left: 116.64px;
-  top: 311.14px;
-  width: 13.725px;
-  height: 13.725px;
-  background: #40c466;
-  animation-name: doco-burst1-op, doco-burst1-mv, doco-burst1-sc;
 }
 
 @keyframes doco-burst2-op {
   0% { opacity: 0; }
-  10.666% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  11.499% { animation-timing-function: ease-out; opacity: 1; }
-  20.331% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.331% { opacity: 0; }
+  9.1424% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  9.8564% { animation-timing-function: ease-out; opacity: 1; }
+  17.4268% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.1411% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst2-mv {
   0% { translate: 0px 0px; }
-  10.6652% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  17.665% { translate: 85.853px -27.004px; }
+  9.1418% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.1417% { translate: 85.853px -27.004px; }
   100% { translate: 85.853px -27.004px; }
 }
 
 @keyframes doco-burst2-sc {
   0% { scale: 0 0; }
-  10.6652% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.3319% { animation-timing-function: ease-out; scale: 1 1; }
-  22.3308% { scale: 0 0; }
+  9.1418% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  10.5704% { animation-timing-function: ease-out; scale: 1 1; }
+  19.141% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--2 {
-  left: 116.94px;
-  top: 311.44px;
-  width: 13.124px;
-  height: 13.124px;
-  background: #1b7e39;
-  animation-name: doco-burst2-op, doco-burst2-mv, doco-burst2-sc;
 }
 
 @keyframes doco-burst3-op {
   0% { opacity: 0; }
-  10.799% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  11.632% { animation-timing-function: ease-out; opacity: 1; }
-  20.464% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.464% { opacity: 0; }
+  9.2564% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  9.9704% { animation-timing-function: ease-out; opacity: 1; }
+  17.5408% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.2552% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst3-mv {
   0% { translate: 0px 0px; }
-  10.7991% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  17.7978% { translate: -57.583px 99.545px; }
+  9.2565% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.2555% { translate: -57.583px 99.545px; }
   100% { translate: -57.583px 99.545px; }
 }
 
 @keyframes doco-burst3-sc {
   0% { scale: 0 0; }
-  10.7991% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.4658% { animation-timing-function: ease-out; scale: 1 1; }
-  22.4648% { scale: 0 0; }
+  9.2565% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  10.6851% { animation-timing-function: ease-out; scale: 1 1; }
+  19.2558% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--3 {
-  left: 117.26px;
-  top: 311.76px;
-  width: 12.472px;
-  height: 12.472px;
-  background: #40c466;
-  animation-name: doco-burst3-op, doco-burst3-mv, doco-burst3-sc;
 }
 
 @keyframes doco-burst4-op {
   0% { opacity: 0; }
-  10.932% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  11.765% { animation-timing-function: ease-out; opacity: 1; }
-  20.598% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.598% { opacity: 0; }
+  9.3705% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.0844% { animation-timing-function: ease-out; opacity: 1; }
+  17.6557% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.37% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst4-mv {
   0% { translate: 0px 0px; }
-  10.9319% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  17.9317% { translate: -30.168px -136.711px; }
+  9.3704% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.3703% { translate: -30.168px -136.711px; }
   100% { translate: -30.168px -136.711px; }
 }
 
 @keyframes doco-burst4-sc {
   0% { scale: 0 0; }
-  10.9319% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.5986% { animation-timing-function: ease-out; scale: 1 1; }
-  22.5976% { scale: 0 0; }
+  9.3704% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  10.799% { animation-timing-function: ease-out; scale: 1 1; }
+  19.3697% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--4 {
-  left: 120.05px;
-  top: 314.55px;
-  width: 6.891px;
-  height: 6.891px;
-  background: #1b7e39;
-  animation-name: doco-burst4-op, doco-burst4-mv, doco-burst4-sc;
 }
 
 @keyframes doco-burst5-op {
   0% { opacity: 0; }
-  11.065% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  11.899% { animation-timing-function: ease-out; opacity: 1; }
-  20.731% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.731% { opacity: 0; }
+  9.4844% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.1993% { animation-timing-function: ease-out; opacity: 1; }
+  17.7697% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.484% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst5-mv {
   0% { translate: 0px 0px; }
-  11.0658% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.0645% { translate: 135.054px 94.791px; }
+  9.4851% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.4841% { translate: 135.054px 94.791px; }
   100% { translate: 135.054px 94.791px; }
 }
 
 @keyframes doco-burst5-sc {
   0% { scale: 0 0; }
-  11.0658% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.7325% { animation-timing-function: ease-out; scale: 1 1; }
-  22.7304% { scale: 0 0; }
+  9.4851% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  10.9138% { animation-timing-function: ease-out; scale: 1 1; }
+  19.4835% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--5 {
-  left: 117.71px;
-  top: 312.21px;
-  width: 11.579px;
-  height: 11.579px;
-  background: #40c466;
-  animation-name: doco-burst5-op, doco-burst5-mv, doco-burst5-sc;
 }
 
 @keyframes doco-burst6-op {
   0% { opacity: 0; }
-  11.199% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.032% { animation-timing-function: ease-out; opacity: 1; }
-  20.864% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.864% { opacity: 0; }
+  9.5993% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.3133% { animation-timing-function: ease-out; opacity: 1; }
+  17.8837% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.598% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst6-mv {
   0% { translate: 0px 0px; }
-  11.1986% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.1985% { translate: -188.406px 24.563px; }
+  9.599% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.599% { translate: -188.406px 24.563px; }
   100% { translate: -188.406px 24.563px; }
 }
 
 @keyframes doco-burst6-sc {
   0% { scale: 0 0; }
-  11.1986% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.8653% { animation-timing-function: ease-out; scale: 1 1; }
-  22.8643% { scale: 0 0; }
+  9.599% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.0276% { animation-timing-function: ease-out; scale: 1 1; }
+  19.5983% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--6 {
-  left: 119.07px;
-  top: 313.57px;
-  width: 8.866px;
-  height: 8.866px;
-  background: #1b7e39;
-  animation-name: doco-burst6-op, doco-burst6-mv, doco-burst6-sc;
 }
 
 @keyframes doco-burst7-op {
   0% { opacity: 0; }
-  11.332% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.165% { animation-timing-function: ease-out; opacity: 1; }
-  20.998% { animation-timing-function: ease-out; opacity: 0.7; }
-  22.998% { opacity: 0; }
+  9.7133% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.4273% { animation-timing-function: ease-out; opacity: 1; }
+  17.9985% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.7129% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst7-mv {
   0% { translate: 0px 0px; }
-  11.3325% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.3313% { translate: 57.947px -68.863px; }
+  9.7138% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.7127% { translate: 57.947px -68.863px; }
   100% { translate: 57.947px -68.863px; }
 }
 
 @keyframes doco-burst7-sc {
   0% { scale: 0 0; }
-  11.3325% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  12.9981% { animation-timing-function: ease-out; scale: 1 1; }
-  22.9971% { scale: 0 0; }
+  9.7138% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.1414% { animation-timing-function: ease-out; scale: 1 1; }
+  19.7121% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--7 {
-  left: 117.86px;
-  top: 312.36px;
-  width: 11.279px;
-  height: 11.279px;
-  background: #40c466;
-  animation-name: doco-burst7-op, doco-burst7-mv, doco-burst7-sc;
 }
 
 @keyframes doco-burst8-op {
   0% { opacity: 0; }
-  11.465% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.299% { animation-timing-function: ease-out; opacity: 1; }
-  21.131% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.131% { opacity: 0; }
+  9.8273% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.5421% { animation-timing-function: ease-out; opacity: 1; }
+  18.1126% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.8269% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst8-mv {
   0% { translate: 0px 0px; }
-  11.4653% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.4652% { translate: 4.84px 114.898px; }
+  9.8275% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.8275% { translate: 4.84px 114.898px; }
   100% { translate: 4.84px 114.898px; }
 }
 
 @keyframes doco-burst8-sc {
   0% { scale: 0 0; }
-  11.4653% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.132% { animation-timing-function: ease-out; scale: 1 1; }
-  23.131% { scale: 0 0; }
+  9.8275% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.2561% { animation-timing-function: ease-out; scale: 1 1; }
+  19.8269% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--8 {
-  left: 117.83px;
-  top: 312.34px;
-  width: 11.329px;
-  height: 11.329px;
-  background: #1b7e39;
-  animation-name: doco-burst8-op, doco-burst8-mv, doco-burst8-sc;
 }
 
 @keyframes doco-burst9-op {
   0% { opacity: 0; }
-  11.599% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.432% { animation-timing-function: ease-out; opacity: 1; }
-  21.264% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.264% { opacity: 0; }
+  9.9422% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.6562% { animation-timing-function: ease-out; opacity: 1; }
+  18.2266% { animation-timing-function: ease-out; opacity: 0.7; }
+  19.9408% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst9-mv {
   0% { translate: 0px 0px; }
-  11.5993% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.598% { translate: -98.829px -99.161px; }
+  9.9424% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  15.9414% { translate: -98.829px -99.161px; }
   100% { translate: -98.829px -99.161px; }
 }
 
 @keyframes doco-burst9-sc {
   0% { scale: 0 0; }
-  11.5993% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.2648% { animation-timing-function: ease-out; scale: 1 1; }
-  23.2638% { scale: 0 0; }
+  9.9424% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.37% { animation-timing-function: ease-out; scale: 1 1; }
+  19.9407% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--9 {
-  left: 120.02px;
-  top: 314.52px;
-  width: 6.958px;
-  height: 6.958px;
-  background: #40c466;
-  animation-name: doco-burst9-op, doco-burst9-mv, doco-burst9-sc;
 }
 
 @keyframes doco-burst10-op {
   0% { opacity: 0; }
-  11.732% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.565% { animation-timing-function: ease-out; opacity: 1; }
-  21.398% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.397% { opacity: 0; }
+  10.0561% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.7702% { animation-timing-function: ease-out; opacity: 1; }
+  18.3415% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.0549% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst10-mv {
   0% { translate: 0px 0px; }
-  11.732% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.7308% { translate: 164.83px 7.496px; }
+  10.0561% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.0552% { translate: 164.83px 7.496px; }
   100% { translate: 164.83px 7.496px; }
 }
 
 @keyframes doco-burst10-sc {
   0% { scale: 0 0; }
-  11.732% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.3987% { animation-timing-function: ease-out; scale: 1 1; }
-  23.3977% { scale: 0 0; }
+  10.0561% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.4847% { animation-timing-function: ease-out; scale: 1 1; }
+  20.0555% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--10 {
-  left: 116.02px;
-  top: 310.52px;
-  width: 14.957px;
-  height: 14.957px;
-  background: #1b7e39;
-  animation-name: doco-burst10-op, doco-burst10-mv, doco-burst10-sc;
 }
 
 @keyframes doco-burst11-op {
   0% { opacity: 0; }
-  11.865% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.699% { animation-timing-function: ease-out; opacity: 1; }
-  21.531% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.531% { opacity: 0; }
+  10.1702% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.8851% { animation-timing-function: ease-out; opacity: 1; }
+  18.4554% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.1697% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst11-mv {
   0% { translate: 0px 0px; }
-  11.8648% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.8647% { translate: -145.787px 121.845px; }
+  10.17% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.17% { translate: -145.787px 121.845px; }
   100% { translate: -145.787px 121.845px; }
 }
 
 @keyframes doco-burst11-sc {
   0% { scale: 0 0; }
-  11.8648% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.5315% { animation-timing-function: ease-out; scale: 1 1; }
-  23.5305% { scale: 0 0; }
+  10.17% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.5986% { animation-timing-function: ease-out; scale: 1 1; }
+  20.1693% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--11 {
-  left: 119.28px;
-  top: 313.78px;
-  width: 8.44px;
-  height: 8.44px;
-  background: #40c466;
-  animation-name: doco-burst11-op, doco-burst11-mv, doco-burst11-sc;
 }
 
 @keyframes doco-burst12-op {
   0% { opacity: 0; }
-  11.999% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.832% { animation-timing-function: ease-out; opacity: 1; }
-  21.664% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.664% { opacity: 0; }
+  10.285% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  10.999% { animation-timing-function: ease-out; opacity: 1; }
+  18.5694% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.2838% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst12-mv {
   0% { translate: 0px 0px; }
-  11.9988% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  18.9975% { translate: 11.934px -89.205px; }
+  10.2848% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.2838% { translate: 11.934px -89.205px; }
   100% { translate: 11.934px -89.205px; }
 }
 
 @keyframes doco-burst12-sc {
   0% { scale: 0 0; }
-  11.9988% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.6654% { animation-timing-function: ease-out; scale: 1 1; }
-  23.6644% { scale: 0 0; }
+  10.2848% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.7134% { animation-timing-function: ease-out; scale: 1 1; }
+  20.284% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--12 {
-  left: 114.82px;
-  top: 309.32px;
-  width: 17.358px;
-  height: 17.358px;
-  background: #1b7e39;
-  animation-name: doco-burst12-op, doco-burst12-mv, doco-burst12-sc;
 }
 
 @keyframes doco-burst13-op {
   0% { opacity: 0; }
-  12.132% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  12.965% { animation-timing-function: ease-out; opacity: 1; }
-  21.798% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.797% { opacity: 0; }
+  10.3991% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.113% { animation-timing-function: ease-out; opacity: 1; }
+  18.6843% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.3977% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst13-mv {
   0% { translate: 0px 0px; }
-  12.1316% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.1314% { translate: 65.751px 94.35px; }
+  10.3987% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.3986% { translate: 65.751px 94.35px; }
   100% { translate: 65.751px 94.35px; }
 }
 
 @keyframes doco-burst13-sc {
   0% { scale: 0 0; }
-  12.1316% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.7982% { animation-timing-function: ease-out; scale: 1 1; }
-  23.7972% { scale: 0 0; }
+  10.3987% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.8272% { animation-timing-function: ease-out; scale: 1 1; }
+  20.3979% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--13 {
-  left: 118.74px;
-  top: 313.24px;
-  width: 9.518px;
-  height: 9.518px;
-  background: #40c466;
-  animation-name: doco-burst13-op, doco-burst13-mv, doco-burst13-sc;
 }
 
 @keyframes doco-burst14-op {
   0% { opacity: 0; }
-  12.265% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.099% { animation-timing-function: ease-out; opacity: 1; }
-  21.931% { animation-timing-function: ease-out; opacity: 0.7; }
-  23.931% { opacity: 0; }
+  10.513% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.2279% { animation-timing-function: ease-out; opacity: 1; }
+  18.7983% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.5126% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst14-mv {
   0% { translate: 0px 0px; }
-  12.2655% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.2642% { translate: -136.609px -30.626px; }
+  10.5135% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.5124% { translate: -136.609px -30.626px; }
   100% { translate: -136.609px -30.626px; }
 }
 
 @keyframes doco-burst14-sc {
   0% { scale: 0 0; }
-  12.2655% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  13.9322% { animation-timing-function: ease-out; scale: 1 1; }
-  23.9311% { scale: 0 0; }
+  10.5135% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  11.9421% { animation-timing-function: ease-out; scale: 1 1; }
+  20.5127% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--14 {
-  left: 119.07px;
-  top: 313.57px;
-  width: 8.869px;
-  height: 8.869px;
-  background: #1b7e39;
-  animation-name: doco-burst14-op, doco-burst14-mv, doco-burst14-sc;
 }
 
 @keyframes doco-burst15-op {
   0% { opacity: 0; }
-  12.399% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.232% { animation-timing-function: ease-out; opacity: 1; }
-  22.064% { animation-timing-function: ease-out; opacity: 0.7; }
-  24.064% { opacity: 0; }
+  10.6279% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.3419% { animation-timing-function: ease-out; opacity: 1; }
+  18.9123% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.6266% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst15-mv {
   0% { translate: 0px 0px; }
-  12.3983% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.3981% { translate: 143.101px -82.141px; }
+  10.6273% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.6272% { translate: 143.101px -82.141px; }
   100% { translate: 143.101px -82.141px; }
 }
 
 @keyframes doco-burst15-sc {
   0% { scale: 0 0; }
-  12.3983% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  14.065% { animation-timing-function: ease-out; scale: 1 1; }
-  24.0639% { scale: 0 0; }
+  10.6273% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  12.0559% { animation-timing-function: ease-out; scale: 1 1; }
+  20.6265% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--15 {
-  left: 116.67px;
-  top: 311.17px;
-  width: 13.658px;
-  height: 13.658px;
-  background: #40c466;
-  animation-name: doco-burst15-op, doco-burst15-mv, doco-burst15-sc;
 }
 
 @keyframes doco-burst16-op {
   0% { opacity: 0; }
-  12.532% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.365% { animation-timing-function: ease-out; opacity: 1; }
-  22.198% { animation-timing-function: ease-out; opacity: 0.7; }
-  24.197% { opacity: 0; }
+  10.7419% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.4559% { animation-timing-function: ease-out; opacity: 1; }
+  19.0271% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.7406% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst16-mv {
   0% { translate: 0px 0px; }
-  12.5322% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.5309% { translate: -57.615px 181.054px; }
+  10.7421% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.7411% { translate: -57.615px 181.054px; }
   100% { translate: -57.615px 181.054px; }
 }
 
 @keyframes doco-burst16-sc {
   0% { scale: 0 0; }
-  12.5322% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  14.1989% { animation-timing-function: ease-out; scale: 1 1; }
-  24.1978% { scale: 0 0; }
+  10.7421% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  12.1707% { animation-timing-function: ease-out; scale: 1 1; }
+  20.7413% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--16 {
-  left: 115.77px;
-  top: 310.27px;
-  width: 15.455px;
-  height: 15.455px;
-  background: #1b7e39;
-  animation-name: doco-burst16-op, doco-burst16-mv, doco-burst16-sc;
 }
 
 @keyframes doco-burst17-op {
   0% { opacity: 0; }
-  12.665% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.499% { animation-timing-function: ease-out; opacity: 1; }
-  22.331% { animation-timing-function: ease-out; opacity: 0.7; }
-  24.331% { opacity: 0; }
+  10.8559% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.5707% { animation-timing-function: ease-out; opacity: 1; }
+  19.1411% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.8555% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst17-mv {
   0% { translate: 0px 0px; }
-  12.665% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.6648% { translate: -37.808px -81.674px; }
+  10.8559% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.8558% { translate: -37.808px -81.674px; }
   100% { translate: -37.808px -81.674px; }
 }
 
 @keyframes doco-burst17-sc {
   0% { scale: 0 0; }
-  12.665% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  14.3317% { animation-timing-function: ease-out; scale: 1 1; }
-  24.3306% { scale: 0 0; }
+  10.8559% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  12.2845% { animation-timing-function: ease-out; scale: 1 1; }
+  20.8551% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--17 {
-  left: 118.1px;
-  top: 312.6px;
-  width: 10.805px;
-  height: 10.805px;
-  background: #40c466;
-  animation-name: doco-burst17-op, doco-burst17-mv, doco-burst17-sc;
 }
 
 @keyframes doco-burst18-op {
   0% { opacity: 0; }
-  12.799% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.632% { animation-timing-function: ease-out; opacity: 1; }
-  22.464% { animation-timing-function: ease-out; opacity: 0.7; }
-  24.464% { opacity: 0; }
+  10.9708% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.6848% { animation-timing-function: ease-out; opacity: 1; }
+  19.2552% { animation-timing-function: ease-out; opacity: 0.7; }
+  20.9694% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst18-mv {
   0% { translate: 0px 0px; }
-  12.7989% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.7976% { translate: 106.117px 44.32px; }
+  10.9707% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  16.9697% { translate: 106.117px 44.32px; }
   100% { translate: 106.117px 44.32px; }
 }
 
 @keyframes doco-burst18-sc {
   0% { scale: 0 0; }
-  12.7989% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  14.4656% { animation-timing-function: ease-out; scale: 1 1; }
-  24.4646% { scale: 0 0; }
+  10.9707% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  12.3993% { animation-timing-function: ease-out; scale: 1 1; }
+  20.97% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--18 {
-  left: 116.17px;
-  top: 310.67px;
-  width: 14.663px;
-  height: 14.663px;
-  background: #1b7e39;
-  animation-name: doco-burst18-op, doco-burst18-mv, doco-burst18-sc;
 }
 
 @keyframes doco-burst19-op {
   0% { opacity: 0; }
-  12.932% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.765% { animation-timing-function: ease-out; opacity: 1; }
-  22.598% { animation-timing-function: ease-out; opacity: 0.7; }
-  24.597% { opacity: 0; }
+  11.0847% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.7988% { animation-timing-function: ease-out; opacity: 1; }
+  19.37% { animation-timing-function: ease-out; opacity: 0.7; }
+  21.0835% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst19-mv {
   0% { translate: 0px 0px; }
-  12.9317% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  19.9315% { translate: -131.703px 47.478px; }
+  11.0845% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  17.0844% { translate: -131.703px 47.478px; }
   100% { translate: -131.703px 47.478px; }
 }
 
 @keyframes doco-burst19-sc {
   0% { scale: 0 0; }
-  12.9317% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  14.5984% { animation-timing-function: ease-out; scale: 1 1; }
-  24.5974% { scale: 0 0; }
+  11.0845% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  12.5131% { animation-timing-function: ease-out; scale: 1 1; }
+  21.0838% { scale: 0 0; }
   100% { scale: 0 0; }
-}
-
-.doco-burst--19 {
-  left: 115.06px;
-  top: 309.56px;
-  width: 16.876px;
-  height: 16.876px;
-  background: #40c466;
-  animation-name: doco-burst19-op, doco-burst19-mv, doco-burst19-sc;
 }
 
 @keyframes doco-burst20-op {
   0% { opacity: 0; }
-  13.065% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
-  13.899% { animation-timing-function: ease-out; opacity: 1; }
-  22.731% { animation-timing-function: ease-out; opacity: 0.7; }
-  24.731% { opacity: 0; }
+  11.1987% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); opacity: 0; }
+  11.9137% { animation-timing-function: ease-out; opacity: 1; }
+  19.484% { animation-timing-function: ease-out; opacity: 0.7; }
+  21.1983% { opacity: 0; }
   100% { opacity: 0; }
 }
 
 @keyframes doco-burst20-mv {
   0% { translate: 0px 0px; }
-  13.0656% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
-  20.0643% { translate: 76.658px -146.111px; }
+  11.1993% { animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); translate: 0px 0px; }
+  17.1982% { translate: 76.658px -146.111px; }
   100% { translate: 76.658px -146.111px; }
 }
 
 @keyframes doco-burst20-sc {
   0% { scale: 0 0; }
-  13.0656% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
-  14.7323% { animation-timing-function: ease-out; scale: 1 1; }
-  24.7301% { scale: 0 0; }
+  11.1993% { animation-timing-function: cubic-bezier(0, 0, 0.1, 1); scale: 0 0; }
+  12.6279% { animation-timing-function: ease-out; scale: 1 1; }
+  21.1976% { scale: 0 0; }
   100% { scale: 0 0; }
 }
 
-.doco-burst--20 {
-  left: 117.17px;
-  top: 311.67px;
-  width: 12.651px;
-  height: 12.651px;
-  background: #1b7e39;
-  animation-name: doco-burst20-op, doco-burst20-mv, doco-burst20-sc;
+@keyframes doco-ai-veil {
+  0% { animation-timing-function: step-end; background-color: rgba(255, 255, 255, 0.5); }
+  0.014% { animation-timing-function: ease-in-out; background-color: rgba(255, 255, 255, 0.5); }
+  25.011% { animation-timing-function: ease-in-out; background-color: rgba(255, 255, 255, 0.25); }
+  50.009% { animation-timing-function: ease-in-out; background-color: rgba(255, 255, 255, 0.5); }
+  75.006% { animation-timing-function: ease-in-out; background-color: rgba(255, 255, 255, 0.25); }
+  100% { background-color: rgba(255, 255, 255, 0.5); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .doco-bike__panel,
-  .doco-bike__amount,
-  .doco-ripple,
-  .doco-burst,
-  .doco-bike__states .doco-bike__progress path {
-    animation: none;
-  }
+/* Figma keyframes `fill` on the flattened stroke vector; border-color
+   is the same thing on a real border. */
+@keyframes doco-ai-edge {
+  0% { animation-timing-function: step-end; border-color: #3918b2; }
+  0.014% { animation-timing-function: ease-in-out; border-color: #3918b2; }
+  25.011% { animation-timing-function: ease-in-out; border-color: #9a5dfb; }
+  50.009% { animation-timing-function: ease-in-out; border-color: #3918b2; }
+  75.006% { animation-timing-function: ease-in-out; border-color: #9a5dfb; }
+  100% { border-color: #3918b2; }
+}
 
-  /* rest state: the arc at its starting fill, no burst, no amount */
-  .doco-bike__amount,
-  .doco-ripple,
-  .doco-burst {
-    display: none;
-  }
+@keyframes doco-ai-spark {
+  0% { rotate: 0rad; }
+  0.014% { animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); rotate: 0rad; }
+  25.011% { animation-timing-function: step-end; rotate: 6.283rad; }
+  25.178% { rotate: 0rad; }
+  66.673% { animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); rotate: 0rad; }
+  91.671% { animation-timing-function: step-end; rotate: 6.283rad; }
+  91.837% { rotate: 0rad; }
+  100% { rotate: 0rad; }
 }

@@ -426,7 +426,10 @@
   for (var si = 0; si < stacks.length; si++) {
     (function (stack) {
       var card = stack.closest(".work-card");
-      if (!card) return;
+      /* the dark hero card is a whole-card <a> to its case (see
+         _layouts/home.html) - it has no lightbox, so clicking its shots
+         should just follow the link rather than open them. */
+      if (!card || card.tagName === "A") return;
       stack.setAttribute("role", "button");
       stack.setAttribute("tabindex", "0");
       stack.setAttribute("aria-label", "Enlarge screenshots");

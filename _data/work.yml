@@ -29,25 +29,22 @@
   title: Mealplanner
   variant: light
   blurb: |
-    A personal product I have designed and built myself end-to-end.
-
-    I explored a different design style than your typical flat design app —
-    something that could live on your kitchen's fridge door.
+    Built a meal planner app as a solo designer and developer. Built it first with Laravel and Vue, but moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design laguage different from typical corporate flat design, and got inspried by my kitchen, cook books and art.
   shots:
-    - { src: /assets/images/work/juusto-a.jpg, w: 246, h: 532, fit: strip, alt: "" }
-    - { src: /assets/images/work/juusto-b.jpg, w: 851, h: 532, alt: "Juusto weekly meal planner" }
+    - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "" }
+    - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
 
 - client: Stora Enso
   title: Design System
   variant: light
   blurb: >-
     Redesigning the world's oldest company's Design System and facilitating the
-    design-system processes across cross-functional international teams. I updated
-    UI components, colours and typography, rebuilt the documentation and coded the
-    animation by hand with CSS.
+    design system processes across cross-functional international teams. I updated
+    UI components, colours and typography, guides, documentation and coded
+    animations by hand with CSS.
   shots:
-    - { src: /assets/images/work/storaenso-a.jpg, w: 851, h: 461, fit: contain, alt: "" }
-    - { src: /assets/images/work/storaenso-b.jpg, w: 851, h: 586, fit: top, alt: "Stora Enso SEEDS design system documentation" }
+    - { src: /assets/images/work/storaenso-a.png, w: 1400, h: 875, fit: contain, alt: "" }
+    - { src: /assets/images/work/storaenso-b.png, w: 1400, h: 875, fit: top, alt: "Stora Enso SEEDS design system documentation" }
 
 - client: Bromma
   title: IoT Monitoring
@@ -55,19 +52,16 @@
   blurb: |
     The world's leading smart-spreader system needed a user-friendly UI.
 
-    My role was facilitating workshops, designing new features and redesigning
-    in a cross-functional team to improve a heavy-industry IoT service.
+    My role was facilitating the complete design process in a cross-functional team consisting of developers and clients repesentatives to improve a leading heavy-industry IoT service.
   shots:
-    - { src: /assets/images/work/bromma-a.jpg, w: 790, h: 494, alt: "" }
-    - { src: /assets/images/work/bromma-b.jpg, w: 851, h: 532, alt: "Bromma spreader monitoring dashboard" }
+    - { src: /assets/images/work/bromma-a.png, w: 1400, h: 875, alt: "" }
+    - { src: /assets/images/work/bromma-b.png, w: 1400, h: 875, alt: "Bromma spreader monitoring dashboard" }
 
 - client: InWell
   title: Streaming Service
   variant: light
   blurb: >-
-    A streaming service for working out at home. I helped scale the user base
-    by over 900% during my involvement, redesigning the player and library
-    experience and shipping features end-to-end.
+    I built a streaming platform from scratch for workouts as a solo designer and developer. I designed the whole experience and developed it in Laravel and React.<br><br>We kept improving it over the years and grew the user base with over 900%.
   shots:
-    - { src: /assets/images/work/inwell-a.jpg, w: 851, h: 532, alt: "" }
-    - { src: /assets/images/work/inwell-b.jpg, w: 851, h: 532, alt: "InWell workout class library" }
+    - { src: /assets/images/work/inwell-a.png, w: 1400, h: 875, alt: "" }
+    - { src: /assets/images/work/inwell-b.png, w: 1400, h: 875, alt: "InWell workout class library" }

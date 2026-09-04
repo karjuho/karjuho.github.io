@@ -1,6 +1,10 @@
 /* -------------------------------------------------------------
    Improving Deposits - Doconomy case study write-up
 
+   Loaded only on this page (via `extra_css` in
+   _cases/improving-deposits.html), so none of it ships with the
+   home page.
+
    Implemented from Figma (file 3bj2vwJkv0ykpj5xoku8fo,
    node 107:45568 "Doconomy").
 
@@ -8,10 +12,10 @@
    75/53 padding, a 59px gap and CENTER cross-axis alignment.
    So the page is one centred column where each block carries its
    own width - 600 (prose), 940 (lead/media) or 1294 (spec grid).
-   main.css scales the whole canvas with `zoom` at >=1250px (see
-   `body.case-study` there), exactly as the home and dark case
-   pages do; below that the blocks just shrink and the layout
-   collapses to a single column with var(--spacing) gutters.
+   main.css scales the whole canvas with `zoom` at >=1250px,
+   exactly as the home and dark case pages do; below that the
+   blocks just shrink and the layout collapses to a single column
+   with var(--spacing) gutters.
 
    Type and colour come from the Figma text/colour styles via the
    tokens in main.css.
@@ -27,10 +31,11 @@
   --cs-w-wide: 1294px;  /* spec grid (1400 - 2 * 53) */
 }
 
-/* Light page - override body.cases (white) and the corner map.
-   NB the body class is `case-study-page`, not `case-study`: main.css
-   already uses `.case-study` for the teaser section on /doconomy, and
-   on <body> that rule turned the page into a padded flex container. */
+/* Light page - the site's own background, minus the corner map.
+   NB the body class is `case-study-page`, not `case-study`:
+   case-doconomy.css uses `.case-study` for the teaser section on
+   /doconomy, and on <body> that rule turned this page into a padded
+   flex container. */
 body.case-study-page {
   color: var(--text-muted);
   background-color: var(--background);
@@ -62,8 +67,8 @@ body.case-study-page {
 
 .cs__close {
   position: fixed;
-  top: 75px;
-  right: var(--cs-pad);
+  top: 24px;
+  right: 24px;
   z-index: 30;
   display: flex;
   align-items: center;
@@ -221,6 +226,12 @@ body.case-study-page {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.cs__split-media img.shadow {
+  box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.08);
+  border-radius: 32px;
+
 }
 
 .cs__split-body {

@@ -62,10 +62,46 @@ layout: default
 
             <div class="work-list">
               {%- for item in site.data.work -%}
-              <article class="work-card work-card--{{ item.variant | default: 'light' }}">
-                {%- if item.variant == 'dark' -%}
+              {%- if item.variant == 'dark' -%}
+              {%- comment -%}
+                Dark hero card: the whole card is a link to its case (no
+                nested <a>, so the CTA below is inert markup) and the
+                screenshot stack is no longer click-to-zoom - hovering the
+                card plays the same fan/lift the other cards' shots get on
+                hover (see .work-card--dark:hover in main.css). Only ever
+                one dark card, so this is special-cased rather than made
+                generic.
+              {%- endcomment -%}
+              <a class="work-card work-card--dark" href="{{ item.cta.href | relative_url }}">
                 <div class="work-card__glow" aria-hidden="true"><span class="work-card__glow-a"></span><span class="work-card__glow-b"></span></div>
+                <div class="work-card__body">
+                  <header class="work-card__head">
+                    <p class="work-card__client">{{ item.client }}</p>
+                    <h3 class="work-card__title">{{ item.title | strip | newline_to_br }}</h3>
+                  </header>
+                  <div class="work-card__text">
+                    {{ item.blurb | markdownify }}
+                  </div>
+                  {%- if item.cta -%}
+                  <span class="work-card__cta">
+                    <span class="work-card__cta-label gradient-text">{{ item.cta.label }}</span>
+                    <span class="work-card__cta-icon" aria-hidden="true"></span>
+                  </span>
+                  {%- endif -%}
+                </div>
+                {%- if item.shots -%}
+                <div class="work-card__shots">
+                  {%- for shot in item.shots -%}
+                  <div class="work-card__shot work-card__shot--{{ forloop.index }} is-{{ shot.fit | default: 'cover' }}">
+                    <img src="{{ shot.src | relative_url }}" width="{{ shot.w }}" height="{{ shot.h }}"
+                         alt="{{ shot.alt }}" loading="lazy" decoding="async">
+                  </div>
+                  {%- endfor -%}
+                </div>
                 {%- endif -%}
+              </a>
+              {%- else -%}
+              <article class="work-card work-card--{{ item.variant | default: 'light' }}">
                 <div class="work-card__body">
                   <header class="work-card__head">
                     <p class="work-card__client">{{ item.client }}</p>
@@ -92,6 +128,7 @@ layout: default
                 </div>
                 {%- endif -%}
               </article>
+              {%- endif -%}
               {%- endfor -%}
             </div>
           </div>
@@ -217,19 +254,19 @@ layout: default
                  assets/main.css); click opens the tooltip (assets/main.js).
                  --1 is the current-location pin. -->
             <div class="contact-pins" aria-label="Places connected to Juho">
-              <button type="button" class="contact-pin contact-pin--1" id="pin-sigtuna" aria-expanded="false" aria-label="Sigtuna, Stockholm, Sweden" data-place="Sigtuna, Stockholm, Sweden" data-note="This is where I currently live.">
+              <button type="button" class="contact-pin contact-pin--1" id="pin-sigtuna" aria-expanded="false" aria-label="Sigtuna (Stockholm), Sweden" data-place="Sigtuna (Stockholm), Sweden" data-note="I live and work from Swedens oldest town, wonderful Sigtuna.">
                 <img src="{{ "/assets/images/pin-orange.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
               </button>
-              <button type="button" class="contact-pin contact-pin--2" id="pin-oslo" aria-expanded="false" aria-label="Oslo, Norway" data-place="Oslo, Norway" data-note="I frequently travel to Oslo, my wife&rsquo;s home is here.">
+              <button type="button" class="contact-pin contact-pin--2" id="pin-oslo" aria-expanded="false" aria-label="Oslo, Norway" data-place="Oslo, Norway" data-note="My wife is from Norway, so I frequently visit Oslo.">
                 <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
               </button>
-              <button type="button" class="contact-pin contact-pin--3" id="pin-mockfjard" aria-expanded="false" aria-label="Mockfj&auml;rd, Dalarna, Sweden" data-place="Mockfj&auml;rd, Dalarna, Sweden" data-note="I grew up here and went to school here.">
+              <button type="button" class="contact-pin contact-pin--3" id="pin-mockfjard" aria-expanded="false" aria-label="Mockfjärd, Sweden" data-place="Mockfjärd, Sweden" data-note="I grew up and went to school in beautiful Dalarna.">
                 <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
               </button>
-              <button type="button" class="contact-pin contact-pin--4" id="pin-oulu" aria-expanded="false" aria-label="Oulu, Finland" data-place="Oulu, Finland" data-note="I worked and lived the first 8 years of my professional life in Oulu.">
+              <button type="button" class="contact-pin contact-pin--4" id="pin-oulu" aria-expanded="false" aria-label="Oulu, Finland" data-place="Oulu, Finland" data-note="My first job was as a Web Designer in the cold north. I stayed in Oulu for 8 years.">
                 <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
               </button>
-              <button type="button" class="contact-pin contact-pin--5" id="pin-tampere" aria-expanded="false" aria-label="Tampere, Finland" data-place="Tampere, Finland" data-note="I was born here.">
+              <button type="button" class="contact-pin contact-pin--5" id="pin-tampere" aria-expanded="false" aria-label="Tampere, Finland" data-place="Tampere, Finland" data-note="I was born in Tampere, in between two of the thousand lakes of Finland.">
                 <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
               </button>
             </div>

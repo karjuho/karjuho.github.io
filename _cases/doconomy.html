@@ -9,7 +9,7 @@ excerpt: >-
   Leading product design for a bank-embedded, goal-based savings product used by
   over 100 000 people, and modernising how the design team works.
 image: /assets/images/doconomy/case-board.jpg
-case_study_url: /improving-deposits
+case_study_url: /doconomy/improving-deposits
 ---
 
 <section class="case-hero">
@@ -21,11 +21,11 @@ case_study_url: /improving-deposits
     <h1 class="case-hero__title">From app store<br>to global bank app</h1>
 
     <div class="case-hero__lead">
-      <p>Since I started in 2024 as a Lead Product Designer at Doconomy, we have been on a
+      <p>As a Lead Product Designer at Doconomy, I have been on a
         journey to transition and improve a B2C product into a white-labeled B2B2C SaaS
         product embedded inside consumer banking apps. Working in cross-functional teams,
         my responsibility has been to lead product design for a product with over
-        <strong>100 000 monthly users</strong>. Other areas of my impact included shortening
+        <strong>100 000 monthly users</strong>. My impact has included shortening
         and streamlining internal design processes, modernizing the design lifecycle through
         AI, and facilitating and designing concept work together with clients and partners.</p>
 
@@ -42,15 +42,12 @@ case_study_url: /improving-deposits
     <div class="case-hero__product">
       <h2 class="case-hero__product-title">The product - Impact Finance</h2>
       <p class="case-hero__product-body">The product is a financial well-being product that
-        makes it easier to save money toward your goals using &ldquo;savehacks.&rdquo; Goals
-        represent your savings goals, such as a new bike or a vacation. Savehacks are triggers
-        that transfer money to a savings goal, such as using &ldquo;The Thief&rdquo; savehack
-        to automatically transfer money from your account.</p>
-    </div>
+        makes it easier to save money toward your goals "Dreams" by making them visual and using transaction triggers called &ldquo;Savehacks.&rdquo; </p>
+      </div>
   </div>
 
   <div class="case-hero__visual">
-    <img src="{{ "/assets/images/doconomy/product-visual.jpg" | relative_url }}"
+    <img src="{{ "/assets/images/doconomy/product-visual.png" | relative_url }}"
          width="375" height="764"
          alt="A savings goal screen in the Impact Finance app, showing progress toward a vacation and the recurring deposits set up for it">
   </div>
@@ -73,7 +70,11 @@ case_study_url: /improving-deposits
     </li>
   </ul>
   <div class="case-rule" aria-hidden="true"></div>
+
+  <p>My work has impacted nearly all aspects of the app, from improving onboarding to rethinking how deposits should work and improving accessbility for date pickers. My approach has been iterative, backed by a strong user-testing culture within cross-functional teams. I have usually led or co-led projects, facilitated design sprints and  workshops. I have been aliging business objectives with user needs to elevate both.</p>
 </section>
+
+
 
 <section class="case-grid">
   <!-- Rebuilt from Figma rather than screenshotted: the progress arc grows
@@ -126,12 +127,13 @@ case_study_url: /improving-deposits
       </div>
     </div>
   </figure>
-  <figure class="case-grid__tile">
-    <img src="{{ "/assets/images/doconomy/grid-calendar.png" | relative_url }}" width="628" height="504"
+  <!-- Static tiles: the flat panel is CSS, only the UI inside it is a PNG. -->
+  <figure class="case-grid__tile case-grid__tile--panel case-grid__tile--calendar">
+    <img src="{{ "/assets/images/doconomy/grid-calendar.png" | relative_url }}" width="1032" height="1083"
          alt="The date picker used to choose when a savings goal should be reached" loading="lazy" decoding="async">
   </figure>
-  <figure class="case-grid__tile">
-    <img src="{{ "/assets/images/doconomy/grid-frequency.png" | relative_url }}" width="628" height="504"
+  <figure class="case-grid__tile case-grid__tile--panel case-grid__tile--frequency">
+    <img src="{{ "/assets/images/doconomy/grid-frequency.png" | relative_url }}" width="1053" height="1206"
          alt="Setting the amount and frequency of a recurring deposit" loading="lazy" decoding="async">
   </figure>
   <!-- The coins tile is the Figma Motion animation rebuilt as elements
@@ -160,7 +162,6 @@ case_study_url: /improving-deposits
           aria-label="A savings deposit confirmed: a checkmark pops in with a burst of confetti">
     <div class="doco-scene" aria-hidden="true">
       <span class="doco-dot doco-dot--1"></span>
-      <span class="doco-dot doco-dot--2"></span>
       <span class="doco-dot doco-dot--3"></span>
       <span class="doco-dot doco-dot--4"></span>
         <span class="doco-spark doco-spark--1"></span>
@@ -185,17 +186,22 @@ case_study_url: /improving-deposits
         <span class="doco-spark doco-spark--20"></span>
       <div class="doco-check">
         <span class="doco-check__disc"></span>
+        <!-- Both strokes run at exactly 45 degrees, so the tick's vertex is
+             where they cross: (39.974, 64.061). The export ended the short
+             stroke 2.56px early at (38.162, 62.250), which left the round
+             caps overlapping into a lumpy corner - it now runs to the
+             crossing point, so the two meet cleanly. -->
         <svg class="doco-check__mark" viewBox="0 0 92 92" fill="none" focusable="false">
           <line class="doco-stroke--1" pathLength="1"
-                x1="21.914" y1="46.002" x2="38.162" y2="62.250"></line>
+                x1="21.914" y1="46.002" x2="39.974" y2="64.061"></line>
           <line class="doco-stroke--2" pathLength="1"
                 x1="73.941" y1="30.094" x2="39.974" y2="64.061"></line>
         </svg>
       </div>
     </div>
   </figure>
-  <figure class="case-grid__tile">
-    <img src="{{ "/assets/images/doconomy/grid-selection.png" | relative_url }}" width="628" height="504"
+  <figure class="case-grid__tile case-grid__tile--panel case-grid__tile--selection">
+    <img src="{{ "/assets/images/doconomy/grid-selection.png" | relative_url }}" width="1662" height="306"
          alt="Choosing between three savings goals, with the first one selected" loading="lazy" decoding="async">
   </figure>
 </section>
@@ -203,11 +209,24 @@ case_study_url: /improving-deposits
 <section class="case-block">
   <h2 class="case-block__title">Improving Design Workflows</h2>
 
+  <!-- Theme fan: the same board in three themes, cut into three turning
+       120-degree wedges so all of them are on screen at once. Replaces
+       the Figma wipe (107:44395), whose mask never cleared the board -
+       see assets/case-doconomy.css. -->
   <figure class="case-figure case-figure--wide">
-    <img src="{{ "/assets/images/doconomy/design-system-slides.jpg" | relative_url }}"
-         width="1272" height="502"
-         alt="A live Figma preview of the design system: type styles, a colour palette, buttons, a savings goal card and a form, all themed for one brand"
-         loading="lazy" decoding="async">
+    <div class="doco-fan" role="img"
+         aria-label="A live Figma preview of the design system - type styles, a colour palette, buttons, a savings goal card and a form - shown in three brand themes at once, the boundaries turning slowly">
+      <img class="doco-fan__base" src="{{ "/assets/images/doconomy/slides-cream.png" | relative_url }}"
+           width="3501" height="1382" alt="" loading="lazy" decoding="async">
+      <div class="doco-fan__slice doco-fan__slice--white" aria-hidden="true">
+        <img class="doco-fan__board" src="{{ "/assets/images/doconomy/slides-white.png" | relative_url }}"
+             width="3501" height="1382" alt="" loading="lazy" decoding="async">
+      </div>
+      <div class="doco-fan__slice doco-fan__slice--dark" aria-hidden="true">
+        <img class="doco-fan__board" src="{{ "/assets/images/doconomy/slides-dark.png" | relative_url }}"
+             width="3501" height="1382" alt="" loading="lazy" decoding="async">
+      </div>
+    </div>
   </figure>
 
   <div class="case-cols">
@@ -243,11 +262,20 @@ case_study_url: /improving-deposits
 </section>
 
 <section class="case-split">
+  <!-- The AI treatment from Figma Motion (107:44875). Only three things
+       are keyframed - the white veil, the border colour and the spinning
+       sparkle - so the editor and its colour picker are one flat 3x PNG
+       and the rest is CSS (see assets/case-doconomy.css). -->
   <figure class="case-figure case-split__media">
-    <img src="{{ "/assets/images/doconomy/theme-editor.png" | relative_url }}"
-         width="558" height="419"
-         alt="The theme editor: brand colours and fonts on the left, updating the mocked-up app screens on the right"
-         loading="lazy" decoding="async">
+    <div class="doco-ai" role="img"
+         aria-label="The theme editor with an AI assist: brand colours and fonts on the left updating the mocked-up app screens on the right, under a pulsing glow">
+      <img class="doco-ai__shot" src="{{ "/assets/images/doconomy/ai-theme-editor.png" | relative_url }}"
+           width="1674" height="1257" alt="" loading="lazy" decoding="async">
+      <span class="doco-ai__veil" aria-hidden="true"></span>
+      <span class="doco-ai__edge" aria-hidden="true"></span>
+      <img class="doco-ai__spark" src="{{ "/assets/images/doconomy/ai-spark.svg" | relative_url }}"
+           width="29" height="29" alt="" aria-hidden="true" loading="lazy" decoding="async">
+    </div>
   </figure>
 
   <div class="case-split__prose">

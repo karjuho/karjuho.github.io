@@ -4,7 +4,13 @@ layout: default
 
 <main class="case-page" id="main" tabindex="-1">
 
-  <div class="case-page__bg" aria-hidden="true"></div>
+  <!-- The hero wash: a base gradient plus the two light sweeps (Figma
+       Ellipse 2170 / 2171), split out of hero-bg.svg into their own files
+       so they can drift the way the hero card's do on the home page. -->
+  <div class="case-page__bg" aria-hidden="true">
+    <span class="case-page__ray case-page__ray--a"></span>
+    <span class="case-page__ray case-page__ray--b"></span>
+  </div>
 
   <header class="case-topbar">
     <a class="case-back" href="{{ "/" | relative_url }}#work">
