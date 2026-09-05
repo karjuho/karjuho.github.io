@@ -2,10 +2,10 @@
 layout: default
 ---
 
-<main class="home" id="main" tabindex="-1">
+<div class="home">
 
       <div class="home-sidebar">
-        <header class="home-header" role="banner">
+        <header class="home-header">
             <a class="profile-brand" href="{{ "/" | relative_url }}">
               <span class="profile-photo">
                 <img src="{{ "/assets/images/juho-profile.jpg" | relative_url }}"
@@ -54,7 +54,7 @@ layout: default
         </nav>
       </div>
 
-      <div class="home-content" aria-label="Content">
+      <main class="home-content" id="main" tabindex="-1">
         <div class="wrapper">
 
           <div class="section" id="work">
@@ -140,9 +140,9 @@ layout: default
 
               <div class="about-block">
                 <h3 class="about-block-title">About Me</h3>
-                <p class="about-bio">I am a Product Designer born in Finland and raised in Sweden. When I started to learn design it was natural for me to also learn how to code as just imagining things was nice, but the real magic happened when I could build the designs to life as well! I had found my passion! I think my developer background help me to understand the constraints and see the possibilities when I design.</p>
-                <p class="about-bio">In my free time, I love spending time with my family, listen to audiobooks, playing board/video games and baking bread.</p>
-                <p class="about-bio">Currently I work as a Senior Product Designer at Futurice, helping different industries with digitalization and design systems.</p>
+                <p class="about-bio">Hi, I'm a Product Designer who also loves code and building things. I started out as a Web Designer, so learning to code came naturally. What began with only HTML and CSS quickly grew into PHP, MySQL, Laravel, Vue and React and before long I was building digital products end-to-end.</p>
+                <p class="about-bio">These days I work mostly in a design role, but I still love getting my hands on code, and with AI tools I can now iterate, prototype and ship things faster than ever. My experience gives me a thorough understanding of the whole product cycle: business needs and user research, prototyping, workshop facilitation, leading and working in cross-functional teams, UX and UI design, coding front and back end, and shipping and maintaining a product long after launch. I thrive best in small teams, even if it is part of larger organization, where I can put as many of my skills to use as possible.</p>
+                <p class="about-bio">In my free time, I love spending time with my family, books, playing games, and cooking food or baking bread.</p>
               </div>
 
               <div class="about-block about-block--pad">
@@ -244,7 +244,7 @@ layout: default
               <div class="contact-details">
                 <p class="contact-heading">Get In Touch</p>
                 <p class="contact-lead">Happy to hear from you!</p>
-                <a class="contact-phone gradient-text" href="tel:+46736878693">+46 73-687 86 93</a>
+                <span class="contact-phone gradient-text phone">+46 73-687 86 93</span>
                 <span class="contact-email mail">karjuho(at)gmail.com</span>
               </div>
               <p class="contact-copyright">&copy; Juho Karhu</p>
@@ -253,26 +253,46 @@ layout: default
             <!-- Map pins. contact-pin--N carries the position (see
                  assets/main.css); click opens the tooltip (assets/main.js).
                  --1 is the current-location pin. -->
-            <div class="contact-pins" aria-label="Places connected to Juho">
-              <button type="button" class="contact-pin contact-pin--1" id="pin-sigtuna" aria-expanded="false" aria-label="Sigtuna (Stockholm), Sweden" data-place="Sigtuna (Stockholm), Sweden" data-note="I live and work from Sweden&rsquo;s oldest town, wonderful Sigtuna.">
-                <img src="{{ "/assets/images/pin-orange.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
-              </button>
-              <button type="button" class="contact-pin contact-pin--2" id="pin-oslo" aria-expanded="false" aria-label="Oslo, Norway" data-place="Oslo, Norway" data-note="My wife is from Norway, so I frequently visit Oslo.">
-                <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
-              </button>
-              <button type="button" class="contact-pin contact-pin--3" id="pin-mockfjard" aria-expanded="false" aria-label="Mockfjärd, Sweden" data-place="Mockfjärd, Sweden" data-note="I grew up and went to school in beautiful Dalarna.">
-                <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
-              </button>
-              <button type="button" class="contact-pin contact-pin--4" id="pin-oulu" aria-expanded="false" aria-label="Oulu, Finland" data-place="Oulu, Finland" data-note="My first job was as a Web Designer in the cold north. I stayed in Oulu for 8 years.">
-                <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
-              </button>
-              <button type="button" class="contact-pin contact-pin--5" id="pin-tampere" aria-expanded="false" aria-label="Tampere, Finland" data-place="Tampere, Finland" data-note="I was born in Tampere, in between two of the thousand lakes of Finland.">
-                <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
-              </button>
+            <div class="contact-pins" role="group" aria-label="Places connected to Juho">
+              <div class="contact-pin contact-pin--1">
+                <button type="button" class="contact-pin__btn" id="pin-sigtuna"
+                        aria-expanded="false" aria-controls="tip-sigtuna"
+                        aria-label="Sigtuna (Stockholm), Sweden" data-place="Sigtuna (Stockholm), Sweden" data-note="I live and work from Sweden&rsquo;s oldest town, wonderful Sigtuna.">
+                  <img src="{{ "/assets/images/pin-orange.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
+                </button>
+              </div>
+              <div class="contact-pin contact-pin--2">
+                <button type="button" class="contact-pin__btn" id="pin-oslo"
+                        aria-expanded="false" aria-controls="tip-oslo"
+                        aria-label="Oslo, Norway" data-place="Oslo, Norway" data-note="My wife is from Norway, so I frequently visit Oslo.">
+                  <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
+                </button>
+              </div>
+              <div class="contact-pin contact-pin--3">
+                <button type="button" class="contact-pin__btn" id="pin-mockfjard"
+                        aria-expanded="false" aria-controls="tip-mockfjard"
+                        aria-label="Mockfjärd, Sweden" data-place="Mockfjärd, Sweden" data-note="I grew up and went to school in beautiful Dalarna.">
+                  <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
+                </button>
+              </div>
+              <div class="contact-pin contact-pin--4">
+                <button type="button" class="contact-pin__btn" id="pin-oulu"
+                        aria-expanded="false" aria-controls="tip-oulu"
+                        aria-label="Oulu, Finland" data-place="Oulu, Finland" data-note="My first job was as a Web Designer in the cold north. I stayed in Oulu for 8 years.">
+                  <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
+                </button>
+              </div>
+              <div class="contact-pin contact-pin--5">
+                <button type="button" class="contact-pin__btn" id="pin-tampere"
+                        aria-expanded="false" aria-controls="tip-tampere"
+                        aria-label="Tampere, Finland" data-place="Tampere, Finland" data-note="I was born in Tampere, in between two of the thousand lakes of Finland.">
+                  <img src="{{ "/assets/images/pin-grey.svg" | relative_url }}" width="21" height="30" alt="" aria-hidden="true">
+                </button>
+              </div>
             </div>
           </div>
 
       </div>
-      </div>
+      </main>
 
-</main>
+</div>

@@ -267,17 +267,47 @@
   --gradient-yellow: #ff9501;
   --gradient-red: #eb1410;
 
-  /* the three stop arrangements the site uses */
+  /* Accessible variants of the brand stops. The brand ramp above is a
+     decorative fill; clipped into TEXT it only clears WCAG 1.4.3 in the
+     middle of its range - on the light ground #ff9501 is 1.95:1. So the
+     ramp exists twice, once per background, and gradient text picks the
+     one for the ground it sits on (--gradient / --gradient-fallback). */
+  --gradient-orange-deep: #c83a00;  /* 4.58:1 on --background */
+  --gradient-red-deep:    #db130f;  /* 4.53:1 on --background */
+  --gradient-red-lift:    #ff4a42;  /* 5.00:1 on --inverted-background */
+  --orange-solid:         #d73f00;  /* 4.56:1 behind white text */
+
+  /* --gradient-yellow stays at its brand value in every ramp below: the
+     darkened stops that would clear 4.5:1 (#a15e01) and 3:1 (#c97601)
+     read as brown and were rejected on look. The yellow mid-stop is a
+     known, deliberate 1.4.3 exception - 1.95:1 on --background. */
+
+  /* The stop arrangements the site uses. --gradient-brand is the
+     canonical brand ramp, kept as the reference the two text ramps below
+     are derived from; text itself uses one of those two instead. */
   --gradient-brand: linear-gradient(
     90deg,
     var(--gradient-orange) 0%, var(--gradient-yellow) 44.231%, var(--gradient-red) 100%
   );
   --gradient-headline: linear-gradient(
     90deg,
-    var(--gradient-orange) 26.923%, var(--gradient-yellow) 51.923%, var(--gradient-red) 75%
+    var(--gradient-orange) 26.923%, var(--gradient-yellow) 51.923%,
+    var(--gradient-red) 75%
   );
   --gradient-nav: linear-gradient(
-    90deg, var(--gradient-orange) 0%, var(--gradient-yellow) 100%
+    90deg, var(--gradient-orange-deep) 0%, var(--gradient-yellow) 100%
+  );
+
+  /* text-sized gradient text, one ramp per ground */
+  --gradient-brand-on-light: linear-gradient(
+    90deg,
+    var(--gradient-orange-deep) 0%, var(--gradient-yellow) 44.231%,
+    var(--gradient-red-deep) 100%
+  );
+  --gradient-brand-on-dark: linear-gradient(
+    90deg,
+    var(--gradient-orange) 0%, var(--gradient-yellow) 44.231%,
+    var(--gradient-red-lift) 100%
   );
   /* palindrome of the headline colours so a background-position pan
      loops seamlessly in either direction (headline breathing sweep) */
@@ -796,12 +826,13 @@ hr {
 /* -- Gradient text -------------------------------------------------- */
 
 .gradient-text {
-  color: var(--gradient-orange); /* fallback where background-clip: text is absent */
+  /* fallback where background-clip: text is absent */
+  color: var(--gradient-fallback, var(--gradient-orange-deep));
 }
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .gradient-text {
-    background-image: var(--gradient, var(--gradient-brand));
+    background-image: var(--gradient, var(--gradient-brand-on-light));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -920,7 +951,8 @@ hr {
 .contact-copyright {
   margin: 0 0 var(--space-4);
   font: var(--font-body-14);
-  color: var(--inverted-muted);
+  /* was --inverted-muted, an inverted token on a light ground: 1.15:1 */
+  color: var(--text-muted);
 }
 
 /* Pins - absolute within the 940px section, offsets straight from Figma
@@ -932,10 +964,31 @@ hr {
   pointer-events: none;
 }
 
+/* The slot carries the map position (.contact-pin--N below) and is the
+   containing block for both the button and its tooltip, which are
+   siblings - a <button> may not contain the tooltip's close <button>. */
 .contact-pin {
   position: absolute;
   width: 21px;
   height: 30px;
+}
+
+.contact-pin__btn {
+  position: absolute;
+  inset: 0;
+}
+
+/* WCAG 2.5.8: the pin art is 21x30, two short of the 24x24 minimum
+   target. The hit area is grown symmetrically with a pseudo-element so
+   the pin itself does not shift on the map. */
+.contact-pin__btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 30px;
+  transform: translate(-50%, -50%);
 }
 
 .contact-pin img {
@@ -985,11 +1038,12 @@ hr {
 }
 
 /* Marker tooltips (Figma 139:25902) -------------------------------------
-   Each pin is a <button>. On hover the pin image lifts ~4px to signal it
-   is interactive; on click it snaps back down and the tooltip opens. The
-   hover lift is suppressed while that pin's tooltip is open. Opening one
-   tooltip closes any other (wired in assets/main.js). */
-.contact-pin {
+   Each pin is a <button> with the tooltip as its sibling in the slot. On
+   hover the pin image lifts ~4px to signal it is interactive; on click it
+   snaps back down and the tooltip opens. The hover lift is suppressed
+   while that pin's tooltip is open. Opening one tooltip closes any other
+   (wired in assets/main.js). */
+.contact-pin__btn {
   margin: 0;
   padding: 0;
   border: 0;
@@ -1001,7 +1055,7 @@ hr {
   -webkit-tap-highlight-color: transparent;
 }
 
-.contact-pin:focus-visible {
+.contact-pin__btn:focus-visible {
   outline: 2px solid var(--gradient-orange);
   outline-offset: 4px;
   border-radius: var(--radius-xs);
@@ -1014,14 +1068,14 @@ hr {
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .contact-pin:hover img {
+  .contact-pin__btn:hover img {
     transform: translateY(-4px);
   }
 }
 
 /* open state: image parked down, no hover response, tooltip visible */
 .contact-pin.is-open img,
-.contact-pin.is-open:hover img {
+.contact-pin.is-open .contact-pin__btn:hover img {
   transform: none;
   transition: none;
 }
@@ -1040,6 +1094,7 @@ hr {
    place sits above the white note (Figma 139:25902). */
 .contact-pin__tip {
   position: absolute;
+  outline: none; /* focused on open purely so it is announced */
   left: 50%;
   bottom: calc(100% + var(--space-1));
   box-sizing: border-box;
@@ -1262,6 +1317,21 @@ hr {
   text-decoration: none;
 }
 
+/* WCAG 1.4.10 (reflow): three items at var(--sidebar-pad) each side plus
+   the container's own padding come to 326px, which scrolls sideways at
+   the 320px reflow target. Tighten the link padding just below that. */
+@media (max-width: 360px) {
+  .nav-container {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+
+  .nav a {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+}
+
 /* Icons are Font Awesome 6 Free SVGs used as masks, so one gradient
    definition drives both the glyph and its label. See icons/NOTICE.txt. */
 .nav-icon {
@@ -1318,7 +1388,7 @@ hr {
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .nav a.active .nav-label {
-    background-image: var(--gradient-brand);
+    background-image: var(--gradient-brand-on-light);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1388,9 +1458,32 @@ a.work-card:hover {
   text-decoration: none;
 }
 
+/* Dark grounds flip to the other ramp: #eb1410 is only 3.68:1 on
+   --inverted-background, where the deep stops would be worse still. */
+.work-card--dark {
+  --gradient: var(--gradient-brand-on-dark);
+  --gradient-fallback: var(--gradient-orange);
+}
+
 a.work-card:focus-visible {
   outline: 2px solid var(--gradient-orange);
   outline-offset: 2px;
+}
+
+/* Shared by the case layouts (the back link's "Back to the front page")
+   and the lightbox dialog's description. Lives here rather than in a
+   per-case stylesheet, which left it undefined on any page that did not
+   happen to load assets/case-doconomy.css. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .work-card--light {
@@ -1609,6 +1702,10 @@ a.work-card:focus-visible {
    rule here rather than two near-copies in two stylesheets. */
 .work-card__cta,
 .case-pill {
+  /* the pill's own ground is white on both the light and the dark card,
+     so its label keeps the light-ground ramp wherever it sits */
+  --gradient: var(--gradient-brand-on-light);
+  --gradient-fallback: var(--gradient-orange-deep);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1644,7 +1741,7 @@ a.work-card:focus-visible {
 }
 
 .work-card__cta-icon {
-  background: var(--gradient-brand);
+  background: var(--gradient, var(--gradient-brand-on-light));
   -webkit-mask: url("icons/angle-right.svg") no-repeat center / contain;
   mask: url("icons/angle-right.svg") no-repeat center / contain;
 }
@@ -1920,6 +2017,17 @@ a.work-card:focus-visible {
   background: var(--text-main);
   color: var(--inverted-main);
   cursor: pointer;
+}
+
+/* The dialog is a click-through layer that only exists to give the close
+   button and the shots' description proper modal semantics. It has to
+   stay above the flying shots (z 60), so it cannot also wrap the scrim
+   (z 50) - see chrome() in assets/main.js. */
+.shot-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
 }
 
 .shot-close {
@@ -2265,7 +2373,7 @@ a.work-card:focus-visible {
 }
 
 .exp-row--current .exp-title.gradient-text {
-  --gradient: var(--gradient-brand);
+  --gradient: var(--gradient-brand-on-light);
 }
 
 .exp-org {
@@ -2292,7 +2400,8 @@ a.work-card:focus-visible {
 }
 
 .exp-badge--work {
-  background: var(--gradient-orange);
+  /* --gradient-orange behind white is 3.48:1; 12px normal needs 4.5:1 */
+  background: var(--orange-solid);
   color: var(--gray-0);
 }
 
@@ -2416,7 +2525,7 @@ a.work-card:focus-visible {
   left: -9999px;
   z-index: 10000;
   padding: 0.6em 1em;
-  background: var(--gradient-orange);
+  background: var(--orange-solid); /* 4.56:1 behind the white label */
   color: var(--gray-0);
   font-weight: 700;
 }

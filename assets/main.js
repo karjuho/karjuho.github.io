@@ -5,6 +5,7 @@
  *  - smooth anchor scroll  -> CSS (scroll-behavior)
  *  - active nav highlight   -> falls back to the static .active class in the markup
  *  - e-mail address        -> visible in plain text, just not a mailto: link
+ *  - phone number          -> visible in plain text, just not a tel: link
  */
 (function () {
   "use strict";
@@ -20,6 +21,20 @@
     link.textContent = address;
     node.textContent = "";
     node.appendChild(link);
+  }
+
+  /* Turn the obfuscated contact phone into a real tel: link.
+     Kept out of the markup so basic scrapers don't get a clean tel: link. */
+  var phoneNodes = document.querySelectorAll(".phone");
+  for (var p = 0; p < phoneNodes.length; p++) {
+    var phoneNode = phoneNodes[p];
+    var display = phoneNode.textContent.trim();
+    var digits = display.replace(/[^\d+]/g, "");
+    var phoneLink = document.createElement("a");
+    phoneLink.href = "tel:" + digits;
+    phoneLink.textContent = display;
+    phoneLink.className = phoneNode.className;
+    phoneNode.replaceWith(phoneLink);
   }
 
   /* Contact map pins: fade + drop in ~0.5s after first scrolled into view. */
@@ -40,36 +55,53 @@
 
   /* Contact map pins: click a pin to open its place tooltip. Opening one
      closes any other; a click outside, the tooltip's x button, or Escape
-     also closes it. (Figma 139:25902) */
-  if (pins) {
-    var pinButtons = pins.querySelectorAll(".contact-pin");
-    var openPin = null;
+     also closes it. (Figma 139:25902)
 
-    var closeTip = function () {
-      if (!openPin) return;
-      var pin = openPin;
-      openPin = null;
-      pin.classList.remove("is-open");
-      pin.setAttribute("aria-expanded", "false");
-      var tip = pin.querySelector(".contact-pin__tip");
-      if (tip) tip.parentNode.removeChild(tip);
-      pins.classList.remove("has-open-tip");
+     Accessibility: this is a disclosure, not a tooltip. The panel is a
+     SIBLING of the pin button inside .contact-pin - as a child it would
+     both nest a <button> inside a <button> (invalid) and be swallowed by
+     the pin's own aria-label, leaving nothing for a screen reader to
+     read. Focus moves into the panel on open so its text is announced,
+     and returns to the pin on close. */
+  if (pins) {
+    var pinButtons = pins.querySelectorAll(".contact-pin__btn");
+    var openPin = null; /* the open .contact-pin slot */
+
+    var pinButton = function (slot) {
+      return slot.querySelector(".contact-pin__btn");
     };
 
-    var openTip = function (pin) {
-      closeTip();
+    var closeTip = function (restoreFocus) {
+      if (!openPin) return;
+      var slot = openPin;
+      var btn = pinButton(slot);
+      openPin = null;
+      slot.classList.remove("is-open");
+      if (btn) btn.setAttribute("aria-expanded", "false");
+      var tip = slot.querySelector(".contact-pin__tip");
+      if (tip) tip.parentNode.removeChild(tip);
+      pins.classList.remove("has-open-tip");
+      if (restoreFocus && btn) btn.focus();
+    };
 
-      var tip = document.createElement("span");
+    var openTip = function (btn) {
+      closeTip(false);
+      var slot = btn.parentNode;
+
+      var tip = document.createElement("div");
       tip.className = "contact-pin__tip";
-      tip.setAttribute("role", "tooltip");
+      tip.id = btn.getAttribute("aria-controls") || "";
+      tip.setAttribute("tabindex", "-1");
+      tip.setAttribute("role", "group");
+      tip.setAttribute("aria-label", btn.getAttribute("data-place") || "");
 
       var place = document.createElement("span");
       place.className = "contact-pin__place";
-      place.textContent = pin.getAttribute("data-place") || "";
+      place.textContent = btn.getAttribute("data-place") || "";
 
       var note = document.createElement("span");
       note.className = "contact-pin__note";
-      note.textContent = pin.getAttribute("data-note") || "";
+      note.textContent = btn.getAttribute("data-note") || "";
 
       var closeBtn = document.createElement("button");
       closeBtn.type = "button";
@@ -81,39 +113,44 @@
         'stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>';
       closeBtn.addEventListener("click", function (e) {
         e.stopPropagation();
-        closeTip();
-        pin.focus();
+        closeTip(true);
       });
 
       tip.appendChild(place);
       tip.appendChild(note);
       tip.appendChild(closeBtn);
-      pin.appendChild(tip);
+      slot.appendChild(tip);
 
-      pin.classList.add("is-open");
-      pin.setAttribute("aria-expanded", "true");
+      slot.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
       pins.classList.add("has-open-tip");
-      openPin = pin;
+      openPin = slot;
+      void tip.offsetWidth; /* flush: the tip is visibility:hidden until
+                               .is-open lands, and hidden cannot be focused */
+      tip.focus();
     };
 
     for (var pb = 0; pb < pinButtons.length; pb++) {
       pinButtons[pb].addEventListener("click", function (e) {
         e.stopPropagation();
-        if (openPin === this) closeTip();
+        if (openPin === this.parentNode) closeTip(true);
         else openTip(this);
       });
     }
 
     document.addEventListener("click", function (e) {
-      if (openPin && !openPin.contains(e.target)) closeTip();
+      if (openPin && !openPin.contains(e.target)) closeTip(false);
     });
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && openPin) {
-        var pin = openPin;
-        closeTip();
-        pin.focus();
-      }
+      if (e.key === "Escape" && openPin) closeTip(true);
+    });
+
+    /* tabbing out of the panel closes it, so the disclosure never leaves
+       a stale panel behind the reader */
+    pins.addEventListener("focusout", function (e) {
+      if (!openPin) return;
+      if (!e.relatedTarget || !openPin.contains(e.relatedTarget)) closeTip(false);
     });
   }
 
@@ -139,7 +176,8 @@
   var STEP = 35;     /* per-shot stagger, so they move one after the other */
 
   var open = null; /* { card, shots, focus } while a card is open */
-  var scrim, closeBtn, timer;
+  var scrim, dialog, dialogDesc, closeBtn, timer;
+  var inerted = [];
 
   /* The visible image area inside a shot's own box, unrotated, box-local.
      Most shots fill their box; `strip` shows a phone down the left edge
@@ -287,13 +325,26 @@
     return (n - 1) * STEP;
   }
 
+  /* The scrim (z 50) sits below the flying shots (z 60) and the close
+     button (z 70) sits above them, so the two cannot share a wrapper
+     without breaking that order. The scrim is therefore purely
+     decorative and the dialog is the close button's own full-viewport,
+     click-through layer - which is where the shots' descriptions go too,
+     since the card itself is inert while the lightbox is open. */
   function chrome() {
     if (scrim) return;
     scrim = document.createElement("div");
     scrim.className = "shot-scrim";
-    scrim.setAttribute("role", "dialog");
-    scrim.setAttribute("aria-modal", "true");
-    scrim.setAttribute("aria-label", "Screenshots");
+    scrim.setAttribute("aria-hidden", "true");
+
+    dialog = document.createElement("div");
+    dialog.className = "shot-dialog";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+
+    dialogDesc = document.createElement("p");
+    dialogDesc.className = "visually-hidden";
+    dialog.appendChild(dialogDesc);
 
     closeBtn = document.createElement("button");
     closeBtn.type = "button";
@@ -303,11 +354,47 @@
       '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" ' +
       'fill="none" stroke="currentColor" stroke-width="2.5" ' +
       'stroke-linecap="round"><path d="M2 2l14 14M16 2L2 16"/></svg>';
+    dialog.appendChild(closeBtn);
 
     scrim.addEventListener("click", close);
     closeBtn.addEventListener("click", close);
+
+    /* Focus trap. The close button is the dialog's only stop, so Tab and
+       Shift+Tab simply hold it there until the dialog is dismissed. */
+    dialog.addEventListener("keydown", function (e) {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        closeBtn.focus();
+      }
+    });
+
     document.body.appendChild(scrim);
-    document.body.appendChild(closeBtn);
+    document.body.appendChild(dialog);
+  }
+
+  /* Everything outside the scrim and the dialog goes inert - not just
+     .home, which would leave the skip link tabbable behind the modal. */
+  function isolate(on) {
+    var kids = document.body.children;
+    if (on) {
+      for (var i = 0; i < kids.length; i++) {
+        if (kids[i] === scrim || kids[i] === dialog || kids[i].inert) continue;
+        kids[i].inert = true;
+        inerted.push(kids[i]);
+      }
+    } else {
+      while (inerted.length) inerted.pop().inert = false;
+    }
+  }
+
+  function cardName(card) {
+    var client = card.querySelector(".work-card__client");
+    var title = card.querySelector(".work-card__title");
+    return [client && client.textContent, title && title.textContent]
+      .filter(Boolean)
+      .join(" - ")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
   function reduced() {
@@ -324,6 +411,20 @@
     chrome();
     open = { card: card, shots: shots, stack: stack, focus: document.activeElement };
 
+    var name = cardName(card);
+    dialog.setAttribute("aria-label", name ? "Screenshots: " + name : "Screenshots");
+    /* the shots are inside the now-inert card, so their alt text has to be
+       repeated here or the dialog has no content at all */
+    var alts = [];
+    for (var a = 0; a < shots.length; a++) {
+      var img = shots[a].querySelector("img");
+      var alt = img && img.getAttribute("alt");
+      if (alt) alts.push(alt);
+    }
+    dialogDesc.textContent = alts.length
+      ? alts.join(". ") + "."
+      : "Enlarged screenshots.";
+
     /* Open the clip up front (before .is-shot-open pulls in the clip-path
        transition, so it snaps): no "pick up off the card" step to hide the
        overhang behind, and no clip sweep to wait on. */
@@ -331,8 +432,7 @@
     document.documentElement.classList.add("shots-open");
     card.classList.add("is-shot-open");
 
-    var main = document.querySelector(".home");
-    if (main) main.inert = true;
+    isolate(true);
     scrim.classList.add("is-in");
     closeBtn.classList.add("is-in");
     closeBtn.focus();
@@ -364,8 +464,7 @@
 
     scrim.classList.remove("is-in");
     closeBtn.classList.remove("is-in");
-    var main = document.querySelector(".home");
-    if (main) main.inert = false;
+    isolate(false);
     document.documentElement.classList.remove("shots-open");
     if (focus && focus.focus) focus.focus();
 
@@ -432,7 +531,11 @@
       if (!card || card.tagName === "A") return;
       stack.setAttribute("role", "button");
       stack.setAttribute("tabindex", "0");
-      stack.setAttribute("aria-label", "Enlarge screenshots");
+      var name = cardName(card);
+      stack.setAttribute(
+        "aria-label",
+        name ? "Enlarge screenshots: " + name : "Enlarge screenshots"
+      );
       stack.addEventListener("click", function () {
         openCard(card);
       });

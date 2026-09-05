@@ -102,12 +102,13 @@ body.case-study-page {
 /* the metric call-outs use the same animated brand-gradient clip as the
    home screen's .gradient-text (main.css); reuses its keyframe/vars. */
 .cs__hl {
-  color: var(--gradient-orange); /* fallback where background-clip: text is absent */
+  /* fallback where background-clip: text is absent */
+  color: var(--gradient-fallback, var(--gradient-orange-deep));
 }
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .cs__hl {
-    background-image: var(--gradient, var(--gradient-brand));
+    background-image: var(--gradient, var(--gradient-brand-on-light));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
