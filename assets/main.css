@@ -338,9 +338,9 @@
   /* the hero card's light sweeps drift far slower still - daylight pace */
   --dur-glow: 18s;
 
-  /* Lightbox close, stage two: the drop back down onto the card, and the
-     clip that closes with it. assets/main.js reads this off a shot to
-     time its hand-off, so it must stay in ms. */
+  /* Lightbox close, stage two: the drop back down onto the card.
+     assets/main.js reads this off a shot to time its hand-off, so it must
+     stay in ms. */
   --shot-lift: 150ms;
 
   /* Layout - the fixed 1400px canvas, on the grid:
@@ -2119,22 +2119,32 @@ a.work-card:focus-visible {
     transition-duration: 0.3s;
   }
 
-  /* The clip opens with the pick-up so nothing can pop into view - the
-     Doconomy phone is 831px tall in a 512px card and can never be lifted
-     clear of it. The clip lives on the stack, NOT the card: clip-path
-     creates a stacking context, and on the card that would trap the
-     stack's z-index below the scrim. JS sizes the closed inset to the
-     card's own box, so it starts out identical to overflow: hidden. */
-  .work-card.is-shot-open .work-card__shots {
-    transition: clip-path var(--shot-lift) ease;
-  }
+  /* The clip is never transitioned, in either direction. Opening snaps it
+     before .is-shot-open lands; closing snaps it once every shot is back
+     at the lifted position, where the card's box and the open inset show
+     the same pixels, so there is nothing for a sweep to reveal. It used to
+     sweep shut over the tail of the flight, which meant repainting the
+     whole clipped stack every frame of the landing - the most expensive
+     thing to be doing at the moment that had to stay smooth - while the
+     shrinking inset chased the last shot home. The clip lives on the
+     stack, NOT the card: clip-path creates a stacking context, and on the
+     card that would trap the stack's z-index below the scrim. JS sizes the
+     closed inset to the card's own box, so it is identical to the
+     overflow: hidden it replaces. */
 
   /* Both flights move a full-bleed screenshot under a scale, which is
      enough raster work on a phone to drop frames at the hand-off. Holding
      the promotion for the whole open state - rather than switching it on
      with .is-lifting, which would relayer on the very frame that has to
-     stay smooth - keeps each shot on its own layer end to end. */
-  .work-card.is-shot-open .work-card__shot {
+     stay smooth - keeps each shot on its own layer end to end.
+
+     .is-shot-cooling holds it for a moment longer. Dropping will-change
+     folds the shot back into the page's layer, and that repaint used to
+     land on the frame the shot came to rest - the one frame of the whole
+     close the eye is actually on. Now it happens once everything has
+     stopped, where a repaint costs nothing to look at. */
+  .work-card.is-shot-open .work-card__shot,
+  .work-card.is-shot-cooling .work-card__shot {
     will-change: transform;
   }
 }
@@ -2174,8 +2184,8 @@ a.work-card:focus-visible {
 @media (max-width: 880px) {
   /* The drop covers the same 32px here, but over a shot that is now a
      near-full-width image, so 150ms lands it in ~9 frames on a phone and
-     reads as a snap. Nearly twice the time - and the clip closing with it
-     - gives the same movement enough frames to be a movement. */
+     reads as a snap. Nearly twice the time gives the same movement enough
+     frames to be a movement. */
   :root {
     --shot-lift: 280ms;
   }

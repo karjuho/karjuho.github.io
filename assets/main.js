@@ -176,6 +176,7 @@
   var LIFT_FALLBACK = 150;
   var FLY_MS = 430;  /* close stage one - must match .is-flying's duration */
   var STEP = 35;     /* per-shot stagger, so they move one after the other */
+  var COOL_MS = 200; /* how long the shots stay promoted after landing */
 
   var open = null; /* { card, shots, focus } while a card is open */
   var scrim, dialog, dialogDesc, closeBtn, timer;
@@ -420,6 +421,8 @@
     var stack = card.querySelector(".work-card__shots");
 
     chrome();
+    clearTimeout(timer); /* a cool-down from a previous close may be pending */
+    card.classList.remove("is-shot-cooling");
     open = { card: card, shots: shots, stack: stack, focus: document.activeElement };
 
     var name = cardName(card);
@@ -492,6 +495,13 @@
         );
         shots[k].style.removeProperty("transition-delay");
       }
+      /* hold the shots' layer promotion a beat past the landing, so the
+         repaint that folds them back into the page does not land on the
+         frame they come to rest (see .is-shot-cooling in main.css) */
+      card.classList.add("is-shot-cooling");
+      timer = setTimeout(function () {
+        card.classList.remove("is-shot-cooling");
+      }, COOL_MS);
     };
 
     /* the close flight keeps the slower .is-flying timing */
@@ -512,25 +522,29 @@
     }
     land(shots);
 
-    /* Start closing the clip late in the flight so it finishes just as they
-       arrive at the lifted position - the reverse of the open sweep. The
-       clip is 3000px out, so it only gets restrictive at the very end and
-       never cuts a shot short on its way home. */
+    /* One hand-off, at the moment the last shot reaches the lifted
+       position: the clip snaps shut (a no-op on screen - everything is
+       inside the card's box up there) and the drop starts in the same
+       frame. The clip used to sweep shut over the tail of the flight and
+       the drop waited for it to finish, which put a dead stop of a frame
+       or two between two moves that should read as one.
+
+       The per-shot delay goes too. It staggers the flight, but left on it
+       would also stagger the drop, holding the first shot home for the
+       length of the spread on top of the wait it already has. */
     var lift = liftMs(shots[0]);
     timer = setTimeout(function () {
+      var k;
       stack.style.clipPath = closedClip(card, stack);
-
-      /* stage two: set them down inside the now-closed clip */
-      timer = setTimeout(function () {
-        for (var k = 0; k < shots.length; k++) {
-          shots[k].classList.remove("is-flying");
-          shots[k].classList.add("is-lifting");
-        }
-        void card.offsetWidth;
-        for (k = 0; k < shots.length; k++) shots[k].classList.remove("is-lifted");
-        timer = setTimeout(settle, lift + spread);
-      }, lift);
-    }, Math.max(0, FLY_MS + spread - lift));
+      for (k = 0; k < shots.length; k++) {
+        shots[k].style.removeProperty("transition-delay");
+        shots[k].classList.remove("is-flying");
+        shots[k].classList.add("is-lifting");
+      }
+      void card.offsetWidth; /* flush, so the drop has a "before" */
+      for (k = 0; k < shots.length; k++) shots[k].classList.remove("is-lifted");
+      timer = setTimeout(settle, lift);
+    }, FLY_MS + spread);
   }
 
   var stacks = document.querySelectorAll(".work-card__shots");
