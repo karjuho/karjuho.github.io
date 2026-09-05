@@ -160,25 +160,43 @@ body.case-dark {
   }
 }
 
+/* same shape as the home card's sweeps: midpoints so each ray swells and
+   fades twice on the way across, rather than one slow zoom. */
 @keyframes case-ray-drift-a {
-  from {
-    transform: translate(0, 0) scale(0.92);
-    opacity: 0.45;
+  0% {
+    transform: translate(0, 0) scale(0.84);
+    opacity: 0.32;
   }
-  to {
-    transform: translate(52px, -28px) scale(1.26);
+  32% {
+    transform: translate(20px, -10px) scale(1.18);
+    opacity: 0.94;
+  }
+  58% {
+    transform: translate(31px, -17px) scale(0.97);
+    opacity: 0.52;
+  }
+  100% {
+    transform: translate(58px, -32px) scale(1.38);
     opacity: 1;
   }
 }
 
 @keyframes case-ray-drift-b {
-  from {
-    transform: translate(0, 0) scale(1.22);
+  0% {
+    transform: translate(0, 0) scale(1.32);
     opacity: 1;
   }
-  to {
-    transform: translate(-44px, 32px) scale(0.94);
-    opacity: 0.5;
+  27% {
+    transform: translate(-15px, 11px) scale(1.03);
+    opacity: 0.48;
+  }
+  63% {
+    transform: translate(-30px, 21px) scale(1.24);
+    opacity: 0.96;
+  }
+  100% {
+    transform: translate(-50px, 36px) scale(0.86);
+    opacity: 0.38;
   }
 }
 

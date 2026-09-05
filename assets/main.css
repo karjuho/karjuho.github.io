@@ -336,7 +336,7 @@
   /* slow, eased sway for the headline gradient - a calm "breathing" pace */
   --dur-breathe: 9s;
   /* the hero card's light sweeps drift far slower still - daylight pace */
-  --dur-glow: 24s;
+  --dur-glow: 18s;
 
   /* Layout - the fixed 1400px canvas, on the grid:
      304 sidebar + 64 gap + 952 content + 80 right margin = 1400 */
@@ -1597,34 +1597,59 @@ a.work-card:focus-visible {
   }
 }
 
+/* the midpoints are what make these read as light rather than a slow
+   zoom: each sweep swells, eases back, then swells further, so it
+   brightens and dims twice on the way across instead of once. */
 @keyframes glow-drift-a {
-  from {
-    transform: rotate(var(--grot)) translate(0, 0) scale(0.92);
-    opacity: 0.45;
+  0% {
+    transform: rotate(var(--grot)) translate(0, 0) scale(0.84);
+    opacity: 0.32;
   }
-  to {
-    transform: rotate(var(--grot)) translate(52px, -28px) scale(1.26);
+  32% {
+    transform: rotate(var(--grot)) translate(20px, -10px) scale(1.18);
+    opacity: 0.94;
+  }
+  58% {
+    transform: rotate(var(--grot)) translate(31px, -17px) scale(0.97);
+    opacity: 0.52;
+  }
+  100% {
+    transform: rotate(var(--grot)) translate(58px, -32px) scale(1.38);
     opacity: 1;
   }
 }
 
 @keyframes glow-drift-b {
-  from {
-    transform: rotate(var(--grot)) translate(0, 0) scale(1.22);
+  0% {
+    transform: rotate(var(--grot)) translate(0, 0) scale(1.32);
     opacity: 1;
   }
-  to {
-    transform: rotate(var(--grot)) translate(-44px, 32px) scale(0.94);
-    opacity: 0.5;
+  27% {
+    transform: rotate(var(--grot)) translate(-15px, 11px) scale(1.03);
+    opacity: 0.48;
+  }
+  63% {
+    transform: rotate(var(--grot)) translate(-30px, 21px) scale(1.24);
+    opacity: 0.96;
+  }
+  100% {
+    transform: rotate(var(--grot)) translate(-50px, 36px) scale(0.86);
+    opacity: 0.38;
   }
 }
 
 @keyframes hero-tip-warm {
-  from {
+  0% {
     --hero-tip: #e9cd9a;
   }
-  to {
-    --hero-tip: #f9e6c3;
+  32% {
+    --hero-tip: #f5e0ba;
+  }
+  58% {
+    --hero-tip: #eed4a6;
+  }
+  100% {
+    --hero-tip: #fdeecf;
   }
 }
 
