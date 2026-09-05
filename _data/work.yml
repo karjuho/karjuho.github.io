@@ -29,7 +29,7 @@
   title: Mealplanner
   variant: light
   blurb: |
-    Built a meal planner app as a solo designer and developer. Built it first with Laravel and Vue, but moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design language different from typical corporate flat design, and got inspired by my kitchen, cook books and art.
+    I built a meal planner app called <a href="https://juusto.app/" target="_blank">Juusto</a> as a solo designer and developer. Built it first with Laravel and Vue, but moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design language different from typical flat design and got inspired by my kitchen, cook books and art.
   shots:
     - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "" }
     - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
