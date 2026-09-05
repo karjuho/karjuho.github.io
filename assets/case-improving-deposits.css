@@ -9,26 +9,28 @@
    node 107:45568 "Doconomy").
 
    The frame is a 1400px canvas: a VERTICAL auto-layout with
-   75/53 padding, a 59px gap and CENTER cross-axis alignment.
-   So the page is one centred column where each block carries its
-   own width - 600 (prose), 940 (lead/media) or 1294 (spec grid).
+   75/53 padding, a 59px gap and CENTER cross-axis alignment. Those
+   three are snapped to the site's 8px grid as 72/56/56, and the
+   block widths with them - 600 (prose), 944 (lead/media) or 1288
+   (spec grid, = 1400 - 2 x 56).
    main.css scales the whole canvas with `zoom` at >=1250px,
    exactly as the home and dark case pages do; below that the
    blocks just shrink and the layout collapses to a single column
-   with var(--spacing) gutters.
+   with var(--space-4) gutters.
 
    Type and colour come from the Figma text/colour styles via the
    tokens in main.css.
    ------------------------------------------------------------- */
 
 :root {
-  --cs-canvas: 1400px;  /* Figma frame width */
-  --cs-pad: 53px;       /* frame side padding */
-  --cs-gap: 59px;       /* auto-layout gap between blocks */
+  --cs-canvas: var(--canvas-width);   /* 1400px Figma frame */
+  --cs-pad: var(--space-7);           /*  56px frame side padding */
+  --cs-gap: var(--space-7);           /*  56px auto-layout gap */
+  --cs-pad-block: var(--space-9);     /*  72px frame top/bottom padding */
 
-  --cs-w-body: 600px;   /* sub-head + prose blocks */
-  --cs-w-lead: 940px;   /* h1, intro, figures, quotes, the split */
-  --cs-w-wide: 1294px;  /* spec grid (1400 - 2 * 53) */
+  --cs-w-body: 37.5rem;  /*  600px - sub-head + prose blocks */
+  --cs-w-lead: 59rem;    /*  944px - h1, intro, figures, quotes, the split */
+  --cs-w-wide: 80.5rem;  /* 1288px - spec grid (1400 - 2 * 56) */
 }
 
 /* Light page - the site's own background, minus the corner map.
@@ -45,7 +47,7 @@ body.case-study-page {
 .cs {
   max-width: var(--cs-canvas);
   margin: 0 auto;
-  padding: 75px var(--cs-pad);
+  padding: var(--cs-pad-block) var(--cs-pad);
   box-sizing: border-box;
 }
 
@@ -63,32 +65,17 @@ body.case-study-page {
 }
 
 /* -- Close button (Figma 124:21579 - 48px, fixed while the page scrolls,
-      the frame's only `numberOfFixedChildren`) --------------------- */
+      the frame's only `numberOfFixedChildren`). Box, colour and position
+      are the shared round overlay button in main.css, which the home
+      page's lightbox close also uses; only the hover is local. ------- */
 
 .cs__close {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--text-main);
-  color: var(--inverted-main);
   transition: transform var(--dur-base) var(--ease-standard);
 }
 
 .cs__close:hover {
   text-decoration: none;
   transform: scale(1.06);
-}
-
-.cs__close:focus-visible {
-  outline: 2px solid var(--gradient-orange);
-  outline-offset: 3px;
 }
 
 .cs__close-icon {
@@ -104,20 +91,44 @@ body.case-study-page {
   color: var(--text-main);
 }
 
-/* Body/22 - SemiBold 22/30. The site token --font-body-22 is the older
-   700/1 cut still used by the contact block, so this one is local. */
+/* Lead/22 - SemiBold 22/30, shared with /doconomy and the 404 message
+   (--font-body-22 is the older 700/1 cut the contact block still uses). */
 .cs__intro {
   max-width: var(--cs-w-lead);
-  font-weight: 600;
-  font-size: 22px;
-  line-height: 30px;
+  font: var(--font-lead-22);
   color: var(--text-muted);
 }
 
-/* the metric call-outs are flat Gradient/Orange in the design, not the
-   clipped brand gradient */
+/* the metric call-outs use the same animated brand-gradient clip as the
+   home screen's .gradient-text (main.css); reuses its keyframe/vars. */
 .cs__hl {
-  color: var(--gradient-orange);
+  color: var(--gradient-orange); /* fallback where background-clip: text is absent */
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .cs__hl {
+    background-image: var(--gradient, var(--gradient-brand));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+@media (forced-colors: active) {
+  .cs__hl {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cs__hl {
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    animation: gradient-breathe var(--dur-breathe) ease-in-out infinite alternate;
+  }
 }
 
 .cs__split-body .cs__hl {
@@ -135,7 +146,7 @@ body.case-study-page {
   font: var(--font-heading-24);
   line-height: 1.2;
   color: var(--text-main);
-  margin: 0 0 20px;
+  margin: 0 0 var(--space-3);
 }
 
 .cs__section p {
@@ -152,7 +163,7 @@ body.case-study-page {
 
 .cs__note {
   max-width: var(--cs-w-lead);
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
   line-height: 1.2;
   color: var(--text-muted);
 }
@@ -171,13 +182,15 @@ body.case-study-page {
   display: block;
   width: 100%;
   height: auto;
+  border-radius: 1rem;
 }
 
 .cs__figcaption {
-  margin-top: 24px;
-  font-size: 14px;
+  margin-top: var(--space-3);
+  font-size: 0.875rem; /* 14px */
   line-height: 1.2;
   color: var(--text-muted);
+  font-style: italic;
 }
 
 /* -- Pull quotes - Regular 48/AUTO, cite Italic 20/34 --------------
@@ -185,30 +198,31 @@ body.case-study-page {
 
 .cs__quote {
   max-width: var(--cs-w-lead);
-  margin: 90px 0;
+  margin: var(--space-4) 0 0;
   padding: 0;
   border: 0;
   text-align: center;
-  font-size: 48px;
+  font-size: 2.5rem; /* 48px */
   font-style: normal;
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: normal;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .cs__quote-cite {
   display: block;
-  margin-top: 44px;
-  font-size: 20px;
+  margin-top: var(--space-6);
+  font-size: 1.25rem; /* 20px */
   font-style: italic;
-  line-height: 34px;
+  line-height: 1.7;
   color: var(--text-muted);
 }
 
 /* -- Result split: tall phone mock beside prose that sticks -------
-   Figma 107:45664 - HORIZONTAL, gap 44, top-aligned: a 375x1227
-   screen next to a 521x387 text column. The column is barely a third
+   Figma 107:45664 - HORIZONTAL, gap 44 (48 on the grid), top-aligned:
+   a 375px screen next to a 520px text column - 375 + 48 + 520 = 943,
+   which is the 944px lead measure. The column is barely a third
    of the screenshot's height, so it is pinned while the phone scrolls
    past and released at the end of the section. `align-items: start`
    is what makes that possible - a stretched grid item is as tall as
@@ -217,8 +231,8 @@ body.case-study-page {
 .cs__split {
   max-width: var(--cs-w-lead);
   display: grid;
-  grid-template-columns: minmax(0, 375px) minmax(0, 521px);
-  gap: 44px;
+  grid-template-columns: minmax(0, 375px) minmax(0, 32.5rem); /* 520px */
+  gap: var(--space-6);
   align-items: start;
 }
 
@@ -230,21 +244,20 @@ body.case-study-page {
 
 .cs__split-media img.shadow {
   box-shadow: 0 2px 30px 0 rgba(0, 0, 0, 0.08);
-  border-radius: 32px;
-
+  border-radius: var(--radius-xl);
 }
 
 .cs__split-body {
   position: sticky;
-  top: 75px;
-  padding: 24px 0;
+  top: var(--cs-pad-block);
+  padding: var(--space-3) 0;
 }
 
 .cs__split-body h2 {
   font: var(--font-heading-24);
   line-height: 1.2;
   color: var(--text-main);
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-2);
 }
 
 .cs__split-body p {
@@ -271,7 +284,7 @@ body.case-study-page {
   max-width: var(--cs-w-wide);
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .cs__spec img {
@@ -282,35 +295,28 @@ body.case-study-page {
 
 /* -------------------------------------------------------------
    Below the zoom breakpoint - blocks shrink, then stack, and the
-   page falls back to var(--spacing) gutters.
+   page falls back to var(--space-4) gutters.
    ------------------------------------------------------------- */
 
 @media (max-width: 1250px) {
   .cs {
-    padding: 78px var(--spacing) 90px;
-  }
-
-  .cs__close {
-    top: 20px;
-    right: 20px;
-    width: 46px;
-    height: 46px;
+    padding: var(--cs-pad-block) var(--space-4) var(--space-11);
   }
 
   .cs__split-body,
   .cs__quote {
-    top: 24px;
+    top: var(--space-3);
   }
 }
 
 @media (max-width: 900px) {
   .cs__article {
-    gap: 44px;
+    gap: var(--space-6);
   }
 
   .cs__split {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: var(--space-4);
   }
 
   /* nothing tall left to scroll past once it is stacked */
@@ -320,48 +326,48 @@ body.case-study-page {
   }
 
   .cs__split-media img {
-    width: 320px;
+    width: 20rem; /* 320px */
     margin: 0 auto;
   }
 
   .cs__quote {
-    margin: 48px 0;
-    font-size: 34px;
+    margin: var(--space-6) 0;
+    font-size: 2rem; /* 32px */
   }
 
   .cs__quote-cite {
-    margin-top: 28px;
-    font-size: 18px;
+    margin-top: var(--space-4);
+    font-size: 1.125rem; /* 18px */
     line-height: 1.5;
   }
 }
 
 @media (max-width: 700px) {
   .cs {
-    padding-top: 78px;
-    padding-bottom: 72px;
+    padding-top: var(--cs-pad-block);
+    padding-bottom: var(--space-9);
   }
 
   .cs__article {
-    gap: 36px;
+    gap: var(--space-5);
   }
 
   .cs__title {
-    font-size: 32px;
+    font-size: 2rem; /* 32px */
   }
 
   .cs__intro {
-    font-size: 19px;
+    font-size: 1.25rem; /* 20px */
     line-height: 1.45;
   }
 
   .cs__section h2 {
-    font-size: 21px;
+    font-size: 1.25rem; /* 20px */
   }
 
   .cs__quote {
-    margin: 40px 0;
-    font-size: 26px;
+    margin: var(--space-5) 0;
+    font-size: 1.5rem; /* 24px */
   }
 
   /* the design's line breaks are tuned to a 940px measure */
@@ -370,7 +376,7 @@ body.case-study-page {
   }
 
   .cs__quote-cite {
-    font-size: 16px;
+    font-size: 1rem; /* 16px */
   }
 
   .cs__specs {

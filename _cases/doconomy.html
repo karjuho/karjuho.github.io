@@ -209,23 +209,19 @@ case_study_url: /doconomy/improving-deposits
 <section class="case-block">
   <h2 class="case-block__title">Improving Design Workflows</h2>
 
-  <!-- Theme fan: the same board in three themes, cut into three turning
-       120-degree wedges so all of them are on screen at once. Replaces
-       the Figma wipe (107:44395), whose mask never cleared the board -
-       see assets/case-doconomy.css. -->
+  <!-- Theme fan: the same board in three themes, the top two masked
+       into diagonal bands that sweep clockwise, so all three are on
+       screen at once. Replaces the Figma wipe (107:44395), whose mask
+       never cleared the board - see assets/case-doconomy.css. -->
   <figure class="case-figure case-figure--wide">
     <div class="doco-fan" role="img"
-         aria-label="A live Figma preview of the design system - type styles, a colour palette, buttons, a savings goal card and a form - shown in three brand themes at once, the boundaries turning slowly">
+         aria-label="A live Figma preview of the design system - type styles, a colour palette, buttons, a savings goal card and a form - shown in three brand themes at once, the bands sweeping slowly across">
       <img class="doco-fan__base" src="{{ "/assets/images/doconomy/slides-cream.png" | relative_url }}"
            width="3501" height="1382" alt="" loading="lazy" decoding="async">
-      <div class="doco-fan__slice doco-fan__slice--white" aria-hidden="true">
-        <img class="doco-fan__board" src="{{ "/assets/images/doconomy/slides-white.png" | relative_url }}"
-             width="3501" height="1382" alt="" loading="lazy" decoding="async">
-      </div>
-      <div class="doco-fan__slice doco-fan__slice--dark" aria-hidden="true">
-        <img class="doco-fan__board" src="{{ "/assets/images/doconomy/slides-dark.png" | relative_url }}"
-             width="3501" height="1382" alt="" loading="lazy" decoding="async">
-      </div>
+      <img class="doco-fan__board doco-fan__board--white" src="{{ "/assets/images/doconomy/slides-white.png" | relative_url }}"
+           width="3501" height="1382" alt="" loading="lazy" decoding="async">
+      <img class="doco-fan__board doco-fan__board--dark" src="{{ "/assets/images/doconomy/slides-dark.png" | relative_url }}"
+           width="3501" height="1382" alt="" loading="lazy" decoding="async">
     </div>
   </figure>
 
@@ -299,7 +295,7 @@ case_study_url: /doconomy/improving-deposits
 
   <figure class="case-figure case-study__board">
     <img src="{{ "/assets/images/doconomy/case-board.jpg" | relative_url }}"
-         width="1272" height="446"
+         width="1272" height="206"
          alt="Hand-drawn wireframes of the deposit flow laid out side by side"
          loading="lazy" decoding="async">
   </figure>

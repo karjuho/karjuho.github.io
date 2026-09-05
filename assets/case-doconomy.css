@@ -5,8 +5,12 @@
    so none of it ships with the home page.
 
    Implemented from Figma 107:36782. Like the home page this is a rigid
-   1400px canvas that main.css scales with `zoom`, so every length here
-   is a Figma design pixel.
+   1400px canvas that main.css scales with `zoom`. Layout lengths are
+   the site's rem spacing scale (8px grid, tokens in main.css); the
+   only raw pixels left are the Figma artwork coordinates - the hero
+   wash and rays here, and the tile scenes in the appendix, which are
+   authored against the 628x504 Figma tile and cannot be re-gridded
+   without redrawing them.
 
    Contents
      1. Tokens
@@ -58,9 +62,10 @@
   --doco-loop-bike: 7.000643s;   /* + 1s before it starts over */
   --doco-loop-coins: 7.200643s;  /* + 2 x 600ms while the coins are up */
 
-  /* the theme fan is ours, not Figma's - one open-and-close sweep,
-     slow enough to read as ambient rather than a carousel */
-  --doco-fan: 11s;
+  /* the theme fan is ours, not Figma's - one steady clockwise
+     revolution, slow enough to read as ambient rather than a carousel.
+     The mask repeats every 72deg, so the pattern comes round every 9s. */
+  --doco-fan: 45s;
 }
 
 /* =============================================================
@@ -84,7 +89,7 @@ body.case-dark {
 
 @media (min-width: 1250px) {
   .case-page {
-    width: 1400px;
+    width: var(--canvas-width);
     margin: 0 auto;
   }
 }
@@ -196,13 +201,13 @@ body.case-dark {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32px 24px;
+  padding: var(--space-4) var(--space-3);
 }
 
 .case-back {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-2);
   text-decoration: none;
 }
 
@@ -211,11 +216,11 @@ body.case-dark {
 }
 
 .case-back__icon {
-  width: 24px;
-  height: 24px;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   background: var(--inverted-main);
-  -webkit-mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
-  mask: url("icons/angle-left.svg") no-repeat center / 14px 24px;
+  -webkit-mask: url("icons/angle-left.svg") no-repeat center / contain;
+  mask: url("icons/angle-left.svg") no-repeat center / contain;
   transition: transform var(--dur-fast) var(--ease-standard);
 }
 
@@ -223,13 +228,14 @@ body.case-dark {
   transform: translateX(calc(var(--move-sm) * -1));
 }
 
+/* the brand block is the home page's .profile-* component; only its
+   colours change on the dark page (its tracking used to be re-declared
+   here at different values, so the same name set in two ways) */
 .case-back .profile-name {
-  letter-spacing: 0.9px;
   color: var(--inverted-main);
 }
 
 .case-back .profile-role {
-  letter-spacing: 1.078px;
   color: var(--inverted-muted);
 }
 
@@ -237,36 +243,14 @@ body.case-dark {
    3. Shared pieces
    ============================================================= */
 
-/* white pill with gradient label - same button as the work cards' CTA,
-   with a leading Font Awesome "book" glyph instead of the chevron */
-.case-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 24px;
-  border-radius: 48px;
-  background: var(--inverted-main);
-  text-decoration: none;
-}
-
-.case-pill:hover {
-  text-decoration: none;
-}
-
+/* White pill with gradient label - the same button as the work cards'
+   CTA, so its box and label live in main.css (.work-card__cta,
+   .case-pill). Only the leading glyph is different: a Font Awesome
+   "book" instead of the chevron. */
 .case-pill__icon {
-  flex: none;
-  width: 14px;
-  height: 14px;
   background: var(--gradient-nav);
   -webkit-mask: url("icons/book.svg") no-repeat center / contain;
   mask: url("icons/book.svg") no-repeat center / contain;
-}
-
-.case-pill__label {
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 1.6;
 }
 
 .case-figure {
@@ -277,7 +261,7 @@ body.case-dark {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 /* =============================================================
@@ -286,10 +270,10 @@ body.case-dark {
 
 .case-hero {
   display: flex;
-  gap: 32px;
+  gap: var(--space-4);
   align-items: flex-end;
   justify-content: center;
-  padding: 0 128px 32px 64px;
+  padding: 0 var(--space-16) var(--space-4) var(--space-8);
 }
 
 .case-hero__text {
@@ -298,14 +282,15 @@ body.case-dark {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
+/* the mark keeps its own aspect ratio off a grid-aligned height */
 .case-hero__logo {
   display: block;
-  width: 161.25px;
-  height: 30px;
-  margin: 2rem 0 0;
+  width: auto;
+  height: var(--space-4); /* 32px */
+  margin: var(--space-4) 0 0;
 }
 
 .case-hero__title {
@@ -315,15 +300,14 @@ body.case-dark {
 }
 
 .case-hero__lead {
-  width: 630px;
+  width: 39.5rem; /* 632px */
   max-width: 100%;
 }
 
 .case-hero__lead p {
-  margin: 0 0 30px;
+  margin: 0 0 var(--space-4);
+  font: var(--font-lead-22);
   font-weight: 400;
-  font-size: 22px;
-  line-height: 30px;
   color: var(--inverted-muted);
 }
 
@@ -342,14 +326,14 @@ body.case-dark {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 16px;
+  gap: var(--space-2);
   width: 100%;
-  padding-top: 40px;
+  padding-top: var(--space-5);
   text-align: right;
 }
 
 .case-hero__product-title {
-  width: 364px;
+  width: 23rem; /* 368px */
   margin: 0;
   font: var(--font-heading-24);
   line-height: normal;
@@ -357,19 +341,20 @@ body.case-dark {
 }
 
 .case-hero__product-body {
-  width: 450px;
+  width: 28rem; /* 448px */
   max-width: 100%;
   margin: 0;
   font: var(--font-body-16);
   color: var(--inverted-muted);
 }
 
+/* 375 x 764 is the screenshot's own device box, not a layout size */
 .case-hero__visual {
   flex: none;
   width: 375px;
   height: 764px;
   overflow: hidden;
-  border-radius: 32px;
+  border-radius: var(--radius-xl);
   background: var(--doco-phone);
 }
 
@@ -388,13 +373,13 @@ body.case-dark {
 .case-stats {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  padding: 64px 64px 0;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-8) 0;
 }
 
 .case-stats__list {
   display: flex;
-  gap: 16px;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -405,7 +390,7 @@ body.case-dark {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--space-1);
   margin: 0;
 }
 
@@ -420,14 +405,14 @@ body.case-dark {
 /* Lato Light - the one place on the site that uses 300 */
 .case-stat__value {
   font-weight: 300;
-  font-size: 48px;
+  font-size: 3rem; /* 48px */
   line-height: 1;
   color: var(--inverted-main);
 }
 
 .case-rule {
-  height: 6px;
-  border-radius: 8px;
+  height: var(--space-1);
+  border-radius: var(--radius-sm);
   background: var(--gray-700);
 }
 
@@ -442,8 +427,8 @@ body.case-dark {
 .case-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 64px;
+  gap: var(--space-2);
+  padding: var(--space-8);
 }
 
 .case-grid__tile {
@@ -454,7 +439,7 @@ body.case-dark {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 /* -- Static tiles --------------------------------------------------
@@ -471,7 +456,7 @@ body.case-dark {
   position: relative;
   aspect-ratio: var(--doco-tile-ar);
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--doco-surface);
 }
 
@@ -513,8 +498,8 @@ body.case-dark {
 .case-block {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  padding: 80px 64px 0;
+  gap: var(--space-5);
+  padding: var(--space-10) var(--space-8) 0;
 }
 
 .case-block__title {
@@ -526,7 +511,7 @@ body.case-dark {
 
 .case-cols {
   display: flex;
-  gap: 32px;
+  gap: var(--space-4);
   align-items: flex-start;
 }
 
@@ -535,38 +520,41 @@ body.case-dark {
   min-width: 0;
 }
 
+/* the aside and the split's media column are the same 560px slot in the
+   design (they were 561 and 558) */
 .case-cols__aside {
   flex: none;
-  width: 561px;
+  width: 35rem; /* 560px */
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-3);
 }
 
+/* two stats side by side in the 560px aside: 272 + 16 gap + 272 */
 .case-stats__list--pair .case-stat {
   flex: none;
-  width: 277.856px;
-  gap: 5px;
+  width: 17rem; /* 272px */
+  gap: var(--space-0-5);
 }
 
 .case-caption {
   margin: 0;
   font-style: italic;
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px */
   line-height: normal;
   color: var(--inverted-muted);
 }
 
 .case-split {
   display: flex;
-  gap: 32px;
+  gap: var(--space-4);
   align-items: flex-start;
-  padding: 64px 64px;
+  padding: var(--space-8);
 }
 
 .case-split__media {
   flex: none;
-  width: 558px;
+  width: 35rem; /* 560px */
 }
 
 .case-split__prose {
@@ -577,15 +565,15 @@ body.case-dark {
 /* shared prose scale for both text columns (Figma 107:44399 / 107:44877) */
 .case-cols__prose h3,
 .case-split__prose h3 {
-  margin: 0 0 27px;
+  margin: 0 0 var(--space-3);
   font: var(--font-heading-24);
-  line-height: 27px;
+  line-height: 1.15;
   color: var(--inverted-main);
 }
 
 .case-cols__prose p,
 .case-split__prose p {
-  margin: 0 0 27px;
+  margin: 0 0 var(--space-3);
   font: var(--font-body-16);
   color: var(--doco-prose);
 }
@@ -608,11 +596,23 @@ body.case-dark {
 .case-study {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding: 80px 64px 128px;
+  gap: var(--space-4);
+  padding: var(--space-10) var(--space-8) var(--space-16);
+}
+
+/* Figma crops this to a short strip (1272/206) rather than the full
+   screenshot - the board reads as a peek at the product, not a poster. */
+.case-study__board {
+  aspect-ratio: 1272 / 206;
+  overflow: hidden;
+  border-radius: 0.5rem; /* 8px */
 }
 
 .case-study__board img {
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 0;
   background: var(--gray-0);
 }
 
@@ -620,13 +620,13 @@ body.case-dark {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
-  padding-top: 16px;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
   text-align: center;
 }
 
 .case-study__title {
-  width: 584px;
+  width: 36.5rem; /* 584px */
   max-width: 100%;
   margin: 0;
   font: var(--font-heading-24);
@@ -635,12 +635,10 @@ body.case-dark {
 }
 
 .case-study__lead {
-  width: 886px;
+  width: 55.5rem; /* 888px */
   max-width: 100%;
   margin: 0;
-  font-weight: 600;
-  font-size: 22px;
-  line-height: 30px;
+  font: var(--font-lead-22);
   color: var(--doco-prose);
 }
 
@@ -653,24 +651,24 @@ body.case-dark {
 @media (max-width: 1250px) {
   .case-page__bg {
     width: 100%;
-    height: 1000px;
+    height: 62.5rem; /* 1000px */
     background-size: cover;
     background-position: left top;
   }
 
   .case-topbar {
-    padding: 24px;
+    padding: var(--space-3);
   }
 
   .case-hero {
     flex-direction: column;
     align-items: stretch;
-    gap: 40px;
-    padding: 0 24px 24px;
+    gap: var(--space-5);
+    padding: 0 var(--space-3) var(--space-3);
   }
 
   .case-hero__title {
-    font-size: clamp(36px, 6vw, 64px);
+    font-size: clamp(2.25rem, 6vw, 4rem); /* 36 -> 64px */
   }
 
   .case-hero__lead {
@@ -678,15 +676,14 @@ body.case-dark {
   }
 
   .case-hero__lead p {
-    font-size: 18px;
-    line-height: 26px;
+    font: var(--font-body-18);
   }
 
   /* the blurb loses its hang-off-the-phone placement and reads as a
      normal paragraph under the intro */
   .case-hero__product {
     align-items: flex-start;
-    padding-top: 8px;
+    padding-top: var(--space-1);
     text-align: left;
   }
 
@@ -701,8 +698,8 @@ body.case-dark {
   }
 
   .case-stats {
-    gap: 20px;
-    padding: 40px 24px 0;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-3) 0;
   }
 
   .case-stats__list {
@@ -710,29 +707,29 @@ body.case-dark {
   }
 
   .case-stat {
-    flex: 1 1 200px;
+    flex: 1 1 12.5rem; /* 200px */
   }
 
   .case-stat__value {
-    font-size: clamp(32px, 4.5vw, 48px);
+    font-size: clamp(2rem, 4.5vw, 3rem); /* 32 -> 48px */
   }
 
   .case-grid {
-    padding: 40px 24px;
+    padding: var(--space-5) var(--space-3);
   }
 
   .case-block {
-    gap: 28px;
-    padding: 56px 24px 0;
+    gap: var(--space-4);
+    padding: var(--space-7) var(--space-3) 0;
   }
 
   .case-block__title {
-    font-size: 28px;
+    font: var(--font-heading-28);
   }
 
   .case-cols {
     flex-direction: column;
-    gap: 32px;
+    gap: var(--space-4);
   }
 
   .case-cols__aside {
@@ -746,7 +743,7 @@ body.case-dark {
 
   .case-split {
     flex-direction: column;
-    padding: 40px 24px 0;
+    padding: var(--space-5) var(--space-3) 0;
   }
 
   .case-split__media {
@@ -754,7 +751,7 @@ body.case-dark {
   }
 
   .case-study {
-    padding: 56px 24px 80px;
+    padding: var(--space-7) var(--space-3) var(--space-10);
   }
 
   .case-study__title,
@@ -763,8 +760,7 @@ body.case-dark {
   }
 
   .case-study__lead {
-    font-size: 18px;
-    line-height: 26px;
+    font: var(--font-body-18);
   }
 
   .case-study__lead br {
@@ -783,7 +779,7 @@ body.case-dark {
      After pair in the design-system block keeps its larger type. */
   .case-stats .case-stats__list {
     flex-wrap: nowrap;
-    gap: 8px;
+    gap: var(--space-1);
   }
 
   .case-stats .case-stat {
@@ -792,12 +788,12 @@ body.case-dark {
   }
 
   .case-stats .case-stat__label {
-    font-size: 11px;
+    font-size: 0.75rem; /* 12px */
     letter-spacing: 0.4px;
   }
 
   .case-stats .case-stat__value {
-    font-size: clamp(19px, 5.4vw, 32px);
+    font-size: clamp(1.25rem, 5.4vw, 2rem); /* 20 -> 32px */
   }
 
   .case-hero__visual {
@@ -834,7 +830,7 @@ body.case-dark {
   position: relative;
   aspect-ratio: var(--doco-tile-ar);
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--doco-surface);
   container-type: inline-size;
 }
@@ -1288,7 +1284,7 @@ body.case-dark {
   position: relative;
   aspect-ratio: var(--doco-tile-ar);
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--doco-surface);
   container-type: inline-size;
 }
@@ -1667,10 +1663,10 @@ body.case-dark {
 
 /* -- Design-system theme fan (Figma 107:44395, reworked) -----------
    The same design-system board rendered three times - cream #f7f6f2,
-   white and dark #20201d - stacked and sliced into diagonal bands that
-   fan open and closed, after the daisyUI theme preview. All three
-   themes are on screen at once, which showcases "one system, any brand"
-   far better than the Figma original did.
+   white and dark #20201d - stacked, with the top two masked into
+   diagonal bands that sweep steadily clockwise, after the daisyUI theme
+   preview. All three themes are on screen at once, which showcases "one
+   system, any brand" far better than the Figma original.
 
    That original swept one flat mask off to the right, but it stops at
    translate: 1237px against a 1272px board, so it never cleared -
@@ -1678,151 +1674,140 @@ body.case-dark {
    through the form fields.
 
    Geometry. The bands radiate from a pivot just below-left of the board
-   (-120, 780 in board px), so like daisyUI they converge off-canvas
-   rather than running parallel or meeting in the middle. Each band is
-   masked on a wrapper centred on that pivot, so the wrapper's centre is
-   both the rotation origin and the mask's midpoint - the band edge
-   always passes through the pivot. It is 3300 board px square, enough
-   to still cover the far corner (1596 away) once turned.
+   (-120, 780 in board px, which is -9.434% 155.378% of the box), so
+   like daisyUI they converge off-canvas rather than running parallel or
+   meeting in the middle. Each band is a repeating conic gradient centred
+   on that pivot, used as a mask. The period is 72deg, near enough to
+   the 70deg the board subtends from the pivot that one full set of three
+   bands is always on screen - as one sweeps off the bottom-right the
+   next arrives from the top-left. 72 rather than 70 because a repeating
+   conic still wraps at 360deg: a period that does not divide 360 leaves
+   a runt repetition at the seam, which would sweep across the board once
+   per revolution as one odd narrow band. 360/72 = 5 exactly, so there is
+   no seam at all. Offsets are conic angles, which measure clockwise from
+   "up" (screen angle + 90); each stop pair is split by 0.05deg. That
+   split has to be small: it is an *angle*, so its width on screen grows
+   with distance from the pivot, and at 0.2deg the far edge of the board
+   was an 11px wash of half-lit cream showing through the dark band -
+   read as white bleeding along the edge. At 0.05deg it is under 3px at
+   the far edge and sub-pixel near the pivot, where the rasteriser's own
+   antialiasing takes over. Dark is opaque for
+   the first 24deg and white for the first 48deg, so stacked they read as
+   three equal 24deg bands - dark / white / base board.
 
-   Motion. The wrapper carries the turn; the board inside counter-turns
-   by the same amount about the same pivot, so the UI stays upright and
-   pixel-registered with the base board while only the band edges move.
-   The sectors are nested - both start from the same -90deg edge, with
-   the narrow dark one stacked over the wider white one - so the visible
-   bands are the gaps between their outer edges. Swinging those edges by
-   different amounts (dark 7deg, white 17deg) widens and narrows the
-   bands: the fan opens rather than the whole pattern sliding. At rest
-   the dark is a small corner and the light themes take the body, which
-   is daisyUI's balance; at full spread the dark and white bands have
-   grown and pushed the base board out to the right. Both are plain
-   rotations, so this composites instead of repainting a clip.
+   Equal in angle, that is. They still look different sizes across the
+   sweep, and that is the geometry rather than a bug: the bands radiate
+   from a pivot off the bottom-left corner, so a fixed angle covers far
+   more of the board out at the far edge than it does close in. Parallel
+   bands would be even, but converging ones are what makes it read as a
+   fan.
+
+   Motion. The gradient angle itself is animated through a registered
+   custom property rather than by rotating the layers. An earlier version
+   turned a pivot-centred wrapper 360deg with the board counter-turning
+   inside it; that wrapper had to be 3300 board px square to still cover
+   the far corner, which at the page's 2x zoom is a 6600px layer, and
+   Chrome intermittently dropped the mask on it - the board flashed a
+   single flat theme. Animating the angle keeps every layer at board size
+   and needs no counter-rotation at all. It repaints the mask each frame
+   instead of compositing, but on a 1272x502 box that is far cheaper than
+   the layer it replaces.
    ------------------------------------------------------------- */
+
+@property --doco-fan-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* No background here on purpose. A light one (it used to be
+   --doco-surface) sits under all three boards, and the rounded corner's
+   antialiased clip blends it with whatever is on top - which left a pale
+   fringe wherever the dark theme reached an edge: the corner ran
+   1f1e1d / 403f3e / 676666 / 20201d, mid-greys that two near-blacks
+   cannot produce between them. With nothing behind, the clip blends the
+   board against the page instead, which is what a rounded card should
+   do. */
 
 .doco-fan {
   position: relative;
   aspect-ratio: 1272 / 502;
+  /* The boards overhang this box by a pixel on every side (see below)
+     and it clips them back, so the visible edge always lands on solid
+     board and never on a board's own edge.
+
+     That is what makes the edge clean. The boards are stacked and
+     masked, so wherever an edge coincided with the boundary the dark
+     band's antialiasing blended it with the light boards underneath
+     instead of covering them - a pale hairline along the dark theme.
+     The page's zoom also leaves this box on fractional device rows, so
+     top and bottom are partially covered and were the worst of it: the
+     top edge measured 1f1e1d / 535350 / 20201d.
+
+     overflow rather than clip-path, incidentally - clip-path put the
+     top hairline back even when inset inside the boards. */
+  isolation: isolate;
   overflow: hidden;
-  border-radius: 8px;
-  background: var(--doco-surface);
+  /* border-radius: 1rem; */
 }
 
-.doco-fan .doco-fan__base {
+/* A pixel oversized on every side and square-cornered; the container
+   clips them back to the rounded card. max-width has to be released
+   explicitly or the global img reset clamps the width to 100% and
+   silently swallows the horizontal half of the overhang. */
+.doco-fan img {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: -1px;
+  left: -1px;
+  width: calc(100% + 2px);
+  max-width: none;
+  height: calc(100% + 2px);
   border-radius: 0;
 }
 
-/* square, centred on the pivot, so 50% 50% is both the sector apex and
-   the rotation origin */
-.doco-fan__slice {
-  position: absolute;
-  left: -9.434%; /* pivot x: -120 / 1272 */
-  top: 155.378%; /* pivot y:  780 /  502 */
-  width: 259.434%; /* 3300 / 1272 */
-  aspect-ratio: 1;
-  translate: -50% -50%;
-}
-
-/* Each band needs only one visible edge: the sectors' other edge sits
-   at -90deg from the pivot, which is off the board entirely, so a
-   half-plane does the same job as a wedge here.
-
-   That matters because the edge is a gradient mask rather than a
-   clip-path. A clip on a layer that is being rotated gets applied
-   geometrically at composite time, which stair-steps the diagonal; a
-   mask is rasterised into the layer itself, so the 1px transition
-   survives the rotation and the edge stays smooth. The angles are the
-   band edges (-68deg and -45deg in board space) turned into CSS
-   gradient angles, which measure from "up" instead of from +x. */
-
-.doco-fan__slice--dark {
-  -webkit-mask-image: linear-gradient(
-    112deg,
-    #000 calc(50% - 0.5px),
-    transparent calc(50% + 0.5px)
+.doco-fan__board--dark {
+  -webkit-mask-image: repeating-conic-gradient(
+    from calc(8.7deg + var(--doco-fan-angle)) at -9.434% 155.378%,
+    #000 0deg 23.975deg,
+    transparent 24.025deg 71.975deg,
+    #000 72deg
   );
-  mask-image: linear-gradient(
-    112deg,
-    #000 calc(50% - 0.5px),
-    transparent calc(50% + 0.5px)
+  mask-image: repeating-conic-gradient(
+    from calc(8.7deg + var(--doco-fan-angle)) at -9.434% 155.378%,
+    #000 0deg 23.975deg,
+    transparent 24.025deg 71.975deg,
+    #000 72deg
   );
 }
 
-.doco-fan__slice--white {
-  -webkit-mask-image: linear-gradient(
-    135deg,
-    #000 calc(50% - 0.5px),
-    transparent calc(50% + 0.5px)
+.doco-fan__board--white {
+  -webkit-mask-image: repeating-conic-gradient(
+    from calc(8.7deg + var(--doco-fan-angle)) at -9.434% 155.378%,
+    #000 0deg 47.975deg,
+    transparent 48.025deg 71.975deg,
+    #000 72deg
   );
-  mask-image: linear-gradient(
-    135deg,
-    #000 calc(50% - 0.5px),
-    transparent calc(50% + 0.5px)
+  mask-image: repeating-conic-gradient(
+    from calc(8.7deg + var(--doco-fan-angle)) at -9.434% 155.378%,
+    #000 0deg 47.975deg,
+    transparent 48.025deg 71.975deg,
+    #000 72deg
   );
-}
-
-.doco-fan .doco-fan__board {
-  position: absolute;
-  left: 53.636%; /* the board's place inside the wrapper */
-  top: 26.364%;
-  width: 38.545%; /* 1272 / 3300 */
-  height: auto;
-  aspect-ratio: 1272 / 502;
-  border-radius: 0;
-  transform-origin: -9.434% 155.378%; /* the same pivot, in board coords */
 }
 
 /* At rest the bands hold their authored angles - three diagonal slices,
-   which is the daisyUI still. */
+   which is the daisyUI still. Browsers without @property land here too,
+   since the angle then never leaves its initial value. */
 @media (prefers-reduced-motion: no-preference) {
-  .doco-fan__slice--white,
-  .doco-fan__slice--white .doco-fan__board,
-  .doco-fan__slice--dark,
-  .doco-fan__slice--dark .doco-fan__board {
-    animation: var(--doco-fan) ease-in-out infinite alternate;
-  }
-
-  .doco-fan__slice--white {
-    animation-name: doco-fan-white;
-  }
-
-  .doco-fan__slice--white .doco-fan__board {
-    animation-name: doco-fan-white-hold;
-  }
-
-  .doco-fan__slice--dark {
-    animation-name: doco-fan-dark;
-  }
-
-  .doco-fan__slice--dark .doco-fan__board {
-    animation-name: doco-fan-dark-hold;
+  .doco-fan__board--white,
+  .doco-fan__board--dark {
+    animation: doco-fan-sweep var(--doco-fan) linear infinite;
   }
 }
 
-@keyframes doco-fan-white {
+@keyframes doco-fan-sweep {
   to {
-    rotate: 17deg;
-  }
-}
-
-@keyframes doco-fan-white-hold {
-  to {
-    rotate: -17deg;
-  }
-}
-
-@keyframes doco-fan-dark {
-  to {
-    rotate: 7deg;
-  }
-}
-
-@keyframes doco-fan-dark-hold {
-  to {
-    rotate: -7deg;
+    --doco-fan-angle: 1turn;
   }
 }
 
@@ -1835,7 +1820,7 @@ body.case-dark {
 
 .doco-ai {
   position: relative;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -1858,7 +1843,7 @@ body.case-dark {
    real 4px border is the same thing (see doco-ai-edge below). */
 .doco-ai__edge {
   box-sizing: border-box;
-  border: 4px solid #3918b2;
+  border: 4px solid #4e27dd;
   border-radius: inherit;
 }
 
@@ -3726,12 +3711,12 @@ body.case-dark {
 /* Figma keyframes `fill` on the flattened stroke vector; border-color
    is the same thing on a real border. */
 @keyframes doco-ai-edge {
-  0% { animation-timing-function: step-end; border-color: #3918b2; }
-  0.014% { animation-timing-function: ease-in-out; border-color: #3918b2; }
-  25.011% { animation-timing-function: ease-in-out; border-color: #9a5dfb; }
-  50.009% { animation-timing-function: ease-in-out; border-color: #3918b2; }
-  75.006% { animation-timing-function: ease-in-out; border-color: #9a5dfb; }
-  100% { border-color: #3918b2; }
+  0% { animation-timing-function: step-end; border-color: #572cf5; }
+  0.014% { animation-timing-function: ease-in-out; border-color: #5b36e0; }
+  25.011% { animation-timing-function: ease-in-out; border-color: #aa75ff; }
+  50.009% { animation-timing-function: ease-in-out; border-color: #4c26d5; }
+  75.006% { animation-timing-function: ease-in-out; border-color: #a977fa; }
+  100% { border-color: #552fde; }
 }
 
 @keyframes doco-ai-spark {
