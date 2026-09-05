@@ -838,17 +838,24 @@ body.case-dark {
   /* Not full-column: the artwork is a 1:2 phone screen, so `width: 100%`
      made it ~700px tall on a phone - taller than it is on desktop, and a
      screenful on its own. Capped at 260px it still reads as a device and
-     sits in view with the copy above it. */
+     sits in view with the copy above it.
+
+     The box takes its height from the image rather than an aspect-ratio
+     of its own: Safari would not resolve the img's `height: 100%` against
+     an aspect-ratio-derived height, so the image came up short and left a
+     band of the --doco-phone background under it. The <img> carries its
+     375x764 in width/height attributes, so the ratio is known before it
+     loads and nothing shifts. */
   .case-hero__visual {
     width: min(100%, 260px);
     margin-inline: auto;
     height: auto;
-    aspect-ratio: 375 / 764;
+    aspect-ratio: auto;
   }
 
   .case-hero__visual img {
     width: 100%;
-    height: 100%;
+    height: auto;
   }
 }
 

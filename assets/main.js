@@ -171,7 +171,9 @@
   var GAP = 24;      /* between shots, at scale 1 */
   var PAD = 32;      /* viewport margin */
   var MAX = 2;       /* shots are exported at 2x, so never draw beyond that */
-  var LIFT_MS = 150; /* close stage two - must match .is-lifting / the clip */
+  /* close stage two - read off the shot so it tracks --shot-lift in
+     main.css, which is longer on the phone layout than on desktop */
+  var LIFT_FALLBACK = 150;
   var FLY_MS = 430;  /* close stage one - must match .is-flying's duration */
   var STEP = 35;     /* per-shot stagger, so they move one after the other */
 
@@ -397,6 +399,15 @@
       .trim();
   }
 
+  /* --shot-lift, in ms. Authored in ms on purpose: a bare parseFloat would
+     read "0.28s" as 0.28 and collapse the hand-off to nothing. */
+  function liftMs(shot) {
+    var v = parseFloat(
+      getComputedStyle(shot).getPropertyValue("--shot-lift")
+    );
+    return v > 0 ? v : LIFT_FALLBACK;
+  }
+
   function reduced() {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
@@ -505,6 +516,7 @@
        arrive at the lifted position - the reverse of the open sweep. The
        clip is 3000px out, so it only gets restrictive at the very end and
        never cuts a shot short on its way home. */
+    var lift = liftMs(shots[0]);
     timer = setTimeout(function () {
       stack.style.clipPath = closedClip(card, stack);
 
@@ -516,9 +528,9 @@
         }
         void card.offsetWidth;
         for (k = 0; k < shots.length; k++) shots[k].classList.remove("is-lifted");
-        timer = setTimeout(settle, LIFT_MS + spread);
-      }, LIFT_MS);
-    }, FLY_MS + spread - LIFT_MS);
+        timer = setTimeout(settle, lift + spread);
+      }, lift);
+    }, Math.max(0, FLY_MS + spread - lift));
   }
 
   var stacks = document.querySelectorAll(".work-card__shots");

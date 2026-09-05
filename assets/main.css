@@ -338,6 +338,11 @@
   /* the hero card's light sweeps drift far slower still - daylight pace */
   --dur-glow: 18s;
 
+  /* Lightbox close, stage two: the drop back down onto the card, and the
+     clip that closes with it. assets/main.js reads this off a shot to
+     time its hand-off, so it must stay in ms. */
+  --shot-lift: 150ms;
+
   /* Layout - the fixed 1400px canvas, on the grid:
      304 sidebar + 64 gap + 952 content + 80 right margin = 1400 */
   --content-width: 50rem;    /* 800px */
@@ -2092,7 +2097,7 @@ a.work-card:focus-visible {
      fast off the mark to pick up stage one's momentum rather than starting
      from a standstill. */
   .work-card__shot.is-lifting {
-    transition: transform 0.15s cubic-bezier(0.12, 0.75, 0.3, 1);
+    transition: transform var(--shot-lift) cubic-bezier(0.12, 0.75, 0.3, 1);
   }
 
   /* the flight - shared shape with the open zoom */
@@ -2121,7 +2126,16 @@ a.work-card:focus-visible {
      stack's z-index below the scrim. JS sizes the closed inset to the
      card's own box, so it starts out identical to overflow: hidden. */
   .work-card.is-shot-open .work-card__shots {
-    transition: clip-path 0.15s ease;
+    transition: clip-path var(--shot-lift) ease;
+  }
+
+  /* Both flights move a full-bleed screenshot under a scale, which is
+     enough raster work on a phone to drop frames at the hand-off. Holding
+     the promotion for the whole open state - rather than switching it on
+     with .is-lifting, which would relayer on the very frame that has to
+     stay smooth - keeps each shot on its own layer end to end. */
+  .work-card.is-shot-open .work-card__shot {
+    will-change: transform;
   }
 }
 
@@ -2158,6 +2172,14 @@ a.work-card:focus-visible {
    the card edges, clipped by the card), just placed under the copy
    instead of beside it. */
 @media (max-width: 880px) {
+  /* The drop covers the same 32px here, but over a shot that is now a
+     near-full-width image, so 150ms lands it in ~9 frames on a phone and
+     reads as a snap. Nearly twice the time - and the clip closing with it
+     - gives the same movement enough frames to be a movement. */
+  :root {
+    --shot-lift: 280ms;
+  }
+
   .work-card,
   .work-card--dark {
     flex-direction: column;
