@@ -783,6 +783,35 @@ body.case-dark {
     grid-template-columns: 1fr;
   }
 
+  /* Single column re-orders the pair in the middle: the coins animation
+     leads into the recurring-deposit form rather than following it. Only
+     here - the two-column grid above reads left-to-right and keeps the
+     authored order. Every tile is listed so the sequence is explicit
+     rather than an offset against the default 0. */
+  .case-grid__tile--bike {
+    order: 1;
+  }
+
+  .case-grid__tile--calendar {
+    order: 2;
+  }
+
+  .case-grid__tile--coins {
+    order: 3;
+  }
+
+  .case-grid__tile--frequency {
+    order: 4;
+  }
+
+  .case-grid__tile--confirm {
+    order: 5;
+  }
+
+  .case-grid__tile--selection {
+    order: 6;
+  }
+
   /* Keep the three hero stats on one row. The 1250px rule gives them
      `flex: 1 1 200px` with wrapping, which can never fit three columns on
      a phone, so they broke 2 + 1. Scoped to .case-stats so the Before /
@@ -806,8 +835,13 @@ body.case-dark {
     font-size: clamp(1.25rem, 5.4vw, 2rem); /* 20 -> 32px */
   }
 
+  /* Not full-column: the artwork is a 1:2 phone screen, so `width: 100%`
+     made it ~700px tall on a phone - taller than it is on desktop, and a
+     screenful on its own. Capped at 260px it still reads as a device and
+     sits in view with the copy above it. */
   .case-hero__visual {
-    width: 100%;
+    width: min(100%, 260px);
+    margin-inline: auto;
     height: auto;
     aspect-ratio: 375 / 764;
   }
