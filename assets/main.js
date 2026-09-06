@@ -37,6 +37,46 @@
     phoneNode.replaceWith(phoneLink);
   }
 
+  /* Case-study close button. The href is the real fallback - a direct
+     landing (search result, shared link, new tab) just follows it. But
+     when this page was opened FROM the page the button points at, going
+     back is the truer "close": it returns to that page's own history
+     entry - so the browser's scroll restoration puts the reader back
+     where they were - instead of pushing a duplicate entry on top. */
+  var closeLink = document.querySelector(".cs__close");
+  if (closeLink && window.history.length > 1 && document.referrer) {
+    var cameFrom = null;
+    var closeTo = null;
+    try {
+      cameFrom = new URL(document.referrer);
+      closeTo = new URL(closeLink.href);
+    } catch (urlErr) {
+      cameFrom = null;
+    }
+    var samePage =
+      cameFrom &&
+      closeTo &&
+      cameFrom.origin === closeTo.origin &&
+      cameFrom.pathname.replace(/\/$/, "") === closeTo.pathname.replace(/\/$/, "");
+
+    if (samePage) {
+      closeLink.addEventListener("click", function (event) {
+        /* leave modified clicks alone - cmd/ctrl-click still opens a tab */
+        if (
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+        event.preventDefault();
+        window.history.back();
+      });
+    }
+  }
+
   /* Contact map pins: fade + drop in ~0.5s after first scrolled into view. */
   var pins = document.querySelector(".contact-pins");
   if (pins && "IntersectionObserver" in window) {

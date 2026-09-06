@@ -105,14 +105,17 @@ body.case-dark {
   position: absolute;
   left: 0;
   top: 0;
-  width: 1398px;
+  /* the SVG is authored 1398 wide; the canvas is 1400, so at its natural
+     width two dark pixels of the page ground showed down the right edge.
+     Span the full canvas and let the artwork stretch the 2px to close it. */
+  width: var(--canvas-width);
   height: 1186px;
   max-width: 100%;
   /* the sweeps used to be baked into hero-bg.svg, which is why they sat
      still; this is the same file with the two ellipses taken out. The
      overflow clip stands in for the SVG's own clipPath. */
   overflow: hidden;
-  background: url("images/doconomy/hero-bg-base.svg") no-repeat left top / 1398px 1186px;
+  background: url("images/doconomy/hero-bg-base.svg") no-repeat left top / 100% 1186px;
   pointer-events: none;
 }
 

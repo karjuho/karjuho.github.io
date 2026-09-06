@@ -1401,6 +1401,18 @@ hr {
   }
 }
 
+/* Both halves of the active item breathe on the same loop as
+   .gradient-text, so the pill reads as one gradient rather than two. The
+   icon is a masked block, not text, so it pans its own background. */
+@media (prefers-reduced-motion: no-preference) {
+  .nav a.active .nav-label,
+  .nav a.active .nav-icon {
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    animation: gradient-breathe var(--dur-breathe) ease-in-out infinite alternate;
+  }
+}
+
 @media (min-width: 1250px) {
   .nav {
     flex-direction: column;
