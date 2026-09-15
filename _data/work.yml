@@ -31,8 +31,8 @@
   blurb: |
     I built a meal planner app called <a href="https://juusto.app/" target="_blank">Juusto</a> as a solo designer and developer. I first built it with Laravel and Vue and then moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design language different from typical corporate design and got inspired by my kitchen, cook books and art.
   shots:
-    - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "" }
-    - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
+    - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
+    - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto meal planner with grocery list" }
 
 - client: Stora Enso
   title: Design System

@@ -215,6 +215,7 @@
      main.css, which is longer on the phone layout than on desktop */
   var LIFT_FALLBACK = 150;
   var FLY_MS = 430;  /* close stage one - must match .is-flying's duration */
+  var OPEN_MS = 300; /* open zoom - must match .is-flying-fast's duration */
   var STEP = 35;     /* per-shot stagger, so they move one after the other */
   var COOL_MS = 200; /* how long the shots stay promoted after landing */
 
@@ -499,12 +500,20 @@
     /* The shots zoom straight from where they sit into the lightbox, on the
        quicker .is-flying-fast timing. */
     var i;
-    stagger(shots, true); /* front shot leads on the way out */
+    var spread = stagger(shots, true); /* front shot leads on the way out */
     for (i = 0; i < shots.length; i++) {
       shots[i].classList.add("is-flying", "is-flying-fast");
     }
     void card.offsetWidth; /* flush, so there is a "before" to animate from */
     fly(card, shots);
+
+    /* Once the zoom has landed, drop the layer promotion so the enlarged
+       shots re-rasterise at their on-screen size. A promoted layer is
+       painted at its untransformed ~425px size and the GPU just stretches
+       that bitmap, which is what made the open view look soft. */
+    timer = setTimeout(function () {
+      card.classList.add("is-shot-sharp");
+    }, OPEN_MS + spread);
   }
 
   function close() {
@@ -515,6 +524,7 @@
     var focus = open.focus;
     open = null;
     clearTimeout(timer);
+    card.classList.remove("is-shot-sharp"); /* re-promote for the flight home */
 
     scrim.classList.remove("is-in");
     closeBtn.classList.remove("is-in");

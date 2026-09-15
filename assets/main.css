@@ -2159,6 +2159,14 @@ a.work-card:focus-visible {
   .work-card.is-shot-cooling .work-card__shot {
     will-change: transform;
   }
+
+  /* ...except while the shots sit still in the open view: a promoted layer
+     is rasterised at its untransformed tile size and only scaled up on the
+     GPU, so the enlarged screenshots would read blurry. JS adds this once
+     the open zoom has landed and removes it again before the close. */
+  .work-card.is-shot-open.is-shot-sharp .work-card__shot {
+    will-change: auto;
+  }
 }
 
 /* -- Mobile: screenshots drop below the text, centred, still cropped -- */
