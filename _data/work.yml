@@ -24,15 +24,6 @@
     - { src: /assets/images/work/doconomy-phone.jpg,    w: 508, h: 1662, alt: "Doconomy goal-based savings screen" }
     - { src: /assets/images/work/doconomy-cards.png,    w: 413, h: 359,  alt: "Doconomy savings goal cards" }
 
-- client: Juusto
-  title: Mealplanner
-  variant: light
-  blurb: |
-    I built a meal planner app called <a href="https://juusto.app/" target="_blank">Juusto</a> as a solo designer and developer. I first built it with Laravel and Vue and then moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design language different from typical corporate design and got inspired by my kitchen, cook books and art.
-  shots:
-    - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
-    - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto meal planner with grocery list" }
-
 - client: Stora Enso
   title: Design System
   variant: light
@@ -43,6 +34,15 @@
   shots:
     - { src: /assets/images/work/storaenso-a.png, w: 1400, h: 875, fit: contain, alt: "" }
     - { src: /assets/images/work/storaenso-b.png, w: 1400, h: 875, fit: top, alt: "Stora Enso SEEDS design system documentation" }
+
+- client: Juusto
+  title: Mealplanner
+  variant: light
+  blurb: |
+    I built a meal planner app called <a href="https://juusto.app/" target="_blank">Juusto</a> as a solo designer and developer. I first built it with Laravel and Vue and then moved over to AI tools to speed up the workflow.<br><br>As a side project, I wanted to explore a design language different from typical corporate design and got inspired by my kitchen, cook books and art.
+  shots:
+    - { src: /assets/images/work/juusto-a.png, w: 1400, h: 875, alt: "Juusto weekly meal planner" }
+    - { src: /assets/images/work/juusto-b.png, w: 1400, h: 875, alt: "Juusto meal planner with grocery list" }
 
 - client: Bromma
   title: IoT Monitoring
