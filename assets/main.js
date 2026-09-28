@@ -705,3 +705,34 @@
     })(labels[i]);
   }
 })();
+
+/* Keep #hashes out of the address bar once they have done their job.
+   With /#work in the URL, a reload restores the scroll position and
+   then jumps (smoothly, so it is very visible) back to #work. So the
+   hash is dropped right after it is used - on arrival and after every
+   in-page link - and a reload just stays where you were. */
+(function () {
+  "use strict";
+
+  if (!window.history || !history.replaceState) return;
+
+  function dropHash() {
+    if (!location.hash) return;
+    history.replaceState(history.state, "", location.pathname + location.search);
+  }
+
+  /* in-page links: the scroll has already started, only the URL changes */
+  window.addEventListener("hashchange", dropHash);
+
+  /* arrival (e.g. the case pages' back link to /#work): the browser
+     resolves the hash late and would drop the jump once the hash is
+     gone, so land on the target here, then drop the hash */
+  var id = location.hash.slice(1);
+  if (!id) return;
+  var target = null;
+  try {
+    target = document.getElementById(decodeURIComponent(id));
+  } catch (e) { /* malformed hash - nothing to land on */ }
+  if (target) target.scrollIntoView({ behavior: "instant", block: "start" });
+  dropHash();
+})();

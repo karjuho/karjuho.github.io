@@ -1873,8 +1873,9 @@ body.case-dark {
 /* -- AI treatment (Figma Motion 107:44875) --------------------------
    The editor and its colour picker are one flat 3x PNG. Only three
    things sit on top of it, and all three run on the shared
-   --doco-loop timeline: a white veil breathing between 50% and 25%,
-   the frame's border colour, and a sparkle that spins twice a loop.
+   --doco-loop timeline: a white veil breathing between 50% and 25%
+   and the frame's border colour pulsing between brand orange and
+   yellow. The sparkle spins twice per loop, like a loader.
    ------------------------------------------------------------- */
 
 .doco-ai {
@@ -1902,7 +1903,7 @@ body.case-dark {
    real 4px border is the same thing (see doco-ai-edge below). */
 .doco-ai__edge {
   box-sizing: border-box;
-  border: 4px solid #4e27dd;
+  border: 4px solid var(--gradient-orange);
   border-radius: inherit;
 }
 
@@ -1921,11 +1922,10 @@ body.case-dark {
 }
 
 /* At rest every layer already holds its 0% keyframe - veil at 50%,
-   border indigo, star upright - so there is nothing to restate. */
+   border orange, star upright - so there is nothing to restate. */
 @media (prefers-reduced-motion: no-preference) {
   .doco-ai__veil,
-  .doco-ai__edge,
-  .doco-ai .doco-ai__spark {
+  .doco-ai__edge {
     animation-duration: var(--doco-loop);
     animation-timing-function: linear;
     animation-iteration-count: infinite;
@@ -1939,8 +1939,39 @@ body.case-dark {
     animation-name: doco-ai-edge;
   }
 
+  /* "working on it": two gentle, eased turns with a short beat
+     between them, then a longer pause before the pair repeats */
   .doco-ai .doco-ai__spark {
-    animation-name: doco-ai-spark;
+    animation: doco-ai-spin var(--doco-loop) infinite;
+  }
+}
+
+/* On the shared 6s --doco-loop, in step with the border: turn
+   (0-1.5s), beat, turn (1.95-3.45s), pause (2.55s). Each turn
+   swells the star slightly and settles back. rotate runs 0 -> 1turn ->
+   2turn so both turns go the same way and 2turn == 0 at the wrap. */
+@keyframes doco-ai-spin {
+  0% {
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+    rotate: 0turn;
+    scale: 1;
+  }
+  12.5% {
+    scale: 1.08;
+  }
+  25%,
+  32.5% {
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+    rotate: 1turn;
+    scale: 1;
+  }
+  45% {
+    scale: 1.08;
+  }
+  57.5%,
+  100% {
+    rotate: 2turn;
+    scale: 1;
   }
 }
 
@@ -3767,24 +3798,13 @@ body.case-dark {
   100% { background-color: rgba(255, 255, 255, 0.5); }
 }
 
-/* Figma keyframes `fill` on the flattened stroke vector; border-color
-   is the same thing on a real border. */
+/* Figma's timing on the flattened stroke's `fill`, recoloured from its
+   indigo/lilac pair to the brand orange/yellow. */
 @keyframes doco-ai-edge {
-  0% { animation-timing-function: step-end; border-color: #572cf5; }
-  0.014% { animation-timing-function: ease-in-out; border-color: #5b36e0; }
-  25.011% { animation-timing-function: ease-in-out; border-color: #aa75ff; }
-  50.009% { animation-timing-function: ease-in-out; border-color: #4c26d5; }
-  75.006% { animation-timing-function: ease-in-out; border-color: #a977fa; }
-  100% { border-color: #552fde; }
+  0% { animation-timing-function: ease-in-out; border-color: var(--gradient-orange); }
+  25.011% { animation-timing-function: ease-in-out; border-color: var(--gradient-yellow); }
+  50.009% { animation-timing-function: ease-in-out; border-color: var(--gradient-orange); }
+  75.006% { animation-timing-function: ease-in-out; border-color: var(--gradient-yellow); }
+  100% { border-color: var(--gradient-orange); }
 }
 
-@keyframes doco-ai-spark {
-  0% { rotate: 0rad; }
-  0.014% { animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); rotate: 0rad; }
-  25.011% { animation-timing-function: step-end; rotate: 6.283rad; }
-  25.178% { rotate: 0rad; }
-  66.673% { animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); rotate: 0rad; }
-  91.671% { animation-timing-function: step-end; rotate: 6.283rad; }
-  91.837% { rotate: 0rad; }
-  100% { rotate: 0rad; }
-}
