@@ -16,10 +16,9 @@
   cta:
     label: Read more
     href: /doconomy
-  # the user count is gradient text in the design, hence the raw span
   blurb: >-
     Leading product design for a savings product for consumer banks with over
-    <strong class="gradient-text">100 000 users</strong> around the world.
+    <strong>100 000 users</strong> around the world.
   shots:
     - { src: /assets/images/work/doconomy-calendar.png, w: 467, h: 490,  alt: "Doconomy date picker" }
     - { src: /assets/images/work/doconomy-phone.jpg,    w: 508, h: 1662, alt: "Doconomy goal-based savings screen" }

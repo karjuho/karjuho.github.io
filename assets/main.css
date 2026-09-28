@@ -576,10 +576,17 @@ pre > code {
   clear: both;
 }
 
+/* Mobile: halve the page's side gutter to 16px - the content column
+   (.wrapper) and the header + sticky nav (--sidebar-pad) together, so
+   they stay lined up. */
 @media (max-width: 800px) {
+  :root {
+    --sidebar-pad: var(--space-2);
+  }
+
   .wrapper {
-    padding-right: var(--space-4);
-    padding-left: var(--space-4);
+    padding-right: var(--space-2);
+    padding-left: var(--space-2);
   }
 }
 
