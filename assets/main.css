@@ -1709,6 +1709,7 @@ a.work-card:focus-visible {
 .work-card__title {
   margin: 0;
   font: var(--font-heading-36);
+  line-height: 1.1; /* tighter than the heading tokens - titles run 2 lines */
   color: inherit;
 }
 
@@ -2219,6 +2220,7 @@ a.work-card:focus-visible {
 
   .work-card__title {
     font: var(--font-heading-32);
+    line-height: 1.1;
   }
 
   .work-card--dark .work-card__text p {
@@ -2271,6 +2273,7 @@ a.work-card:focus-visible {
 
   .work-card__title {
     font: var(--font-heading-28);
+    line-height: 1.1;
   }
 
   .work-card--dark .work-card__text p {
