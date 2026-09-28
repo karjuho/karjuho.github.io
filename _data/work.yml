@@ -36,11 +36,10 @@
 - client: Stora Enso
   title: Design System
   variant: light
-  blurb: >-
-    Redesigning the world's oldest company's design system and facilitating the
-    design system processes across cross-functional international teams. I updated
-    UI components, colours and typography, guides, documentation and coded
-    animations by hand with CSS.
+  blurb: |
+    Redesigning the world's oldest company's design system and facilitating the design system processes across cross-functional international teams.
+
+    I updated UI components, colours and typography, guides, documentation and coded animations by hand with CSS.
   shots:
     - { src: /assets/images/work/storaenso-a.png, w: 1400, h: 875, fit: contain, alt: "" }
     - { src: /assets/images/work/storaenso-b.png, w: 1400, h: 875, fit: top, alt: "Stora Enso SEEDS design system documentation" }

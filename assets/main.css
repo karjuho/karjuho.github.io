@@ -1315,8 +1315,10 @@ hr {
   color: var(--text-main);
 }
 
+/* 800, not 700: against Lato Regular, Bold is too close a step to read
+   as emphasis - ExtraBold makes the jump obvious (same in the cards) */
 .intro strong {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 /* -- Navigation (32:23141) ------------------------------------------ */
@@ -1731,12 +1733,16 @@ a.work-card:focus-visible {
 }
 
 .work-card__text strong {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .work-card--dark .work-card__text p {
   font-size: 1.125rem; /* 18px */
   color: var(--inverted-main);
+  /* white-on-dark renders heavier than it is, which flattens the
+     regular/bold contrast; grayscale smoothing (macOS) thins it back */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .work-card--dark .work-card__text strong {
