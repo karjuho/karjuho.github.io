@@ -511,6 +511,14 @@ a:hover {
   text-decoration: underline;
 }
 
+/* links inside running copy are always underlined, so they don't rely on
+   colour alone (WCAG 1.4.1); UI links - nav, cards, pills - stay bare */
+p a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
 .button {
   display: inline-block;
   padding: 0.75em 1.25em;
