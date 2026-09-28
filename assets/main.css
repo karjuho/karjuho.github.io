@@ -316,6 +316,14 @@
     var(--gradient-orange) 0%, var(--gradient-yellow) 25%, var(--gradient-red) 50%,
     var(--gradient-yellow) 75%, var(--gradient-orange) 100%
   );
+  /* the same palindrome trick on the light-ground text ramp, for the
+     buttons' one-way flow (.work-card__cta-label, .case-pill__label) */
+  --gradient-cta-loop: linear-gradient(
+    90deg,
+    var(--gradient-orange-deep) 0%, var(--gradient-yellow) 25%,
+    var(--gradient-red-deep) 50%, var(--gradient-yellow) 75%,
+    var(--gradient-orange-deep) 100%
+  );
 
   /* --- Type (mirrors the Figma text styles) ----------------------- */
   --font-heading-64: 800 4rem/1 var(--font-family);           /* Heading/64 */
@@ -327,7 +335,7 @@
   --font-body-22: 700 1.375rem/1 var(--font-family);          /* Body/22 */
   --font-lead-22: 600 1.375rem/1.875rem var(--font-family);   /* Lead/22 - both case pages */
   --font-body-18: 400 1.125rem/1.625rem var(--font-family);   /* Body/18 - narrow-width lead */
-  --font-body-16: 400 1rem/1.3 var(--font-family);            /* Body/16 */
+  --font-body-16: 400 1rem/1.5 var(--font-family);            /* Body/16 */
   --font-body-14: 400 0.875rem/1 var(--font-family);          /* Body/14 */
   --font-body-12: 400 0.75rem/1.25 var(--font-family);        /* Body/12 */
   --font-uppercase-14: 600 0.875rem/1 var(--font-family);     /* Uppercase/14 (+ ls 1px, uppercase) */
@@ -335,6 +343,7 @@
 
   /* slow, eased sway for the headline gradient - a calm "breathing" pace */
   --dur-breathe: 9s;
+  --dur-flow: 4s; /* button labels; hover plays it at 1.8x (main.js) */
   /* the hero card's light sweeps drift far slower still - daylight pace */
   --dur-glow: 18s;
 
@@ -442,14 +451,10 @@ ul, ol, dl, figure {
   margin-bottom: var(--space-2);
 }
 
+/* one body line height everywhere - matches --font-body-16, so a
+   paragraph without its own type style still lines up with the rest */
 p {
-  line-height: 1.5em;
-}
-
-@media (min-width: 800px) {
-  p {
-    line-height: 1.7em;
-  }
+  line-height: var(--line-height-base);
 }
 
 main {
@@ -1297,6 +1302,14 @@ hr {
   /* text-align: justify; */
 }
 
+/* in the narrow sidebar column the short lines read better set tighter
+   than regular body copy; stacked above the content it's body copy again */
+@media (min-width: 1250px) {
+  .intro p {
+    line-height: 1.3;
+  }
+}
+
 /* opening clause "I design, code and ship" is Text/Main; the rest Text/Muted */
 .intro-lead {
   color: var(--text-main);
@@ -1703,9 +1716,12 @@ a.work-card:focus-visible {
   color: inherit;
 }
 
+/* card blurbs are short, set tighter than running body copy - same as
+   the sidebar intro */
 .work-card__text p {
   margin: 0 0 1.3em;
   font: var(--font-body-16);
+  line-height: 1.3;
   color: inherit;
 }
 
@@ -1719,7 +1735,6 @@ a.work-card:focus-visible {
 
 .work-card--dark .work-card__text p {
   font-size: 1.125rem; /* 18px */
-  line-height: 1.6;
   color: var(--inverted-main);
 }
 
@@ -1762,6 +1777,31 @@ a.work-card:focus-visible {
   font-weight: 700;
   font-size: 1rem; /* 16px */
   line-height: 1.6;
+}
+
+/* Buttons don't breathe like other gradient text - their label flows one
+   way, left to right, a little quicker, so it reads as "go". The tile is
+   twice the label's width and the loop ramp is a palindrome, so panning
+   it by one whole tile repeats seamlessly. Hovering the link speeds it up
+   (assets/main.js - changing the duration in CSS would make it jump). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .work-card__cta-label,
+    .case-pill__label {
+      background-image: var(--gradient-cta-loop);
+      background-size: 200% 100%;
+      animation: gradient-flow var(--dur-flow) linear infinite;
+    }
+  }
+}
+
+@keyframes gradient-flow {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: -200% 50%; /* one tile to the right */
+  }
 }
 
 .work-card__cta-icon,
@@ -2350,7 +2390,7 @@ a.work-card:focus-visible {
 .about-bio {
   margin: 0;
   font-size: 1.125rem; /* 18px */
-  line-height: 1.6;
+  line-height: var(--line-height-base);
   color: var(--text-muted);
 }
 

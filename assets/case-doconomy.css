@@ -390,6 +390,11 @@ body.case-dark {
   padding: var(--space-8) var(--space-8) 0;
 }
 
+/* the intro paragraph under the stats is plain body copy */
+.case-stats > p {
+  font: var(--font-body-16);
+}
+
 .case-stats__list {
   display: flex;
   gap: var(--space-2);

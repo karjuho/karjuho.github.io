@@ -670,3 +670,38 @@
 
   for (var m = 0; m < pairs.length; m++) observer.observe(pairs[m].section);
 })();
+
+/* Button labels: hovering (or focusing) the link plays the label's
+   left-to-right gradient flow faster. updatePlaybackRate keeps the
+   current position, where swapping animation-duration in CSS would jump.
+   The dark hero card is itself the link, so hovering anywhere on it
+   counts. Without JS the flow just keeps its resting speed. */
+(function () {
+  "use strict";
+
+  var HOVER_RATE = 1.8;
+  var labels = document.querySelectorAll(".work-card__cta-label, .case-pill__label");
+
+  function setRate(label, rate) {
+    if (!label.getAnimations) return;
+    var anims = label.getAnimations();
+    for (var i = 0; i < anims.length; i++) {
+      if (anims[i].animationName !== "gradient-flow") continue;
+      if (anims[i].updatePlaybackRate) anims[i].updatePlaybackRate(rate);
+      else anims[i].playbackRate = rate;
+    }
+  }
+
+  for (var i = 0; i < labels.length; i++) {
+    (function (label) {
+      var link = label.closest("a");
+      if (!link) return;
+      var fast = function () { setRate(label, HOVER_RATE); };
+      var slow = function () { setRate(label, 1); };
+      link.addEventListener("pointerenter", fast);
+      link.addEventListener("pointerleave", slow);
+      link.addEventListener("focus", fast);
+      link.addEventListener("blur", slow);
+    })(labels[i]);
+  }
+})();
