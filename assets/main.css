@@ -1380,10 +1380,7 @@ hr {
 
 /* Active item: pill row (32:23142) - a rounded, barely-lifted container
    (--radius-pill + an 8%-opacity shadow that reads as a hairline under the
-   icon/label, not a card) around a gradient glyph + label. The icon
-   gradient is the 2-stop orange->yellow of 32:23143; the label is the
-   full 3-stop orange/yellow/red brand gradient of 32:23149 - they are
-   deliberately different gradients in the design, not a typo. */
+   icon/label, not a card) around a solid-orange glyph + label. */
 .nav a.active {
   font: var(--font-uppercase-14-bold);
   letter-spacing: 1px;
@@ -1394,30 +1391,7 @@ hr {
 }
 
 .nav a.active .nav-icon {
-  background-color: transparent;
-  background-image: var(--gradient-nav);
-}
-
-@supports (background-clip: text) or (-webkit-background-clip: text) {
-  .nav a.active .nav-label {
-    background-image: var(--gradient-brand-on-light);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-}
-
-/* Both halves of the active item breathe on the same loop as
-   .gradient-text, so the pill reads as one gradient rather than two. The
-   icon is a masked block, not text, so it pans its own background. */
-@media (prefers-reduced-motion: no-preference) {
-  .nav a.active .nav-label,
-  .nav a.active .nav-icon {
-    background-size: 200% 100%;
-    background-position: 0% 50%;
-    animation: gradient-breathe var(--dur-breathe) ease-in-out infinite alternate;
-  }
+  background-color: var(--gradient-orange);
 }
 
 @media (min-width: 1250px) {
@@ -2223,7 +2197,22 @@ a.work-card:focus-visible {
     align-items: stretch;
     gap: var(--space-3);
     min-height: 0;
+    padding: var(--space-3);
     padding-bottom: 0; /* the band runs to the card's bottom edge */
+  }
+
+  /* the copy now runs full width, across the gradient's light end - a
+     faint scrim over the gradient (under the glow sweeps, and leaving
+     the animated --hero-tip alone) buys the white text more contrast */
+  .work-card--dark {
+    background:
+      linear-gradient(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.14)),
+      linear-gradient(
+        61.19deg,
+        var(--inverted-background) 17.917%,
+        #86775d 67.071%,
+        var(--hero-tip) 100%
+      );
   }
 
   /* the hero's 328px basis is a column width - in a column flex box it
