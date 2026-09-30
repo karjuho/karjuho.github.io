@@ -59,9 +59,9 @@
   title: Gig Platform
   variant: light
   blurb: |
-    Biila used to move people's cars with an in-house team of drivers, which didn't scale. Together we built Biila Go (today flovi.io), a marketplace where almost anyone can move a car and get paid easily.
+    Biila had in-house drivers that couldn't scale, so we built Biila Go (today flovi.io), a marketplace where anyone can move a car and get paid.
 
-    As the designer I ran ideation and prototyping, designed the UI and coded the front-end visuals over several iterations while building and maintaining the design system. The experiences I built covered end customers, drivers and car dealers, as well as internal admin tools.
+    I ran ideation and prototyping, designed the UI, coded the front-end and maintained the design system across iterations, covering flows and views for customers, drivers, car dealers and internal admin tools.
   shots:
     - { src: /assets/images/work/biila-a.png, w: 1400, h: 875, alt: "" }
     - { src: /assets/images/work/biila-b.png, w: 1400, h: 875, alt: "Biila Go drive listing" }
