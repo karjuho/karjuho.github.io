@@ -688,27 +688,135 @@ hr {
   position: sticky;
   top: 0;
   z-index: 10;
+  display: flex;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
   padding: var(--space-2) var(--sidebar-pad);
 }
 
-.nav-container::before {
-  content: "";
+/* Stuck-nav avatar (mobile). Collapsed to zero width at rest; once the
+   header has scrolled away main.js adds .is-stuck and the box opens -
+   pushing the links right - while the photo slides in from the left
+   edge. The photo overflows its zero-width box, so it is the transform,
+   not the width, that keeps it off-screen. */
+.nav-avatar {
+  position: relative; /* above .nav-blur */
+  flex: 0 0 auto;
+  width: 0;
+  margin-right: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    width var(--dur-slow) var(--ease-standard),
+    margin-right var(--dur-slow) var(--ease-standard),
+    opacity var(--dur-base) var(--ease-exit);
+}
+
+.nav-avatar img {
+  display: block;
+  width: 2.25rem;  /* 36px */
+  height: 2.25rem;
+  max-width: none;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 2px var(--gray-0),
+    0 2px 8px rgba(0, 0, 0, 0.16);
+  transform: translateX(calc(-1 * (var(--sidebar-pad) + 2.5rem))) rotate(-90deg);
+  transition: transform var(--dur-slow) var(--ease-standard);
+}
+
+.nav-container.is-stuck .nav-avatar {
+  width: 2.25rem;
+  margin-right: var(--space-2);
+  opacity: 1;
+  pointer-events: auto;
+  transition-timing-function: var(--ease-standard), var(--ease-standard), var(--ease-entrance);
+}
+
+.nav-container.is-stuck .nav-avatar img {
+  transform: none;
+  /* a touch of overshoot on arrival only; leaving stays plain */
+  transition-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.nav-container > .nav {
+  position: relative;
+}
+
+/* Avatar + three icon-and-label links need ~346px, plus 32px of padding;
+   below 380px wide that no longer fits, so the icons fold away while the
+   avatar is in. */
+@media (max-width: 379px) {
+  .nav-container .nav a,
+  .nav-container .nav-icon {
+    transition-property: color, gap, flex-basis, width, opacity;
+    transition-duration: var(--dur-base), var(--dur-slow), var(--dur-slow),
+      var(--dur-slow), var(--dur-base);
+    transition-timing-function: var(--ease-standard);
+  }
+
+  .nav-container.is-stuck .nav a {
+    gap: 0;
+  }
+
+  .nav-container.is-stuck .nav-icon {
+    flex-basis: 0;
+    width: 0;
+    opacity: 0;
+  }
+}
+
+/* Frosted fade behind the stuck nav. Same box and tint as before, but
+   rather than one 10px blur faded by opacity (which reads as a ghosted
+   copy over sharp text) the blur itself tapers: three backdrop layers,
+   10px / 5px / 2px, each easing out a little further down. The tint
+   (::after) sits on top so the blur doesn't smear it. */
+.nav-blur {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: -3rem;
-   background: linear-gradient(
+  pointer-events: none;
+}
+
+.nav-blur > i,
+.nav-blur::after {
+  position: absolute;
+  inset: 0;
+}
+
+.nav-blur > i {
+  --fade: linear-gradient(
+    180deg,
+    black 0%,
+    black 25%,
+    rgba(0, 0, 0, 0.85) calc(25% + (var(--end) - 25%) * 0.25),
+    rgba(0, 0, 0, 0.5) calc(25% + (var(--end) - 25%) * 0.5),
+    rgba(0, 0, 0, 0.15) calc(25% + (var(--end) - 25%) * 0.75),
+    transparent var(--end)
+  );
+  -webkit-backdrop-filter: blur(var(--b));
+  backdrop-filter: blur(var(--b));
+  -webkit-mask-image: var(--fade);
+  mask-image: var(--fade);
+}
+
+.nav-blur > i:nth-child(1) { --b: 2px;  --end: 100%; }
+.nav-blur > i:nth-child(2) { --b: 5px;  --end: 75%; }
+.nav-blur > i:nth-child(3) { --b: 10px; --end: 55%; }
+
+.nav-blur::after {
+  content: "";
+  background: linear-gradient(
     180deg,
     var(--background) 25%,
     rgba(242, 241, 240, 0) 100%
   );
-  backdrop-filter: blur(10px);
   -webkit-mask-image: linear-gradient(180deg, black 0%, black 25%, transparent 100%);
   mask-image: linear-gradient(180deg, black 0%, black 25%, transparent 100%);
-  pointer-events: none;
 }
 
 /* Large-mobile (881-1050): the sidebar is collapsed, so the content
@@ -780,8 +888,12 @@ hr {
     background: none;
   }
 
-  .nav-container::before {
-    content: none;
+  .nav-blur {
+    display: none;
+  }
+
+  .nav-avatar {
+    display: none;
   }
 }
 

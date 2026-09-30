@@ -31,6 +31,16 @@ layout: default
         </header>
 
         <nav class="nav-container" id="nav" aria-label="Sections">
+          <div class="nav-blur" aria-hidden="true"><i></i><i></i><i></i></div>
+          {%- comment -%}
+            Mobile only: slides in once the nav is stuck to the top (see
+            .nav-container.is-stuck in main.css, toggled by main.js). A
+            duplicate of the header photo, so hidden from AT and tab order.
+          {%- endcomment -%}
+          <a class="nav-avatar" href="#" aria-hidden="true" tabindex="-1">
+            <img src="{{ "/assets/images/juho-profile.jpg" | relative_url }}"
+                width="36" height="36" alt="">
+          </a>
           <ul class="nav">
             <li>
               <a href="#work" class="active">

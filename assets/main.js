@@ -632,6 +632,22 @@
     if (open) fly(open.card, open.shots);
   });
 
+  /* Stuck nav (mobile): once the header has scrolled fully out of view
+     the sticky nav is pinned to the top, so flag it - CSS slides the
+     avatar in. On desktop the avatar is display: none, so the class is
+     harmless there. */
+  var navBar = document.querySelector(".nav-container");
+  var homeHeader = document.querySelector(".home-header");
+  if (navBar && homeHeader && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      var entry = entries[entries.length - 1];
+      navBar.classList.toggle(
+        "is-stuck",
+        !entry.isIntersecting && entry.boundingClientRect.bottom <= 0
+      );
+    }).observe(homeHeader);
+  }
+
   /* Scroll-spy: highlight the nav link whose section is crossing
      the vertical middle of the viewport. Replaces the old jQuery
      scroll handler. */
