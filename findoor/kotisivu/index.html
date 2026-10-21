@@ -56,6 +56,7 @@ section{padding:90px max(20px,4vw)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stats b{color:#fff}}
 :root[data-theme="dark"] .stats b{color:#fff}
 .stats span{color:var(--muted);font-size:15px}
+@media (max-width:640px){.stats{grid-template-columns:repeat(3,1fr);gap:8px}.stats b{font-size:clamp(28px,8.5vw,46px)}.stats span{font-size:13px}}
 .full{position:relative;min-height:min(100svh,880px);display:flex;align-items:flex-end;color:#fff;overflow:hidden;padding:0}
 .full .bg{position:absolute;inset:-8% 0;background-size:cover;background-position:center;will-change:transform}
 .full::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,25,50,.05) 30%,rgba(10,25,50,.78))}
