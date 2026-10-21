@@ -351,7 +351,7 @@ footer{padding:var(--space-4) 0 var(--space-6);font-size:.875rem;color:var(--tex
   .wshots{width:100%;height:calc(min(425.6px,84cqw) * .625 - 16px);align-self:auto;margin-bottom:calc(-1 * var(--space-4))}
   .shot{width:min(425.6px,84%);height:auto;aspect-ratio:16/10}
   .shot-2{left:9%}
-  .shot-phone{left:auto;right:4%;width:96px;height:208px;aspect-ratio:auto}
+  .shot-phone{left:auto;right:4%;width:auto;height:min(208px,calc(min(425.6px,84cqw) * .625 + 4px));aspect-ratio:96/208;border-radius:12px;border-width:3px}
 }
 .srcnote{margin-top:var(--space-6);max-width:46rem;color:var(--inverted-muted);font-size:1.0625rem;line-height:1.6}
 .srcnote b{color:var(--inverted-main);font-weight:700}
@@ -1167,15 +1167,16 @@ function Viewer(host,cfg,still){
 })();
 // Scale live previews to fill their frame at any size
 (function(){
-  function fit(){
-    document.querySelectorAll('.shot--live').forEach(function(s){
-      var f=s.querySelector('iframe');if(!f)return;
-      var base=parseFloat(f.style.width)||1280,k=s.clientWidth/base;
-      f.style.setProperty('transform','scale('+k+')','important');
-      f.style.height=Math.ceil(s.clientHeight/k)+'px';
-    });
+  function fit(s){
+    var f=s.querySelector('iframe');if(!f||!s.clientWidth)return;
+    var base=parseFloat(f.style.width)||1280,k=s.clientWidth/base;
+    f.style.setProperty('transform','scale('+k+')','important');
+    f.style.height=Math.ceil(s.clientHeight/k)+'px';
   }
-  fit();addEventListener('resize',fit);
+  var shots=document.querySelectorAll('.shot--live');
+  shots.forEach(fit);
+  if(window.ResizeObserver){var ro=new ResizeObserver(function(es){es.forEach(function(e){fit(e.target)})});shots.forEach(function(s){ro.observe(s)})}
+  else addEventListener('resize',function(){shots.forEach(fit)});
 })();
 </script>
 </body>
